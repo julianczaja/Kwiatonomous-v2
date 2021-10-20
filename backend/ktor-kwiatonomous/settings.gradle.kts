@@ -1,0 +1,1 @@
+rootProject.name = "com.corrot.ktor-kwiatonomous"
