@@ -35,4 +35,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
+
+    // Database
+    implementation("org.jetbrains.exposed:exposed:0.17.14")
+    implementation("com.h2database:h2:1.4.191")
 }
