@@ -10,21 +10,23 @@
 #include "Led.h"
 #include "BatteryManager.h"
 
+#define LED_BLUE_PIN 15
 #define LED_BUILTIN_PIN 2
-#define PUMP_PIN 12
-#define BLUE_LED_PIN 15
-#define BATTERY_VOLTAGE_PIN A0
 #define VOLTAGE_DIVIDER_PIN 14
+#define PUMP_PIN 12
+#define BATTERY_VOLTAGE_PIN A0
 
-// TODO: Hide in local file
-#define WIFI_SSID "---"
-#define WIFI_PASSWORD "---"
-String serverName = "---";
-
-#define SLEEP_TIME_NORMAL 5 * 60e6   // us
-#define SLEEP_TIME_ERROR 2 * 60e6    // us
+#define SLEEP_TIME_NORMAL 15 * 60e6  // us
+#define SLEEP_TIME_ERROR 5 * 60e6    // us
 #define WIFI_CONNECTION_TIMEOUT 15e3 // ms
 #define NTP_TIMEOUT 10e3             // ms
+
+// TODO: Hide in local file
+#define DEVICE_ID "---"
+#define WIFI_SSID "---"
+#define WIFI_PASSWORD "---"
+#define SERVER_NAME "---"
+#define POST_FORMAT "{\"timestamp\":%d,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
 
 void lowBatteryCallback();
 bool isAhtOn = false;
@@ -37,10 +39,10 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org");
 Adafruit_AHTX0 aht;
 Pump pump = Pump(PUMP_PIN);
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
-Led ledInfo = Led(BLUE_LED_PIN);
+Led ledInfo = Led(LED_BLUE_PIN);
 BatteryManager batteryManager = BatteryManager(BATTERY_VOLTAGE_PIN,
                                                VOLTAGE_DIVIDER_PIN,
-                                               20,
+                                               10,
                                                20,
                                                &lowBatteryCallback);
 
@@ -49,21 +51,21 @@ void setup()
   Serial.begin(115200);
   Serial.println("\nHello world!\n\n");
 
-  analogWriteRange(1023);
-  analogWriteResolution(10);
-
   pump.init();
   ledBuiltin.init(true);
   ledInfo.init(false);
   batteryManager.init();
+  delay(500);
 
   // Get battery status before Wi-Fi is on
-  delay(2000);
   ledInfo.on(20);
   batteryManager.update();
   batteryLevel = batteryManager.getBatteryLevel();
   batteryVoltage = batteryManager.getBatteryVoltage();
-  adcRaw = batteryManager.getLastRawValue();
+  Serial.print("batteryLevel: ");
+  Serial.println(batteryLevel);
+  Serial.print("batteryVoltage: ");
+  Serial.println(batteryVoltage);
   ledInfo.off();
 
   // Connect to Wi-Fi
@@ -77,7 +79,7 @@ void setup()
   {
     if ((millis() - *startConnection) > WIFI_CONNECTION_TIMEOUT)
     {
-      // If can't connect to Wi-Fi, sleep for 1min an try again
+      // If can't connect to Wi-Fi, sleep for 5mins an try again
       ledInfo.signalizeWifiFailed();
       ESP.deepSleep(SLEEP_TIME_ERROR);
     }
@@ -109,26 +111,19 @@ void loop()
   delay(1000);
   pump.off();
 
-  // Test battery manager
-  ledInfo.on(20);
-  batteryManager.update();
-  batteryLevel = batteryManager.getBatteryLevel();
-  batteryVoltage = batteryManager.getBatteryVoltage();
-  Serial.print("batteryLevel: ");
-  Serial.println(batteryLevel);
-  Serial.print("batteryVoltage: ");
-  Serial.println(batteryVoltage);
-  ledInfo.off();
-
   // Test AHT
+  float temperature = 0.0f;
+  float humidity = 0.0f;
   if (isAhtOn)
   {
-    sensors_event_t humidity, temp;
-    aht.getEvent(&humidity, &temp);
+    sensors_event_t sensor_temperature, sensor_humidity;
+    aht.getEvent(&sensor_humidity, &sensor_temperature);
+    temperature = sensor_temperature.temperature;
+    humidity = sensor_humidity.relative_humidity;
     Serial.print("humidity: ");
-    Serial.println(humidity.relative_humidity);
+    Serial.println(humidity);
     Serial.print("temperature: ");
-    Serial.println(temp.temperature);
+    Serial.println(temperature);
   }
 
   // Test time NTP
@@ -136,7 +131,7 @@ void loop()
   unsigned long *startNtp = (unsigned long *)malloc(sizeof(unsigned long));
   *startNtp = millis();
   bool ntpSuccess = false;
-  unsigned long epochTime;
+  unsigned long epochTime = 0;
   while ((ntpSuccess = timeClient.update()) != true)
   {
     if ((millis() - *startNtp) > NTP_TIMEOUT)
@@ -156,23 +151,31 @@ void loop()
   // Send data to server
   WiFiClient client;
   HTTPClient http;
-  String serverPath = serverName + "/dupa/add";
-  http.begin(client, serverPath.c_str());
-  http.addHeader("Content-Type", "text/plain");
-  // http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  char payload[128];
-  sprintf(payload, "Timestamp: %d\n Battery level: %d\n Battery voltage: %g", epochTime, batteryLevel, batteryVoltage);
+
+  char path[128];
+  sprintf(path, "%s/%s/updates", SERVER_NAME, DEVICE_ID);
+
+  http.setReuse(false);
+  http.begin(client, path);
+  http.addHeader("Content-Type", "application/json");
+
+  char payload[256];
+  sprintf(payload, POST_FORMAT, epochTime, batteryLevel, batteryVoltage, temperature, humidity);
   Serial.print("Sending payload: ");
   Serial.println(payload);
+
   int httpResponseCode = http.POST(payload);
   Serial.print("HTTP Response code: ");
   Serial.println(httpResponseCode);
 
+  http.end();
+  delay(500);
+
   // Everything done, go to sleep
   Serial.println("Going to sleep...");
   ledInfo.off();
-  ESP.deepSleep(30e6);
-  // ESP.deepSleep(SLEEP_TIME_NORMAL);
+  // ESP.deepSleep(30e6);
+  ESP.deepSleep(SLEEP_TIME_NORMAL);
 }
 
 void lowBatteryCallback()

@@ -16,6 +16,8 @@ BatteryManager::BatteryManager(
 
 void BatteryManager::init()
 {
+    analogWriteRange(1023);
+    analogWriteResolution(10);
     pinMode(_inPin, INPUT);
     pinMode(_dividerPin, OUTPUT);
     update();
@@ -41,7 +43,7 @@ void BatteryManager::update()
     {
         _lastRawValue = analogRead(_inPin);
         readSum += _lastRawValue;
-        delay(50);
+        delay(20);
     }
 
     voltageDividerOff();
