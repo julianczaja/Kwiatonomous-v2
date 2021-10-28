@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.corrot.kwiatonomousapp" >
+    package="com.corrot.kwiatonomousapp">
 
     <application
-        android:allowBackup="true"
+        android:name=".KwiatonomousApp"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KwiatonomousApp" >
+        android:theme="@style/Theme.KwiatonomousApp">
         <activity
-            android:name=".MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.KwiatonomousApp.NoActionBar" >
+            android:theme="@style/Theme.KwiatonomousApp.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

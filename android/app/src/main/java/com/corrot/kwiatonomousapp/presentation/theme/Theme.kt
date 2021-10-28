@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp.ui.theme
+package com.corrot.kwiatonomousapp.presentation.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
