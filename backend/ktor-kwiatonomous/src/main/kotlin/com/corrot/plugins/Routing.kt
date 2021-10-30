@@ -84,7 +84,7 @@ private fun Routing.addKwiatonomousDeviceUpdate(deviceUpdateDao: DeviceUpdateDao
 
         if (id != null) {
             val deviceUpdate = call.receive<DeviceUpdate>()
-            println("Received: >>deviceID: $id, deviceUpdate: $deviceUpdate<<")
+            println("DEVICE UPDATE:\ndeviceID: $id\ndeviceUpdate: $deviceUpdate")
             deviceUpdateDao.createDeviceUpdate(
                 deviceID = id,
                 deviceUpdate.timestamp,

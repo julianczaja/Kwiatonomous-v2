@@ -16,6 +16,8 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         transaction(database) {
             DeviceUpdates.selectAll().map {
                 DeviceUpdate(
+                    updateID = it[DeviceUpdates.updateID],
+                    deviceID = it[DeviceUpdates.deviceID],
                     timestamp = it[DeviceUpdates.timestamp],
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -29,6 +31,8 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         transaction(database) {
             DeviceUpdates.select { DeviceUpdates.deviceID eq deviceID }.map {
                 DeviceUpdate(
+                    updateID = it[DeviceUpdates.updateID],
+                    deviceID = it[DeviceUpdates.deviceID],
                     timestamp = it[DeviceUpdates.timestamp],
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -46,6 +50,8 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
                 .orderBy(DeviceUpdates.timestamp, SortOrder.ASC)
                 .map {
                     DeviceUpdate(
+                        updateID = it[DeviceUpdates.updateID],
+                        deviceID = it[DeviceUpdates.deviceID],
                         timestamp = it[DeviceUpdates.timestamp],
                         batteryLevel = it[DeviceUpdates.batteryLevel],
                         batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -55,11 +61,12 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
                 }
         }
 
-
     override fun getDeviceUpdate(updateID: Int): DeviceUpdate? =
         transaction(database) {
             DeviceUpdates.select { DeviceUpdates.updateID eq updateID }.map {
                 DeviceUpdate(
+                    updateID = it[DeviceUpdates.updateID],
+                    deviceID = it[DeviceUpdates.deviceID],
                     timestamp = it[DeviceUpdates.timestamp],
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],

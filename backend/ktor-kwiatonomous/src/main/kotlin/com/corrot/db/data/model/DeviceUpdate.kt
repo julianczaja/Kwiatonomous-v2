@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DeviceUpdate(
+    val updateID: Int,
+    val deviceID: String,
     val timestamp: Long,
     val batteryLevel: Int,
     val batteryVoltage: Float,
