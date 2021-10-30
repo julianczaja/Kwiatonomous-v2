@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.corrot.kwiatonomousapp">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".KwiatonomousApp"
         android:allowBackup="false"
@@ -9,18 +11,22 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KwiatonomousApp">
+        android:theme="@style/Theme.KwiatonomousApp"
+
+        android:usesCleartextTraffic="true">
+
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.KwiatonomousApp.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
