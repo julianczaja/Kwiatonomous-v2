@@ -47,7 +47,7 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
             DeviceUpdates
                 .select { DeviceUpdates.deviceID eq deviceID }
                 .limit(count)
-                .orderBy(DeviceUpdates.timestamp, SortOrder.ASC)
+                .orderBy(DeviceUpdates.timestamp, SortOrder.DESC)
                 .map {
                     DeviceUpdate(
                         updateID = it[DeviceUpdates.updateID],
@@ -61,19 +61,22 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
                 }
         }
 
-    override fun getDeviceUpdate(updateID: Int): DeviceUpdate? =
+    override fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate? =
         transaction(database) {
-            DeviceUpdates.select { DeviceUpdates.updateID eq updateID }.map {
-                DeviceUpdate(
-                    updateID = it[DeviceUpdates.updateID],
-                    deviceID = it[DeviceUpdates.deviceID],
-                    timestamp = it[DeviceUpdates.timestamp],
-                    batteryLevel = it[DeviceUpdates.batteryLevel],
-                    batteryVoltage = it[DeviceUpdates.batteryVoltage],
-                    temperature = it[DeviceUpdates.temperature],
-                    humidity = it[DeviceUpdates.humidity]
-                )
-            }.singleOrNull()
+            DeviceUpdates
+                .select { DeviceUpdates.deviceID eq deviceID }
+                .andWhere { DeviceUpdates.updateID eq updateID }
+                .map {
+                    DeviceUpdate(
+                        updateID = it[DeviceUpdates.updateID],
+                        deviceID = it[DeviceUpdates.deviceID],
+                        timestamp = it[DeviceUpdates.timestamp],
+                        batteryLevel = it[DeviceUpdates.batteryLevel],
+                        batteryVoltage = it[DeviceUpdates.batteryVoltage],
+                        temperature = it[DeviceUpdates.temperature],
+                        humidity = it[DeviceUpdates.humidity]
+                    )
+                }.singleOrNull()
         }
 
     override fun createDeviceUpdate(

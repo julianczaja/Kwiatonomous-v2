@@ -11,7 +11,7 @@ interface DeviceUpdateDao {
 
     fun getLastDeviceUpdates(deviceID: String, count: Int): List<DeviceUpdate>
 
-    fun getDeviceUpdate(updateID: Int): DeviceUpdate?
+    fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate?
 
     fun createDeviceUpdate(
         deviceID: String,

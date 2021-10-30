@@ -2,9 +2,9 @@ package com.corrot.db.data.dao
 
 import com.corrot.db.Devices
 import com.corrot.db.data.model.Device
+import com.corrot.utils.TimeUtils
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.DateTime
 
 class DeviceDaoImpl(private val database: Database) : DeviceDao {
 
@@ -39,8 +39,8 @@ class DeviceDaoImpl(private val database: Database) : DeviceDao {
         transaction(database) {
             Devices.insert {
                 it[Devices.deviceID] = deviceID
-                it[Devices.birthday] = birthday ?: DateTime.now().millis
-                it[lastUpdate] = DateTime.now().millis
+                it[Devices.birthday] = birthday ?: TimeUtils.getCurrentTimestamp()
+                it[lastUpdate] = TimeUtils.getCurrentTimestamp()
             }
         }
 

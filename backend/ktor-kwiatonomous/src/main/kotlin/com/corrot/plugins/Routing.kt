@@ -2,7 +2,8 @@ package com.corrot.plugins
 
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
-import com.corrot.db.data.model.DeviceUpdate
+import com.corrot.db.data.dto.DeviceUpdateDto
+import com.corrot.utils.TimeUtils
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -15,7 +16,7 @@ fun Application.configureRouting(deviceDao: DeviceDao, deviceUpdateDao: DeviceUp
         getAllKwiatonomousDevices(deviceDao)
         getKwiatonomousDevice(deviceDao)
         getAllKwiatonomousDeviceUpdates(deviceUpdateDao)
-        addKwiatonomousDeviceUpdate(deviceUpdateDao)
+        addKwiatonomousDeviceUpdate(deviceDao, deviceUpdateDao)
     }
 }
 
@@ -78,24 +79,35 @@ private fun Routing.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdat
     }
 }
 
-private fun Routing.addKwiatonomousDeviceUpdate(deviceUpdateDao: DeviceUpdateDao) {
+private fun Routing.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: DeviceUpdateDao) {
     post("/kwiatonomous/{id}/updates") {
         val id = call.parameters["id"]
 
         if (id != null) {
-            val deviceUpdate = call.receive<DeviceUpdate>()
-            println("DEVICE UPDATE:\ndeviceID: $id\ndeviceUpdate: $deviceUpdate")
+            if (!isDeviceInDatabase(id, deviceDao)) {
+                deviceDao.createDevice(id)
+            }
+
+            val deviceUpdateDto = call.receive<DeviceUpdateDto>()
+            println("DEVICE UPDATE:\ndeviceID: $id\ndeviceUpdate: $deviceUpdateDto")
+
             deviceUpdateDao.createDeviceUpdate(
                 deviceID = id,
-                deviceUpdate.timestamp,
-                deviceUpdate.batteryLevel,
-                deviceUpdate.batteryVoltage,
-                deviceUpdate.temperature,
-                deviceUpdate.humidity
+                deviceUpdateDto.timestamp,
+                deviceUpdateDto.batteryLevel,
+                deviceUpdateDto.batteryVoltage,
+                deviceUpdateDto.temperature,
+                deviceUpdateDto.humidity
             )
+
+            deviceDao.updateDevice(id, TimeUtils.getCurrentTimestamp())
+
             call.response.status(HttpStatusCode.OK)
         } else {
             call.respondText("Kwiatonomous device id can't be null!")
         }
     }
 }
+
+private fun isDeviceInDatabase(deviceId: String, deviceDao: DeviceDao): Boolean =
+    deviceDao.getDevice(deviceId) != null
