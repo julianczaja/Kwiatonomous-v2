@@ -3,7 +3,9 @@ package com.corrot.kwiatonomousapp.di
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.DeviceRepositoryImpl
+import com.corrot.kwiatonomousapp.data.repository.DeviceUpdateRepositoryImpl
 import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +32,11 @@ object AppModule {
     @Singleton
     fun provideDeviceRepository(kwiatonomousApi: KwiatonomousApi): DeviceRepository {
         return DeviceRepositoryImpl(kwiatonomousApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeviceUpdateRepository(kwiatonomousApi: KwiatonomousApi): DeviceUpdateRepository {
+        return DeviceUpdateRepositoryImpl(kwiatonomousApi)
     }
 }
