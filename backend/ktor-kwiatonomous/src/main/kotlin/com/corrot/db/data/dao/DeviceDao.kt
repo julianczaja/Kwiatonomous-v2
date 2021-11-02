@@ -4,8 +4,6 @@ import com.corrot.db.data.model.Device
 
 interface DeviceDao {
 
-    fun init()
-
     fun getAllDevices(): List<Device>
 
     fun getDevice(deviceID: String): Device?

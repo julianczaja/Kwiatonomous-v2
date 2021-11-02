@@ -9,4 +9,8 @@ data class DeviceUpdateDto(
     val batteryVoltage: Float,
     val temperature: Float,
     val humidity: Float
-)
+) {
+    override fun toString(): String {
+        return "> Timestamp: $timestamp\n> Battery: $batteryLevel% ($batteryVoltage V)\n> Temp: $temperature°C, Humidity: $humidity%"
+    }
+}

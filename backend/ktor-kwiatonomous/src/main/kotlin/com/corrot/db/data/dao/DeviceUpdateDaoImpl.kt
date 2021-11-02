@@ -1,19 +1,21 @@
 package com.corrot.db.data.dao
 
 import com.corrot.db.DeviceUpdates
+import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.DeviceUpdate
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
+class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUpdateDao {
 
-    override fun init() =
-        transaction(database) {
+    init {
+        transaction(database.db) {
             SchemaUtils.create(DeviceUpdates)
         }
+    }
 
     override fun getAllDeviceUpdates(): List<DeviceUpdate> =
-        transaction(database) {
+        transaction(database.db) {
             DeviceUpdates.selectAll().map {
                 DeviceUpdate(
                     updateID = it[DeviceUpdates.updateID],
@@ -28,7 +30,7 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         }
 
     override fun getAllDeviceUpdates(deviceID: String): List<DeviceUpdate> =
-        transaction(database) {
+        transaction(database.db) {
             DeviceUpdates.select { DeviceUpdates.deviceID eq deviceID }.map {
                 DeviceUpdate(
                     updateID = it[DeviceUpdates.updateID],
@@ -43,7 +45,7 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         }
 
     override fun getLastDeviceUpdates(deviceID: String, count: Int): List<DeviceUpdate> =
-        transaction(database) {
+        transaction(database.db) {
             DeviceUpdates
                 .select { DeviceUpdates.deviceID eq deviceID }
                 .limit(count)
@@ -62,7 +64,7 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         }
 
     override fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate? =
-        transaction(database) {
+        transaction(database.db) {
             DeviceUpdates
                 .select { DeviceUpdates.deviceID eq deviceID }
                 .andWhere { DeviceUpdates.updateID eq updateID }
@@ -87,7 +89,7 @@ class DeviceUpdateDaoImpl(private val database: Database) : DeviceUpdateDao {
         temperature: Float,
         humidity: Float
     ): Int {
-        val deviceUpdate = transaction(database) {
+        val deviceUpdate = transaction(database.db) {
             return@transaction DeviceUpdates.insert {
                 it[DeviceUpdates.deviceID] = deviceID
                 it[DeviceUpdates.timestamp] = timestamp

@@ -39,4 +39,7 @@ dependencies {
     // Database
     implementation("org.jetbrains.exposed:exposed:0.17.14")
     implementation("com.h2database:h2:1.4.191")
+
+    // DI
+    implementation("io.insert-koin:koin-ktor:3.1.0")
 }

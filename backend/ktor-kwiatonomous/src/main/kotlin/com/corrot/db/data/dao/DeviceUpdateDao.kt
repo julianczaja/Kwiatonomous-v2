@@ -3,7 +3,6 @@ package com.corrot.db.data.dao
 import com.corrot.db.data.model.DeviceUpdate
 
 interface DeviceUpdateDao {
-    fun init()
 
     fun getAllDeviceUpdates(): List<DeviceUpdate>
 
