@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">KwiatonomousApp</string>
+    <string name="last_updates">Last updates</string>
+    <string name="device">Device</string>
+    <string name="battery_format">%d %% (%.2f V)</string>
+    <string name="temperature_format">%.2f °C</string>
+    <string name="humidity_format">%.1f%%</string>
+    <string name="date">Date</string>
+    <string name="battery">Battery</string>
+    <string name="temperature_abbr">Temp.</string>
+    <string name="humidity_abbr">Hum.</string>
 </resources>
