@@ -9,11 +9,16 @@ import androidx.navigation.navArgument
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
 import com.corrot.kwiatonomousapp.presentation.devices.DevicesScreen
+import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.Devices.route) {
+    NavHost(navController = navController, startDestination = Screen.Splash.route) {
+
+        composable(route = Screen.Splash.route) {
+            SplashScreen(navController)
+        }
 
         composable(route = Screen.Devices.route) {
             DevicesScreen(navController)
@@ -33,6 +38,7 @@ fun Navigation() {
 }
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("/splash")
     object Dashboard : Screen("/dashboard")
     object Devices : Screen("/devices")
 

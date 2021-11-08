@@ -40,7 +40,7 @@ fun DeviceItem(
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.flower3),
+                    painter = painterResource(id = R.drawable.flower1),
                     contentDescription = "",
                     Modifier
                         .padding(8.dp)
