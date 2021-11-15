@@ -45,7 +45,7 @@ void Led::off()
     _isOn = false;
 }
 
-void Led::signalizeWifiFailed()
+void Led::signalizeError()
 {
     on(100);
     delay(250);

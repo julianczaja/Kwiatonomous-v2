@@ -11,7 +11,7 @@ public:
     void init(bool _isNegated);
     void on(uint8_t power);
     void off();
-    void signalizeWifiFailed();
+    void signalizeError();
     void signalizeLowBattery();
     void dim(uint16_t timeMs);
 
