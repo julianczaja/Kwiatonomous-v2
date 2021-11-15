@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "random": "cpp",
+        "map": "cpp",
+        "system_error": "cpp"
+    }
+}

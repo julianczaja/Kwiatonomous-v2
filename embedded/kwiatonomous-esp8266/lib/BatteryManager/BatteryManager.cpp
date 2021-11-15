@@ -47,33 +47,25 @@ void BatteryManager::update()
     }
 
     voltageDividerOff();
-    /*
-        Battery level input
+
+    /*  ---------------------------------------------
+        ADC input range: 0-1V
         1 V     -   1023
         0 V     -   0
-        ------------------------------ ----------------------------------
-        after voltage divider (1000 ohm and 330 ohm) (0-4.2 V to 0-1.0 V)
-        -----------------------------------------------------------------
-        1.000 V    -   1023    >   100% (4.03 V) 
-        0.819 V    -   912     >   0%   (3.30 V)
-    */
-    float adcMean = (float)readSum / _samplesCount;
-    _batteryLevel = map(adcMean, 912, 1023, 0, 100);
-    _batteryVoltage = (adcMean / 1023.0) * ((1000.0 + 330.0) / 330.0);
+        ------------------------------ --------------
+        Our battery voltage range: 2.65-4.20V
+        ------------------------------ --------------
+        after voltage divider (1000 ohm and 150 ohm) 
+        ---------------------------------------------
+        0.544 V    -   556   >   100% (4.20 V) 
+        0.342 V    -   350   >   0%   (2.65 V)
+        --------------------------------------------- */
 
-    // 4.20 V --> 1.042 V --> 1023
-    // 4.03 V --> 1.000 V --> 1023
-    // 3.50 V --> 0.868 V --> 888
-    // 3.30 V --> 0.819 V --> 838
-    // float batteryVoltage = ((float)adcValue / 1024.0) * ((1000.0 + 330.0) / 330.0);
+    float adcMean = (float)readSum / (float)_samplesCount;
+    _batteryLevel = (int8_t)((adcMean - 350.0) * 0.485436); // map(adcMean, 350, 556, 0, 100);
+    _batteryVoltage = adcMean * 0.007494;                   // (adcMean / 1023.0) * ((1000.0 + 150.0) / 150.0);
 
-    // Serial.print("readSum: ");
-    // Serial.println(readSum);
-    // Serial.print("_samplesCount: ");
-    // Serial.println(_samplesCount);
-    // Serial.print("Battery level: ");
-    // Serial.println(_batteryLevel);
-
+    // Check for low battery
     if (_batteryLevel < _lowBatteryLevel && (millis() - _lastCallbackTime) > 30000) // every 30s
     {
         lowBatteryCallback();
@@ -81,7 +73,7 @@ void BatteryManager::update()
     }
 }
 
-uint8_t BatteryManager::getBatteryLevel()
+int8_t BatteryManager::getBatteryLevel()
 {
     return _batteryLevel;
 }

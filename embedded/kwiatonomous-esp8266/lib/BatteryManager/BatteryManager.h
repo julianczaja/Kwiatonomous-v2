@@ -10,7 +10,7 @@ public:
 
     void init();
     void update();
-    uint8_t getBatteryLevel();
+    int8_t getBatteryLevel();
     float getBatteryVoltage();
     int getLastRawValue();
 
@@ -21,7 +21,7 @@ private:
     uint8_t _lowBatteryLevel;
     unsigned long _lastCallbackTime = 0; 
     void (*lowBatteryCallback)();
-    uint8_t _batteryLevel = 0;
+    int8_t _batteryLevel = 0;
     float _batteryVoltage = 0;
     int _lastRawValue = 0;
 
