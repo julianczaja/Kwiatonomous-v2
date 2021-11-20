@@ -62,7 +62,7 @@ class DashboardViewModel @Inject constructor(
 
     private fun getDeviceUpdates(id: String) {
         viewModelScope.launch {
-            getDeviceUpdatesUseCase.execute(id, 10).collect { ret ->
+            getDeviceUpdatesUseCase.execute(id, 100).collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
