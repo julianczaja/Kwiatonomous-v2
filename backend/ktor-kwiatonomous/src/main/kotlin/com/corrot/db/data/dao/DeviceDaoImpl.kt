@@ -1,6 +1,7 @@
 package com.corrot.db.data.dao
 
 import com.corrot.db.Devices
+import com.corrot.db.DevicesConfigurations
 import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.Device
 import com.corrot.utils.TimeUtils
@@ -21,7 +22,8 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
                 Device(
                     deviceID = it[Devices.deviceID],
                     birthday = it[Devices.birthday],
-                    lastUpdate = it[Devices.lastUpdate]
+                    lastUpdate = it[Devices.lastUpdate],
+                    nextWatering = it[Devices.nextWatering]
                 )
             }
         }
@@ -32,24 +34,35 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
                 Device(
                     deviceID = it[Devices.deviceID],
                     birthday = it[Devices.birthday],
-                    lastUpdate = it[Devices.lastUpdate]
+                    lastUpdate = it[Devices.lastUpdate],
+                    nextWatering = it[Devices.nextWatering]
                 )
             }.singleOrNull()
         }
 
-    override fun createDevice(deviceID: String, birthday: Long?): Unit =
+    override fun createDevice(deviceID: String, birthday: Long?) {
         transaction(database.db) {
             Devices.insert {
                 it[Devices.deviceID] = deviceID
                 it[Devices.birthday] = birthday ?: TimeUtils.getCurrentTimestamp()
-                it[lastUpdate] = TimeUtils.getCurrentTimestamp()
+                it[Devices.lastUpdate] = TimeUtils.getCurrentTimestamp()
+                it[Devices.nextWatering] = 4294967294; // max unsigned long value for ESP8266
+            }
+            DevicesConfigurations.insert {
+                it[DevicesConfigurations.deviceID] = deviceID
+                it[DevicesConfigurations.sleepTimeMinutes] = 30
+                it[DevicesConfigurations.wateringOn] = false
+                it[DevicesConfigurations.wateringIntervalDays] = 2
+                it[DevicesConfigurations.wateringAmount] = 250
             }
         }
+    }
 
-    override fun updateDevice(deviceID: String, lastUpdate: Long): Unit =
+    override fun updateDevice(deviceID: String, lastUpdate: Long, nextWatering: Long): Unit =
         transaction(database.db) {
             Devices.update(where = { Devices.deviceID eq deviceID }, body = {
                 it[Devices.lastUpdate] = lastUpdate
+                it[Devices.nextWatering] = nextWatering
             })
         }
 

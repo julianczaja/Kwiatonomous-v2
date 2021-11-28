@@ -7,4 +7,5 @@ data class Device(
     val deviceID: String,
     val birthday: Long,
     var lastUpdate: Long,
+    var nextWatering: Long
 )

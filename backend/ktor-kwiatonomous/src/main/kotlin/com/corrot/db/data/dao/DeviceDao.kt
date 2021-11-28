@@ -10,7 +10,7 @@ interface DeviceDao {
 
     fun createDevice(deviceID: String, birthday: Long? = null)
 
-    fun updateDevice(deviceID: String, lastUpdate: Long)
+    fun updateDevice(deviceID: String, lastUpdate: Long, nextWatering: Long)
 
     fun deleteDevice(deviceID: String)
 }
