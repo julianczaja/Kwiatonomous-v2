@@ -24,7 +24,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],
                     temperature = it[DeviceUpdates.temperature],
-                    humidity = it[DeviceUpdates.humidity]
+                    humidity = it[DeviceUpdates.humidity],
+                    nextWatering = it[DeviceUpdates.nextWatering]
                 )
             }
         }
@@ -39,7 +40,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],
                     temperature = it[DeviceUpdates.temperature],
-                    humidity = it[DeviceUpdates.humidity]
+                    humidity = it[DeviceUpdates.humidity],
+                    nextWatering = it[DeviceUpdates.nextWatering]
                 )
             }
         }
@@ -58,7 +60,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                         batteryLevel = it[DeviceUpdates.batteryLevel],
                         batteryVoltage = it[DeviceUpdates.batteryVoltage],
                         temperature = it[DeviceUpdates.temperature],
-                        humidity = it[DeviceUpdates.humidity]
+                        humidity = it[DeviceUpdates.humidity],
+                        nextWatering = it[DeviceUpdates.nextWatering]
                     )
                 }
         }
@@ -76,7 +79,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                         batteryLevel = it[DeviceUpdates.batteryLevel],
                         batteryVoltage = it[DeviceUpdates.batteryVoltage],
                         temperature = it[DeviceUpdates.temperature],
-                        humidity = it[DeviceUpdates.humidity]
+                        humidity = it[DeviceUpdates.humidity],
+                        nextWatering = it[DeviceUpdates.nextWatering]
                     )
                 }.singleOrNull()
         }
@@ -87,7 +91,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
         batteryLevel: Int,
         batteryVoltage: Float,
         temperature: Float,
-        humidity: Float
+        humidity: Float,
+        nextWatering: Long
     ): Int {
         val deviceUpdate = transaction(database.db) {
             return@transaction DeviceUpdates.insert {
@@ -97,6 +102,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                 it[DeviceUpdates.batteryVoltage] = batteryVoltage
                 it[DeviceUpdates.temperature] = temperature
                 it[DeviceUpdates.humidity] = humidity
+                it[DeviceUpdates.nextWatering] = nextWatering
             }
         }
         return deviceUpdate[DeviceUpdates.updateID]

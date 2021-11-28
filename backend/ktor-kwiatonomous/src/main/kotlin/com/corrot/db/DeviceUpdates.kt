@@ -10,5 +10,6 @@ object DeviceUpdates : Table() {
     val batteryVoltage = float("batteryVoltage")
     val temperature = float("temperature")
     val humidity = float("humidity")
+    val nextWatering = long("nextWatering")
     val deviceID = varchar("deviceID", 12).references(Devices.deviceID, onDelete = ReferenceOption.CASCADE)
 }

@@ -26,7 +26,8 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
                     deviceUpdate.batteryLevel,
                     deviceUpdate.batteryVoltage,
                     deviceUpdate.temperature,
-                    deviceUpdate.humidity
+                    deviceUpdate.humidity,
+                    deviceUpdate.nextWatering
                 )
             }
 

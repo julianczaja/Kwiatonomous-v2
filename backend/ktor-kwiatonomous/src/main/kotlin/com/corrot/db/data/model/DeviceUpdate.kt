@@ -10,5 +10,6 @@ data class DeviceUpdate(
     val batteryLevel: Int,
     val batteryVoltage: Float,
     val temperature: Float,
-    val humidity: Float
+    val humidity: Float,
+    val nextWatering: Long
 )
