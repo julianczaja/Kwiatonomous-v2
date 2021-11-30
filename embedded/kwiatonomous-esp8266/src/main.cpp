@@ -100,7 +100,7 @@ void setup()
 
   // Configure http client
   http.setReuse(false);
-  http.setTimeout(500);
+  http.setTimeout(3000);
 
   // Get device configuration
   DeviceConfiguration configuration = DeviceConfiguration();
