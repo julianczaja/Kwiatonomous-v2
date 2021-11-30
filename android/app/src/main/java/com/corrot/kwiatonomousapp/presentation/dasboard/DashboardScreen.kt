@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DeviceItem
 import com.corrot.kwiatonomousapp.common.components.lineChart
+import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceConfigurationItem
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateHeaderRowItem
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateRowItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -55,14 +57,32 @@ fun DashboardScreen(
                     // Device
                     state.device?.let {
                         item {
-                            Text(
-                                text = stringResource(R.string.device),
-                                style = MaterialTheme.typography.h2,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                            )
                             DeviceItem(
                                 device = it,
                                 onItemClick = {}
+                            )
+                            Divider(
+                                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                                modifier = Modifier.padding(top = 16.dp)
+                            )
+                        }
+                    }
+
+                    state.deviceConfiguration?.let {
+                        item {
+                            Text(
+                                text = stringResource(R.string.device_configuration),
+                                style = MaterialTheme.typography.h2,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                            )
+                            DeviceConfigurationItem(
+                                deviceConfiguration = it,
+                                onItemClick = {
+                                    Log.i(
+                                        "DashboardScreen",
+                                        "DashboardScreen: $it clicked!"
+                                    )
+                                }
                             )
                             Divider(
                                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
@@ -95,8 +115,6 @@ fun DashboardScreen(
                                         ).toFloat()
                                     },
                                     yData = state.deviceUpdates.map { it.temperature },
-//                                    xData = listOf(1f, 2f, 3f, 4f, 10f, 15f),
-//                                    yData = listOf(10f, 12f, 13f, 14f, 10f, 15f),
                                     title = "Temperature",
                                     yAxisUnit = "°C"
                                 )

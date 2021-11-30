@@ -9,4 +9,5 @@
     <string name="battery">Battery</string>
     <string name="temperature_abbr">Temp.</string>
     <string name="humidity_abbr">Hum.</string>
+    <string name="device_configuration">Device configuration</string>
 </resources>

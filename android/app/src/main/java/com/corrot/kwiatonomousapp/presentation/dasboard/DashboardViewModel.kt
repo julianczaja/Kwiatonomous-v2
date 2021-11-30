@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.common.Result
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getDeviceUseCase: GetDeviceUseCase,
-    private val getDeviceUpdatesUseCase: GetDeviceUpdatesUseCase
+    private val getDeviceUpdatesUseCase: GetDeviceUpdatesUseCase,
+    private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(DashboardState())
@@ -35,6 +37,7 @@ class DashboardViewModel @Inject constructor(
         savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
             getDevice(it)
             getDeviceUpdates(it)
+            getDeviceConfiguration(it)
         }
     }
 
@@ -42,6 +45,7 @@ class DashboardViewModel @Inject constructor(
         savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
             getDevice(it)
             getDeviceUpdates(it)
+            getDeviceConfiguration(it)
         }
     }
 
@@ -62,12 +66,27 @@ class DashboardViewModel @Inject constructor(
 
     private fun getDeviceUpdates(id: String) {
         viewModelScope.launch {
-            getDeviceUpdatesUseCase.execute(id, 100).collect { ret ->
+            getDeviceUpdatesUseCase.execute(id, 48).collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
                     is Result.Success -> _state.value =
                         _state.value.copy(deviceUpdates = ret.data, isLoading = false, error = null)
+                    is Result.Error -> _state.value =
+                        DashboardState(error = ret.throwable.message)
+                }
+            }
+        }
+    }
+
+    private fun getDeviceConfiguration(id: String) {
+        viewModelScope.launch {
+            getDeviceConfigurationUseCase.execute(id).collect { ret ->
+                when (ret) {
+                    is Result.Loading -> _state.value =
+                        _state.value.copy(isLoading = true, error = null)
+                    is Result.Success -> _state.value =
+                        _state.value.copy(deviceConfiguration = ret.data, isLoading = false, error = null)
                     is Result.Error -> _state.value =
                         DashboardState(error = ret.throwable.message)
                 }
