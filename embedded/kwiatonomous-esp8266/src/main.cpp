@@ -6,9 +6,10 @@
 #include <NTPClient.h>
 #include <Adafruit_AHTX0.h>
 
-#include "Pump.h"
 #include "Led.h"
 #include "BatteryManager.h"
+#include "WateringManager.h"
+#include "DeviceConfiguration.h"
 
 #define LED_BLUE_PIN 15
 #define LED_BUILTIN_PIN 2
@@ -27,20 +28,31 @@
 #define WIFI_SSID "---"
 #define WIFI_PASSWORD "---"
 #define SERVER_NAME "---"
-#define POST_FORMAT "{\"timestamp\":%d,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
+#define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g,\"nextWatering\":%lu}"
+#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d}"
 
 void lowBatteryCallback();
 void goToSleep(unsigned long sleepTime);
 void connectToWifi();
 unsigned long getEpochTime();
+bool getDeviceConfiguration(DeviceConfiguration *configuration);
+bool getNextWatering(unsigned long *nextWatering);
+bool sendUpdate(
+    unsigned long epochTime,
+    int8_t batteryLevel,
+    float batteryVoltage,
+    float temperature,
+    float humidity,
+    unsigned long nextWatering);
 
-bool isAhtOn = false;
 WiFiUDP ntpUDP;
+HTTPClient http;
+WiFiClient client;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 Adafruit_AHTX0 aht;
-Pump pump = Pump(PUMP_PIN);
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
 Led ledInfo = Led(LED_BLUE_PIN);
+WateringManager wateringManager = WateringManager(PUMP_PIN);
 BatteryManager batteryManager = BatteryManager(BATTERY_VOLTAGE_PIN,
                                                VOLTAGE_DIVIDER_PIN,
                                                25,
@@ -52,10 +64,10 @@ void setup()
   Serial.begin(115200);
   Serial.println("\nHello world!\n\n");
 
-  pump.init();
   ledBuiltin.init(true);
   ledInfo.init(false);
   batteryManager.init();
+  wateringManager.init();
   delay(250);
 
   // Get battery status before Wi-Fi is on
@@ -66,62 +78,62 @@ void setup()
   // Connect to Wi-Fi
   connectToWifi();
 
-  // Initialize AHT sensor
-  if (!aht.begin())
-  {
-    Serial.println("Could not find AHT :( Check wiring!");
-  }
-  else
-  {
-    Serial.println("AHT found");
-    isAhtOn = true;
-  }
-}
-
-void loop()
-{
   ledInfo.on(10);
 
-  // Test pump
-  pump.on();
-  delay(1000);
-  pump.off();
-
-  // Test AHT
+  // Get temperature and humidity from AHT sensor
   float temperature = 0.0f;
   float humidity = 0.0f;
-  if (isAhtOn)
+  if (aht.begin())
   {
     sensors_event_t sensor_temperature, sensor_humidity;
     aht.getEvent(&sensor_humidity, &sensor_temperature);
     temperature = sensor_temperature.temperature;
     humidity = sensor_humidity.relative_humidity;
   }
+  else
+  {
+    Serial.println("Couldn't find AHT. Check wiring!");
+  }
 
-  // Get current time
+  // Get current time from NTP server
   unsigned long epochTime = getEpochTime();
 
-  // Send data to server
-  WiFiClient client;
-  HTTPClient http;
-
-  char path[128];
-  sprintf(path, "%s/%s/updates", SERVER_NAME, DEVICE_ID);
-
+  // Configure http client
   http.setReuse(false);
-  http.begin(client, path);
-  http.addHeader("Content-Type", "application/json");
+  http.setTimeout(500);
 
-  char payload[256];
-  sprintf(payload, POST_FORMAT, epochTime, batteryManager.getBatteryLevel(),
-          batteryManager.getBatteryVoltage(), temperature, humidity);
-  Serial.print("Sending payload: ");
-  Serial.println(payload);
+  // Get device configuration
+  DeviceConfiguration configuration = DeviceConfiguration();
+  bool getDeviceConfigurationSuccess = getDeviceConfiguration(&configuration);
+  if (getDeviceConfigurationSuccess == false)
+  {
+    ledInfo.signalizeError();
+    goToSleep(SLEEP_TIME_ERROR);
+  }
 
-  int httpResponseCode = http.POST(payload);
-  Serial.print("HTTP Response code: ");
-  Serial.println(httpResponseCode);
+  // Get next watering info
+  bool getNextWateringSuccess = getNextWatering(&(wateringManager.nextWatering));
+  if (getNextWateringSuccess == false)
+  {
+    ledInfo.signalizeError();
+    goToSleep(SLEEP_TIME_ERROR);
+  }
 
+  // Update watering manager
+  Serial.println("\n> Watering manager update");
+  wateringManager.update(configuration, epochTime);
+
+  // Send device update
+  sendUpdate(
+      epochTime,
+      batteryManager.getBatteryLevel(),
+      batteryManager.getBatteryVoltage(),
+      temperature,
+      humidity,
+      wateringManager.nextWatering); // if getNextWateringSuccess failed, then the default value (4294967294) is send
+
+  // Finish http connection
+  delay(500);
   http.end();
   delay(500);
 
@@ -130,6 +142,8 @@ void loop()
   ledInfo.off();
   goToSleep(SLEEP_TIME_NORMAL);
 }
+
+void loop() {}
 
 void connectToWifi()
 {
@@ -162,6 +176,8 @@ void connectToWifi()
 
 unsigned long getEpochTime()
 {
+  Serial.println("\n> getEpochTime");
+
   timeClient.begin();
   unsigned long *startNtp = (unsigned long *)malloc(sizeof(unsigned long));
   *startNtp = millis();
@@ -192,6 +208,122 @@ unsigned long getEpochTime()
   timeClient.end();
 
   return epochTime;
+}
+
+bool getNextWatering(unsigned long *nextWatering)
+{
+  Serial.println("\n> getNextWatering");
+  char path[128];
+  sprintf(path, "%s/%s/nextwatering", SERVER_NAME, DEVICE_ID);
+  http.begin(client, path);
+
+  int httpGetResponseCode = http.GET();
+  if (httpGetResponseCode == HTTP_CODE_OK)
+  {
+    Serial.println("Success");
+    String in_payload = http.getString();
+    Serial.print("payload: ");
+    Serial.println(in_payload);
+    // *nextWatering = (unsigned long)atol(in_payload.c_str());
+    char *end;
+    *nextWatering = strtoul(in_payload.c_str(), &end, 10);
+
+    Serial.print("Next watering: ");
+    Serial.println(*nextWatering);
+    return true;
+  }
+  else
+  {
+    Serial.print("Error code: ");
+    Serial.println(httpGetResponseCode);
+    return false;
+  }
+}
+
+bool getDeviceConfiguration(DeviceConfiguration *configuration)
+{
+  Serial.println("\n> getDeviceConfiguration");
+  char path[128];
+  sprintf(path, "%s/%s/configuration", SERVER_NAME, DEVICE_ID);
+  http.begin(client, path);
+
+  int httpGetResponseCode = http.GET();
+  if (httpGetResponseCode == HTTP_CODE_OK)
+  {
+    Serial.println("Success");
+    String in_payload = http.getString();
+    Serial.print("payload: ");
+    Serial.println(in_payload);
+
+    int parametersParsed = sscanf(in_payload.c_str(),
+                                  GET_CONFIGURATION_FORMAT,
+                                  &(configuration->sleepTimeMinutes),
+                                  &(configuration->wateringOn),
+                                  &(configuration->wateringIntervalDays),
+                                  &(configuration->wateringAmount));
+
+    if (parametersParsed == 4)
+    {
+      Serial.printf("sleepTimeMinutes=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\n",
+                    (*configuration).sleepTimeMinutes,
+                    (*configuration).wateringOn,
+                    (*configuration).wateringIntervalDays,
+                    (*configuration).wateringAmount);
+    }
+    else
+    {
+      Serial.println("Parsing failed");
+      return false;
+    }
+  }
+  else
+  {
+    Serial.print("Error code: ");
+    Serial.println(httpGetResponseCode);
+    return false;
+  }
+
+  return true;
+}
+
+bool sendUpdate(
+    unsigned long epochTime,
+    int8_t batteryLevel,
+    float batteryVoltage,
+    float temperature,
+    float humidity,
+    unsigned long nextWatering)
+{
+  Serial.println("\n> sendUpdate");
+
+  char path[128];
+  sprintf(path, "%s/%s/updates", SERVER_NAME, DEVICE_ID);
+  http.begin(client, path);
+  http.addHeader("Content-Type", "application/json");
+
+  char payload[256];
+  sprintf(payload, POST_UPDATE_FORMAT,
+          epochTime,
+          batteryLevel,
+          batteryVoltage,
+          temperature,
+          humidity,
+          nextWatering);
+  Serial.print("Sending payload: ");
+  Serial.println(payload);
+
+  int httpResponseCode = http.POST(payload);
+  if (httpResponseCode == HTTP_CODE_OK)
+  {
+    Serial.println("Success");
+    return true;
+  }
+  else
+  {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+    return false;
+  }
 }
 
 void lowBatteryCallback()

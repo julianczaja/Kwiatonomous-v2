@@ -6,7 +6,7 @@
 class Pump
 {
 public:
-    Pump(uint8_t pumpPin);
+    Pump(uint8_t pumpPin = 12);
 
     void init();
     void on();

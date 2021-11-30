@@ -47,16 +47,18 @@ void Led::off()
 
 void Led::signalizeError()
 {
-    on(100);
-    delay(250);
     off();
-    delay(250);
+    delay(100);
     on(100);
-    delay(250);
+    delay(100);
     off();
-    delay(250);
+    delay(100);
     on(100);
-    delay(250);
+    delay(100);
+    off();
+    delay(100);
+    on(100);
+    delay(100);
     off();
 }
 
