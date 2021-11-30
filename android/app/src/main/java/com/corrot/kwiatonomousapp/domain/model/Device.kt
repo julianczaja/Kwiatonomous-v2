@@ -6,4 +6,5 @@ data class Device(
     val id: String,
     val birthday: LocalDateTime,
     val lastUpdate: LocalDateTime,
+    var nextWatering: LocalDateTime
 )

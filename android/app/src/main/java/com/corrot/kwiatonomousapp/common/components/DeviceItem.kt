@@ -1,12 +1,15 @@
 package com.corrot.kwiatonomousapp.common.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,45 +18,95 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.toFormattedString
 import com.corrot.kwiatonomousapp.domain.model.Device
+import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
+import java.time.LocalDateTime
+
+@Preview(
+    "DeviceItemPreviewLight",
+    widthDp = 400,
+    heightDp = 150,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun DeviceItemPreviewLight() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            DeviceItem(
+                device = Device(
+                    "testID",
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+                ),
+                onItemClick = {})
+        }
+    }
+}
+
+@Preview(
+    "DeviceItemPreviewDark",
+    widthDp = 400,
+    heightDp = 150,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun DeviceItemPreviewDark() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            DeviceItem(
+                device = Device(
+                    "testID",
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+                ),
+                onItemClick = {})
+        }
+    }
+}
 
 @Composable
 fun DeviceItem(
     device: Device,
     onItemClick: (Device) -> Unit
 ) {
+    val imageBackgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onItemClick(device) }
     ) {
-        Row(
-            Modifier.fillMaxSize()
-        ) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
             Box(
                 Modifier
-                    .background(color = Color.DarkGray)
+                    .fillMaxHeight()
+                    .background(imageBackgroundColor)
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.flower1),
                     contentDescription = "",
                     Modifier
+                        .align(Alignment.Center)
                         .padding(8.dp)
                 )
             }
 
             Column(
-                Modifier
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 8.dp, bottom = 8.dp)
+                    .padding(8.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -68,7 +121,7 @@ fun DeviceItem(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -83,7 +136,7 @@ fun DeviceItem(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -93,6 +146,21 @@ fun DeviceItem(
                     )
                     Text(
                         text = device.lastUpdate.toFormattedString(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2,
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Next watering: ",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1,
+                    )
+                    Text(
+                        text = device.nextWatering.toFormattedString(),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body2,
                     )
