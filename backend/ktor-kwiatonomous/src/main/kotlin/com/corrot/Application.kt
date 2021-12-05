@@ -2,7 +2,6 @@ package com.corrot
 
 import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.dao.DeviceConfigurationDao
-import com.corrot.db.data.dao.DeviceConfigurationDaoImpl
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
 import com.corrot.plugins.configureKoin
@@ -35,8 +34,14 @@ fun main() {
         if (deviceDao.getDevice("testid") == null) {
             println("Adding test device")
             deviceDao.createDevice("testid")
-            deviceUpdatesDao.createDeviceUpdate("testid", 123456, 50, 3.56f,
-                22.3f, 55.4f, 234567)
+            deviceUpdatesDao.createDeviceUpdate(
+                "testid",
+                timestamp = 123456,
+                batteryLevel = 50,
+                batteryVoltage = 3.56f,
+                temperature = 22.3f,
+                humidity = 55.4f
+            )
         }
 
     }.start(wait = true)

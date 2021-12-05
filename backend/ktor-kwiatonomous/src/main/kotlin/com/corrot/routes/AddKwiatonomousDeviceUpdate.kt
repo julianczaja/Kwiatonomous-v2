@@ -26,11 +26,10 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
                     deviceUpdate.batteryLevel,
                     deviceUpdate.batteryVoltage,
                     deviceUpdate.temperature,
-                    deviceUpdate.humidity,
-                    deviceUpdate.nextWatering
+                    deviceUpdate.humidity
                 )
 
-                deviceDao.updateDevice(id, TimeUtils.getCurrentTimestamp(), deviceUpdate.nextWatering)
+                deviceDao.updateDevice(id, TimeUtils.getCurrentTimestamp())
             }
 
             call.response.status(HttpStatusCode.OK)

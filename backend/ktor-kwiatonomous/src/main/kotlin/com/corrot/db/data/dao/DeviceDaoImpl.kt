@@ -48,23 +48,32 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
                 it[Devices.lastUpdate] = TimeUtils.getCurrentTimestamp()
                 it[Devices.nextWatering] = 4294967294; // max unsigned long value for ESP8266
             }
+            // Add default device configuration
             DevicesConfigurations.insert {
                 it[DevicesConfigurations.deviceID] = deviceID
                 it[DevicesConfigurations.sleepTimeMinutes] = 30
                 it[DevicesConfigurations.wateringOn] = false
                 it[DevicesConfigurations.wateringIntervalDays] = 2
                 it[DevicesConfigurations.wateringAmount] = 250
+                it[DevicesConfigurations.wateringTime] = "12:00" // HH:MM
             }
         }
     }
 
-    override fun updateDevice(deviceID: String, lastUpdate: Long, nextWatering: Long): Unit =
+    override fun updateDevice(deviceID: String, lastUpdate: Long): Unit =
         transaction(database.db) {
             Devices.update(where = { Devices.deviceID eq deviceID }, body = {
                 it[Devices.lastUpdate] = lastUpdate
-                it[Devices.nextWatering] = nextWatering
             })
         }
+
+    override fun updateNextWatering(deviceID: String, newNextWateringTime: Long) {
+        transaction(database.db) {
+            Devices.update(where = { Devices.deviceID eq deviceID }, body = {
+                it[Devices.nextWatering] = newNextWateringTime
+            })
+        }
+    }
 
     override fun deleteDevice(deviceID: String): Unit = transaction(database.db) {
         Devices.deleteWhere { Devices.deviceID eq deviceID }

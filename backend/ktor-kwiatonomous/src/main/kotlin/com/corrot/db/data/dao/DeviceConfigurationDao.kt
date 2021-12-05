@@ -11,8 +11,9 @@ interface DeviceConfigurationDao {
         sleepTimeMinutes: Int,
         wateringOn: Boolean,
         wateringIntervalDays: Int,
-        wateringAmount: Int
+        wateringAmount: Int,
+        wateringTime: String
     )
 
-    fun updateDeviceConfiguration(deviceID: String, deviceConfiguration: DeviceConfiguration)
+    fun updateDeviceConfiguration(deviceConfiguration: DeviceConfiguration)
 }

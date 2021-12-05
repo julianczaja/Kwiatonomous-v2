@@ -8,5 +8,6 @@ data class DeviceConfiguration(
     val sleepTimeMinutes: Int,
     val wateringOn: Boolean,
     val wateringIntervalDays: Int,
-    val wateringAmount: Int
+    val wateringAmount: Int,
+    val wateringTime: String
 )

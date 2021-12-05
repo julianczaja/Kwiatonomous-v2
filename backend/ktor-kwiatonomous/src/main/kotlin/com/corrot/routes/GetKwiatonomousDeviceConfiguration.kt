@@ -20,7 +20,8 @@ fun Route.getKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceConfi
                         deviceConfiguration.sleepTimeMinutes,
                         deviceConfiguration.wateringOn.toInt(),
                         deviceConfiguration.wateringIntervalDays,
-                        deviceConfiguration.wateringAmount
+                        deviceConfiguration.wateringAmount,
+                        deviceConfiguration.wateringTime
                     )
                 )
             } else {

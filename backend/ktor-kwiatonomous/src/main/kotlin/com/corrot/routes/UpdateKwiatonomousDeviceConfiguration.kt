@@ -2,8 +2,10 @@ package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceConfigurationDao
 import com.corrot.db.data.dto.DeviceConfigurationDto
+import com.corrot.db.data.model.DeviceConfiguration
 import com.corrot.utils.toBoolean
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -24,15 +26,18 @@ fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceCo
             return@post
         }
 
-        call.receive<DeviceConfigurationDto>().let { deviceConfiguration ->
-            println(deviceConfiguration)
-            deviceConfigurationDao.createDeviceConfiguration(
+        call.receive<DeviceConfigurationDto>().let { deviceConfigurationDto ->
+            val newDeviceConfiguration = DeviceConfiguration(
                 deviceId,
-                deviceConfiguration.sleepTimeMinutes,
-                deviceConfiguration.wateringOn.toBoolean(),
-                deviceConfiguration.wateringIntervalDays,
-                deviceConfiguration.wateringAmount
+                deviceConfigurationDto.sleepTimeMinutes,
+                deviceConfigurationDto.wateringOn.toBoolean(),
+                deviceConfigurationDto.wateringIntervalDays,
+                deviceConfigurationDto.wateringAmount,
+                deviceConfigurationDto.wateringTime
             )
+            println(newDeviceConfiguration)
+            deviceConfigurationDao.updateDeviceConfiguration(newDeviceConfiguration)
+            call.response.status(HttpStatusCode.OK)
         }
     }
 }

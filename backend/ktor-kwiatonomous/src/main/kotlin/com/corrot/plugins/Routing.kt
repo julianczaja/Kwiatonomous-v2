@@ -5,7 +5,6 @@ import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
 import com.corrot.routes.*
 import io.ktor.application.*
-import io.ktor.response.*
 import io.ktor.routing.*
 
 
@@ -35,5 +34,8 @@ fun Application.configureRouting(
 
         // post("/kwiatonomous/{id}/configuration")
         updateKwiatonomousDeviceConfiguration(deviceConfigurationDao)
+
+        // post("/kwiatonomous/{id}/nextwatering")
+        updateKwiatonomousDeviceNextWatering(deviceDao)
     }
 }

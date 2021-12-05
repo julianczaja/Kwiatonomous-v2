@@ -26,7 +26,8 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
                     sleepTimeMinutes = it[DevicesConfigurations.sleepTimeMinutes],
                     wateringOn = it[DevicesConfigurations.wateringOn],
                     wateringIntervalDays = it[DevicesConfigurations.wateringIntervalDays],
-                    wateringAmount = it[DevicesConfigurations.wateringAmount]
+                    wateringAmount = it[DevicesConfigurations.wateringAmount],
+                    wateringTime = it[DevicesConfigurations.wateringTime]
                 )
             }.singleOrNull()
         }
@@ -36,7 +37,8 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
         sleepTimeMinutes: Int,
         wateringOn: Boolean,
         wateringIntervalDays: Int,
-        wateringAmount: Int
+        wateringAmount: Int,
+        wateringTime: String
     ): Unit =
         transaction(database.db) {
             DevicesConfigurations.insert {
@@ -45,16 +47,19 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
                 it[DevicesConfigurations.wateringOn] = wateringOn
                 it[DevicesConfigurations.wateringIntervalDays] = wateringIntervalDays
                 it[DevicesConfigurations.wateringAmount] = wateringAmount
+                it[DevicesConfigurations.wateringTime] = wateringTime
             }
         }
 
-    override fun updateDeviceConfiguration(deviceID: String, deviceConfiguration: DeviceConfiguration): Unit =
+    override fun updateDeviceConfiguration(deviceConfiguration: DeviceConfiguration): Unit =
         transaction(database.db) {
-            DevicesConfigurations.update(where = { Devices.deviceID eq deviceID }, body = {
+            DevicesConfigurations.update(where = { DevicesConfigurations.deviceID eq deviceConfiguration.deviceID }, body = {
+                it[DevicesConfigurations.deviceID] = deviceConfiguration.deviceID
                 it[DevicesConfigurations.sleepTimeMinutes] = deviceConfiguration.sleepTimeMinutes
                 it[DevicesConfigurations.wateringOn] = deviceConfiguration.wateringOn
                 it[DevicesConfigurations.wateringIntervalDays] = deviceConfiguration.wateringIntervalDays
                 it[DevicesConfigurations.wateringAmount] = deviceConfiguration.wateringAmount
+                it[DevicesConfigurations.wateringTime] = deviceConfiguration.wateringTime
             })
         }
 }
