@@ -18,6 +18,7 @@ public:
     bool isOn();
 
     unsigned long nextWatering = 4294967294; // max unsigned long value
+    bool nextWateringUpdated = false;
 
 private:
     void waterNow(int waterAmount);

@@ -6,6 +6,7 @@ struct DeviceConfiguration {
     int wateringOn;
     int wateringIntervalDays;
     int wateringAmount;
+    char wateringTime[5];
 };
 
 #endif

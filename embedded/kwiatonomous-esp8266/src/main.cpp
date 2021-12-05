@@ -28,8 +28,8 @@
 #define WIFI_SSID "---"
 #define WIFI_PASSWORD "---"
 #define SERVER_NAME "---"
-#define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g,\"nextWatering\":%lu}"
-#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d}"
+#define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
+#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
 
 void lowBatteryCallback();
 void goToSleep(unsigned long sleepTime);
@@ -37,13 +37,13 @@ void connectToWifi();
 unsigned long getEpochTime();
 bool getDeviceConfiguration(DeviceConfiguration *configuration);
 bool getNextWatering(unsigned long *nextWatering);
+bool updateNextWatering(unsigned long newNextWatering);
 bool sendUpdate(
     unsigned long epochTime,
     int8_t batteryLevel,
     float batteryVoltage,
     float temperature,
-    float humidity,
-    unsigned long nextWatering);
+    float humidity);
 
 WiFiUDP ntpUDP;
 HTTPClient http;
@@ -122,6 +122,18 @@ void setup()
   // Update watering manager
   Serial.println("\n> Watering manager update");
   wateringManager.update(configuration, epochTime);
+  if (wateringManager.nextWateringUpdated == true)
+  {
+    if (updateNextWatering(wateringManager.nextWatering) == false)
+    {
+      //                  TODO
+      // Important part - update next watering time
+      // If the time won't be updated, that plant will
+      // be watered on each wake up
+      //
+      // Maybe save info about failure to EEPROM?
+    }
+  }
 
   // Send device update
   sendUpdate(
@@ -129,8 +141,7 @@ void setup()
       batteryManager.getBatteryLevel(),
       batteryManager.getBatteryVoltage(),
       temperature,
-      humidity,
-      wateringManager.nextWatering); // if getNextWateringSuccess failed, then the default value (4294967294) is send
+      humidity);
 
   // Finish http connection
   delay(500);
@@ -216,15 +227,13 @@ bool getNextWatering(unsigned long *nextWatering)
   char path[128];
   sprintf(path, "%s/%s/nextwatering", SERVER_NAME, DEVICE_ID);
   http.begin(client, path);
+  http.addHeader("Content-Type", "application/json");
 
   int httpGetResponseCode = http.GET();
   if (httpGetResponseCode == HTTP_CODE_OK)
   {
     Serial.println("Success");
     String in_payload = http.getString();
-    Serial.print("payload: ");
-    Serial.println(in_payload);
-    // *nextWatering = (unsigned long)atol(in_payload.c_str());
     char *end;
     *nextWatering = strtoul(in_payload.c_str(), &end, 10);
 
@@ -240,12 +249,41 @@ bool getNextWatering(unsigned long *nextWatering)
   }
 }
 
+bool updateNextWatering(unsigned long newNextWatering) 
+{
+  Serial.println("\n> updateNextWatering");
+  char path[128];
+  sprintf(path, "%s/%s/nextwatering", SERVER_NAME, DEVICE_ID);
+  http.begin(client, path);
+  http.addHeader("Content-Type", "application/json");
+
+  char payload[sizeof(newNextWatering)];
+  sprintf(payload, "%lu", newNextWatering);
+  Serial.print("Sending payload: ");
+  Serial.println(payload);
+
+
+  int httpResponseCode = http.POST(payload);
+  if (httpResponseCode == HTTP_CODE_OK)
+  {
+    Serial.println("Success");
+    return true;
+  }
+  else
+  {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+    return false;
+  }
+}
+
 bool getDeviceConfiguration(DeviceConfiguration *configuration)
 {
   Serial.println("\n> getDeviceConfiguration");
   char path[128];
   sprintf(path, "%s/%s/configuration", SERVER_NAME, DEVICE_ID);
   http.begin(client, path);
+  http.addHeader("Content-Type", "application/json");
 
   int httpGetResponseCode = http.GET();
   if (httpGetResponseCode == HTTP_CODE_OK)
@@ -260,15 +298,17 @@ bool getDeviceConfiguration(DeviceConfiguration *configuration)
                                   &(configuration->sleepTimeMinutes),
                                   &(configuration->wateringOn),
                                   &(configuration->wateringIntervalDays),
-                                  &(configuration->wateringAmount));
+                                  &(configuration->wateringAmount),
+                                  &(configuration->wateringTime));
 
-    if (parametersParsed == 4)
+    if (parametersParsed == 5)
     {
-      Serial.printf("sleepTimeMinutes=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\n",
+      Serial.printf("sleepTimeMinutes=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\nwateringTime=%s\n",
                     (*configuration).sleepTimeMinutes,
                     (*configuration).wateringOn,
                     (*configuration).wateringIntervalDays,
-                    (*configuration).wateringAmount);
+                    (*configuration).wateringAmount,
+                    (*configuration).wateringTime);
     }
     else
     {
@@ -291,8 +331,7 @@ bool sendUpdate(
     int8_t batteryLevel,
     float batteryVoltage,
     float temperature,
-    float humidity,
-    unsigned long nextWatering)
+    float humidity)
 {
   Serial.println("\n> sendUpdate");
 
@@ -307,8 +346,7 @@ bool sendUpdate(
           batteryLevel,
           batteryVoltage,
           temperature,
-          humidity,
-          nextWatering);
+          humidity);
   Serial.print("Sending payload: ");
   Serial.println(payload);
 
