@@ -3,14 +3,11 @@ package com.corrot.kwiatonomousapp.data.remote.api
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
-import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface KwiatonomousApi {
 
+    // Device
     @GET("/kwiatonomous/all")
     suspend fun getDevices(): List<DeviceDto>
 
@@ -19,6 +16,18 @@ interface KwiatonomousApi {
         @Path("id") id: String
     ): DeviceDto
 
+    @GET("/kwiatonomous/{id}/nextwatering")
+    suspend fun getNextWateringByDeviceId(
+        @Path("id") id: String
+    ): Long
+
+    @POST("/kwiatonomous/{id}/nextwatering")
+    suspend fun updateNextWateringByDeviceId(
+        @Path("id") id: String,
+        @Body nextWatering: Long
+    )
+
+    // DeviceUpdate
     @GET("/kwiatonomous/{id}/updates")
     suspend fun getDeviceUpdatesByDeviceId(
         @Path("id") id: String
@@ -30,6 +39,7 @@ interface KwiatonomousApi {
         @Query("limit") limit: Int
     ): List<DeviceUpdateDto>
 
+    // DeviceConfiguration
     @GET("/kwiatonomous/{id}/configuration")
     suspend fun getDeviceConfigurationByDeviceId(
         @Path("id") id: String
@@ -38,6 +48,6 @@ interface KwiatonomousApi {
     @POST("/kwiatonomous/{id}/configuration")
     suspend fun updateDeviceConfiguration(
         @Path("id") id: String,
-        configuration: DeviceConfiguration
+        @Body configuration: DeviceConfigurationDto
     )
 }

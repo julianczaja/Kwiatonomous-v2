@@ -109,10 +109,10 @@ fun lineChart(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .border(
-                border = BorderStroke(0.5.dp, Color.White),
-                shape = RectangleShape
-            )
+//            .border(
+//                border = BorderStroke(0.5.dp, Color.White),
+//                shape = RectangleShape
+//            )
     ) {
         Text(
             text = title,

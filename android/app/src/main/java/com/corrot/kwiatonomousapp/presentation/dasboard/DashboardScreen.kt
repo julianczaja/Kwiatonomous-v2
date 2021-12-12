@@ -1,23 +1,24 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceConfigurationItem
 import com.corrot.kwiatonomousapp.common.components.DeviceItem
 import com.corrot.kwiatonomousapp.common.components.lineChart
-import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceConfigurationItem
+import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateHeaderRowItem
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateRowItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -26,6 +27,7 @@ import java.time.ZoneOffset
 
 @Composable
 fun DashboardScreen(
+    navController: NavController,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -55,10 +57,10 @@ fun DashboardScreen(
                 ) {
 
                     // Device
-                    state.device?.let {
+                    if (state.device != null) {
                         item {
                             DeviceItem(
-                                device = it,
+                                device = state.device,
                                 onItemClick = {}
                             )
                             Divider(
@@ -66,30 +68,44 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(top = 16.dp)
                             )
                         }
+
+                        // Device configuration
+                        if (state.deviceConfiguration != null)
+                            item {
+                                Row(Modifier.fillMaxWidth()) {
+                                    Column {
+                                        Text(
+                                            text = stringResource(R.string.device_configuration),
+                                            style = MaterialTheme.typography.h2,
+                                            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                                        )
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        IconButton(onClick = {
+                                            navController.navigate(
+                                                Screen.DeviceSettings.withArgs(
+                                                    state.device.id
+                                                )
+                                            )
+                                        }) {
+                                            Icon(Icons.Filled.Edit, "")
+                                        }
+                                    }
+                                }
+                                DeviceConfigurationItem(
+                                    deviceConfiguration = state.deviceConfiguration
+                                )
+                                Divider(
+                                    color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                                    modifier = Modifier.padding(top = 16.dp)
+                                )
+                            }
                     }
 
-                    state.deviceConfiguration?.let {
-                        item {
-                            Text(
-                                text = stringResource(R.string.device_configuration),
-                                style = MaterialTheme.typography.h2,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                            )
-                            DeviceConfigurationItem(
-                                deviceConfiguration = it,
-                                onItemClick = {
-                                    Log.i(
-                                        "DashboardScreen",
-                                        "DashboardScreen: $it clicked!"
-                                    )
-                                }
-                            )
-                            Divider(
-                                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
-                                modifier = Modifier.padding(top = 16.dp)
-                            )
-                        }
-                    }
 
                     // Device updates
                     if (state.deviceUpdates.isNotEmpty()) {

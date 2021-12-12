@@ -5,3 +5,5 @@ fun Float.mapBetween(inMin: Float, inMax: Float, outMin: Float, outMax: Float): 
 }
 
 fun Int.toBoolean() = this == 1
+
+fun Boolean.toInt() = if (this) 1 else 0

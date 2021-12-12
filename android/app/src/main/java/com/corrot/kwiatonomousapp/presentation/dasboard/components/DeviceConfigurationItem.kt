@@ -1,7 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -16,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
+import java.time.LocalTime
 
 
 @Preview(
@@ -33,9 +33,9 @@ fun DeviceConfigurationPreviewLight() {
                     30,
                     true,
                     2,
-                    200
-                ),
-                onItemClick = {}
+                    200,
+                    LocalTime.of(12, 30)
+                )
             )
         }
     }
@@ -43,22 +43,18 @@ fun DeviceConfigurationPreviewLight() {
 
 @Composable
 fun DeviceConfigurationItem(
-    deviceConfiguration: DeviceConfiguration,
-    onItemClick: (DeviceConfiguration) -> Unit
+    deviceConfiguration: DeviceConfiguration
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onItemClick(deviceConfiguration) }
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Column {
                 Row(
                     modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -115,6 +111,21 @@ fun DeviceConfigurationItem(
                     )
                     Text(
                         text = "${deviceConfiguration.wateringAmount} ml",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2,
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Watering time: ",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1,
+                    )
+                    Text(
+                        text = "${deviceConfiguration.wateringTime}",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body2,
                     )
