@@ -29,26 +29,26 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
             }
         }
 
-    override fun getAllDeviceUpdates(deviceID: String): List<DeviceUpdate> =
-        transaction(database.db) {
-            DeviceUpdates.select { DeviceUpdates.deviceID eq deviceID }.map {
-                DeviceUpdate(
-                    updateID = it[DeviceUpdates.updateID],
-                    deviceID = it[DeviceUpdates.deviceID],
-                    timestamp = it[DeviceUpdates.timestamp],
-                    batteryLevel = it[DeviceUpdates.batteryLevel],
-                    batteryVoltage = it[DeviceUpdates.batteryVoltage],
-                    temperature = it[DeviceUpdates.temperature],
-                    humidity = it[DeviceUpdates.humidity]
-                )
-            }
-        }
-
-    override fun getLastDeviceUpdates(deviceID: String, count: Int): List<DeviceUpdate> =
+    override fun getAllDeviceUpdates(
+        deviceID: String,
+        limit: Int?,
+        fromTimestamp: Long?,
+        toTimestamp: Long?
+    ): List<DeviceUpdate> =
         transaction(database.db) {
             DeviceUpdates
                 .select { DeviceUpdates.deviceID eq deviceID }
-                .limit(count)
+                .apply {
+                    if (fromTimestamp != null && toTimestamp != null) {
+                        andWhere { DeviceUpdates.timestamp greaterEq fromTimestamp }
+                        andWhere { DeviceUpdates.timestamp lessEq toTimestamp }
+                    }
+                }
+                .apply {
+                    if (limit != null) {
+                        limit(limit)
+                    }
+                }
                 .orderBy(DeviceUpdates.timestamp, SortOrder.DESC)
                 .map {
                     DeviceUpdate(
@@ -62,6 +62,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                     )
                 }
         }
+
 
     override fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate? =
         transaction(database.db) {
