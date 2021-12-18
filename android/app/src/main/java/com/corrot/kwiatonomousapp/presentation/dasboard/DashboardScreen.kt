@@ -2,7 +2,6 @@ package com.corrot.kwiatonomousapp.presentation.dasboard
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -15,12 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
-import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceConfigurationItem
-import com.corrot.kwiatonomousapp.common.components.DeviceItem
-import com.corrot.kwiatonomousapp.common.components.lineChart
+import com.corrot.kwiatonomousapp.common.components.*
 import com.corrot.kwiatonomousapp.presentation.Screen
-import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateHeaderRowItem
-import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceUpdateRowItem
+import com.corrot.kwiatonomousapp.presentation.dasboard.components.DeviceConfigurationItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.ZoneOffset
@@ -51,10 +47,7 @@ fun DashboardScreen(
                     viewModel.refreshDevice()
                 }
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
 
                     // Device
                     if (state.device != null) {
@@ -124,79 +117,60 @@ fun DashboardScreen(
                                     .height(200.dp)
                                     .padding(vertical = 8.dp)
                             ) {
-                                lineChart(
+                                DateLineChart(
                                     xData = state.deviceUpdates.map {
                                         it.updateTime.toEpochSecond(
                                             ZoneOffset.UTC
-                                        ).toFloat()
+                                        )
                                     },
-                                    yData = state.deviceUpdates.map { it.temperature },
-                                    title = "Temperature",
-                                    yAxisUnit = "°C"
+                                    yData = when (viewModel.selectedChartDataTypeState.value) {
+                                        LineChartDataType.TEMPERATURE -> state.deviceUpdates.map { it.temperature }
+                                        LineChartDataType.HUMIDITY -> state.deviceUpdates.map { it.humidity }
+                                        LineChartDataType.BATTERY -> state.deviceUpdates.map { it.batteryVoltage }
+                                    },
+                                    isLoading = state.isLoading,
+                                    fromDate = viewModel.currentDateRangeState.value.first,
+                                    toDate = viewModel.currentDateRangeState.value.second,
+                                    dateType = viewModel.selectedChartDateTypeState.value,
+                                    title = viewModel.selectedChartDataTypeState.value.name,
+                                    yAxisUnit = when (viewModel.selectedChartDataTypeState.value) {
+                                        LineChartDataType.TEMPERATURE -> "°C"
+                                        LineChartDataType.HUMIDITY -> "%"
+                                        LineChartDataType.BATTERY -> "V"
+                                    },
                                 )
                             }
                         }
 
                         item {
-                            Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
-                        }
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp)
-                                    .padding(vertical = 8.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                lineChart(
-                                    xData = state.deviceUpdates.map {
-                                        it.updateTime.toEpochSecond(
-                                            ZoneOffset.UTC
-                                        ).toFloat()
-                                    },
-                                    yData = state.deviceUpdates.map { it.humidity },
-                                    title = "Humidity",
-                                    yAxisUnit = "%"
+                                CustomRadioGroup(
+                                    options = LineChartDateType.values().map { it.name },
+                                    selectedOption = viewModel.selectedChartDateTypeState.value.name,
+                                    onOptionSelected = {
+                                        viewModel.onChartDateTypeSelected(
+                                            LineChartDateType.valueOf(
+                                                it
+                                            )
+                                        )
+                                    }
                                 )
-                            }
-                        }
-
-                        item {
-                            Divider(color = MaterialTheme.colors.primaryVariant, thickness = 1.dp)
-                        }
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp)
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                lineChart(
-                                    xData = state.deviceUpdates.map {
-                                        it.updateTime.toEpochSecond(
-                                            ZoneOffset.UTC
-                                        ).toFloat()
-                                    },
-                                    yData = state.deviceUpdates.map { it.batteryVoltage },
-                                    title = "Battery voltage",
-                                    yAxisUnit = "V"
+                                CustomRadioGroup(
+                                    options = LineChartDataType.values().map { it.name },
+                                    selectedOption = viewModel.selectedChartDataTypeState.value.name,
+                                    onOptionSelected = {
+                                        viewModel.onChartDataTypeSelected(
+                                            LineChartDataType.valueOf(
+                                                it
+                                            )
+                                        )
+                                    }
                                 )
+
                             }
-                        }
-
-                        item {
-                            Divider(
-                                color = MaterialTheme.colors.primaryVariant,
-                                thickness = 1.dp,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
-
-                        item {
-                            DeviceUpdateHeaderRowItem()
-                        }
-
-                        items(state.deviceUpdates) { deviceUpdate ->
-                            DeviceUpdateRowItem(deviceUpdate, { /* TODO */ })
                         }
                     }
                 }

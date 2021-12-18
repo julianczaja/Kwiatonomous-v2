@@ -9,11 +9,19 @@ class DeviceUpdateRepositoryImpl @Inject constructor(
     private val kwiatonomousApi: KwiatonomousApi
 ) : DeviceUpdateRepository {
 
-    override suspend fun getDeviceUpdatesByDeviceId(id: String): List<DeviceUpdateDto> {
-        return kwiatonomousApi.getDeviceUpdatesByDeviceId(id)
+    override suspend fun getAllDeviceUpdates(id: String): List<DeviceUpdateDto> {
+        return kwiatonomousApi.getAllDeviceUpdates(id)
     }
 
-    override suspend fun getDeviceUpdatesByDeviceId(id: String, limit: Int): List<DeviceUpdateDto> {
-        return kwiatonomousApi.getDeviceUpdatesByDeviceId(id, limit)
+    override suspend fun getAllDeviceUpdates(id: String, limit: Int): List<DeviceUpdateDto> {
+        return kwiatonomousApi.getAllDeviceUpdates(id, limit)
+    }
+
+    override suspend fun getDeviceUpdatesByDate(
+        id: String,
+        from: Long,
+        to: Long
+    ): List<DeviceUpdateDto> {
+        return kwiatonomousApi.getDeviceUpdatesByDate(id, from, to)
     }
 }

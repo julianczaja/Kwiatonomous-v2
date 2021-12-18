@@ -29,14 +29,21 @@ interface KwiatonomousApi {
 
     // DeviceUpdate
     @GET("/kwiatonomous/{id}/updates")
-    suspend fun getDeviceUpdatesByDeviceId(
+    suspend fun getAllDeviceUpdates(
         @Path("id") id: String
     ): List<DeviceUpdateDto>
 
     @GET("/kwiatonomous/{id}/updates")
-    suspend fun getDeviceUpdatesByDeviceId(
+    suspend fun getAllDeviceUpdates(
         @Path("id") id: String,
         @Query("limit") limit: Int
+    ): List<DeviceUpdateDto>
+
+    @GET("/kwiatonomous/{id}/updates")
+    suspend fun getDeviceUpdatesByDate(
+        @Path("id") id: String,
+        @Query("from") from: Long,
+        @Query("to") to: Long
     ): List<DeviceUpdateDto>
 
     // DeviceConfiguration
