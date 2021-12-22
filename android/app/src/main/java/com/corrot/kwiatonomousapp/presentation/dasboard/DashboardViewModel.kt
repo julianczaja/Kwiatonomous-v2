@@ -11,6 +11,7 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
+import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
@@ -31,16 +32,102 @@ class DashboardViewModel @Inject constructor(
     private val _state = mutableStateOf(DashboardState())
     val state: State<DashboardState> = _state
 
-    private val _selectedChartDateTypeState = mutableStateOf(LineChartDateType.DAY)
-    var selectedChartDateTypeState = _selectedChartDateTypeState
+    init {
+        onChartDateTypeSelected(LineChartDateType.WEEK)
+        savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
+            getDevice(it)
+            getDeviceUpdates(
+                id = it,
+                from = _state.value.selectedDateRange.first,
+                to = _state.value.selectedDateRange.second
+            )
+            getDeviceConfiguration(it)
+        }
+    }
 
-    private val _selectedChartDataTypeState = mutableStateOf(LineChartDataType.TEMPERATURE)
-    var selectedChartDataTypeState = _selectedChartDataTypeState
+    fun refreshDevice() {
+        savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
+            getDevice(it)
+            getDeviceUpdates(
+                id = it,
+                from = _state.value.selectedDateRange.first,
+                to = _state.value.selectedDateRange.second
+            )
+            getDeviceConfiguration(it)
+        }
+    }
 
-    private val _currentDateRangeState = mutableStateOf(Pair(0L, 0L))
-    val currentDateRangeState = _currentDateRangeState
+    private fun getDevice(id: String) {
+        viewModelScope.launch {
+            getDeviceUseCase.execute(id).collect { ret ->
+                Log.i("DashboardViewModel", "getDevice: $ret")
+                _state.value = _state.value.copy(device = ret)
+            }
+        }
+    }
+
+    private fun getDeviceUpdates(id: String, from: Long, to: Long) {
+        viewModelScope.launch {
+            getDeviceUpdatesByDateUseCase.execute(id, from, to)
+                .collect { ret ->
+                    Log.i("DashboardViewModel", "getDeviceUpdates: $ret")
+                    _state.value = _state.value.copy(deviceUpdates = ret)
+                }
+        }
+    }
+
+    private fun getDeviceConfiguration(id: String) {
+        viewModelScope.launch {
+            getDeviceConfigurationUseCase.execute(id).collect { ret ->
+                Log.i("DashboardViewModel", "getDeviceConfiguration: $ret")
+                _state.value = _state.value.copy(deviceConfiguration = ret)
+            }
+        }
+    }
 
     fun onChartDateTypeSelected(dateType: LineChartDateType) {
+        when {
+            dateType.ordinal < state.value.selectedChartDateType.ordinal -> {
+                if (_state.value.deviceUpdates is Result.Success) {
+                    val newDataRange = calculateDateRange(dateType)
+                    val oldDeviceUpdates =
+                        (_state.value.deviceUpdates as Result.Success<List<DeviceUpdate>>).data
+                    val newDeviceUpdates = oldDeviceUpdates.filter {
+                        it.updateTime.toLong() in newDataRange.first..newDataRange.second
+                    }
+
+                    _state.value = _state.value.copy(
+                        deviceUpdates = Result.Success(newDeviceUpdates),
+                        selectedChartDateType = dateType,
+                        selectedDateRange = newDataRange
+                    )
+                }
+            }
+            dateType.ordinal == state.value.selectedChartDateType.ordinal -> {
+                return
+            }
+            dateType.ordinal > state.value.selectedChartDateType.ordinal -> {
+                val newDataRange = calculateDateRange(dateType)
+                _state.value = _state.value.copy(
+                    selectedChartDateType = dateType,
+                    selectedDateRange = newDataRange
+                )
+                savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
+                    getDeviceUpdates(
+                        id = it,
+                        from = newDataRange.first,
+                        to = newDataRange.second
+                    )
+                }
+            }
+        }
+    }
+
+    fun onChartDataTypeSelected(dataType: LineChartDataType) {
+        _state.value = _state.value.copy(selectedChartDataType = dataType)
+    }
+
+    private fun calculateDateRange(dateType: LineChartDateType): Pair<Long, Long> {
         val from: Long
         val to: Long
         val midnightTomorrow = LocalDateTime.now()
@@ -63,100 +150,6 @@ class DashboardViewModel @Inject constructor(
                 to = midnightTomorrow
             }
         }
-        _currentDateRangeState.value = Pair(from, to)
-
-        savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
-            getDeviceUpdates(
-                it,
-                _currentDateRangeState.value.first,
-                _currentDateRangeState.value.second
-            )
-        }
-        _selectedChartDateTypeState.value = dateType
-    }
-
-    fun onChartDataTypeSelected(dataType: LineChartDataType) {
-        _selectedChartDataTypeState.value = dataType
-    }
-
-    init {
-        onChartDateTypeSelected(LineChartDateType.DAY)
-        savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
-            getDevice(it)
-            getDeviceUpdates(
-                it,
-                _currentDateRangeState.value.first,
-                _currentDateRangeState.value.second
-            )
-            getDeviceConfiguration(it)
-        }
-    }
-
-    fun refreshDevice() {
-        savedStateHandle.get<String>(NAV_ARG_DEVICE_ID)?.let {
-
-            getDevice(it)
-            getDeviceUpdates(
-                it,
-                _currentDateRangeState.value.first,
-                _currentDateRangeState.value.second
-            )
-            getDeviceConfiguration(it)
-        }
-    }
-
-    private fun getDevice(id: String) {
-        viewModelScope.launch {
-            getDeviceUseCase.execute(id).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
-                    is Result.Success -> _state.value =
-                        _state.value.copy(device = ret.data, isLoading = false, error = null)
-                    is Result.Error -> _state.value =
-                        DashboardState(error = ret.throwable.message)
-                }
-            }
-        }
-    }
-
-    private fun getDeviceUpdates(id: String, from: Long, to: Long) {
-        viewModelScope.launch {
-            getDeviceUpdatesByDateUseCase.execute(id, from, to)
-                .collect { ret ->
-                    Log.i("DashboardViewModel", "getDeviceUpdates: $ret")
-                    when (ret) {
-                        is Result.Loading -> _state.value =
-                            _state.value.copy(isLoading = true, error = null)
-                        is Result.Success -> _state.value =
-                            _state.value.copy(
-                                deviceUpdates = ret.data,
-                                isLoading = false,
-                                error = null
-                            )
-                        is Result.Error -> _state.value =
-                            DashboardState(error = ret.throwable.message)
-                    }
-                }
-        }
-    }
-
-    private fun getDeviceConfiguration(id: String) {
-        viewModelScope.launch {
-            getDeviceConfigurationUseCase.execute(id).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
-                    is Result.Success -> _state.value =
-                        _state.value.copy(
-                            deviceConfiguration = ret.data,
-                            isLoading = false,
-                            error = null
-                        )
-                    is Result.Error -> _state.value =
-                        DashboardState(error = ret.throwable.message)
-                }
-            }
-        }
+        return Pair(from, to)
     }
 }
