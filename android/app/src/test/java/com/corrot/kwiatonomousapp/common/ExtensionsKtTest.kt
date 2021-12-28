@@ -1,7 +1,5 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.common
 
-import com.corrot.kwiatonomousapp.common.mapBetween
-import com.corrot.kwiatonomousapp.common.toBoolean
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test

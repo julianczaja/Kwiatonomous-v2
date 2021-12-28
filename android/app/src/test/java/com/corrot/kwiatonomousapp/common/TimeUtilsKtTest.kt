@@ -1,9 +1,5 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.common
 
-import com.corrot.kwiatonomousapp.common.toDatabaseString
-import com.corrot.kwiatonomousapp.common.toFormattedString
-import com.corrot.kwiatonomousapp.common.toLocalDateTime
-import com.corrot.kwiatonomousapp.common.toLong
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.time.LocalDateTime
