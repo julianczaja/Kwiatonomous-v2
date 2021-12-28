@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.utils.io.*
 
 
 fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceConfigurationDao) {
@@ -17,27 +18,32 @@ fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceCo
         val deviceId = call.parameters["id"]
 
         if (deviceId == null) {
-            call.respondText("Kwiatonomous device id can't be null!")
+            call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
             return@post
         }
 
         if (deviceConfigurationDao.getDeviceConfiguration(deviceId) == null) {
-            call.respondText("Can't find Kwiatonomous configuration for device of id: $deviceId")
+            call.respond(HttpStatusCode.BadRequest, "Can't find Kwiatonomous configuration for device of id: $deviceId")
             return@post
         }
 
-        call.receive<DeviceConfigurationDto>().let { deviceConfigurationDto ->
-            val newDeviceConfiguration = DeviceConfiguration(
-                deviceId,
-                deviceConfigurationDto.sleepTimeMinutes,
-                deviceConfigurationDto.wateringOn.toBoolean(),
-                deviceConfigurationDto.wateringIntervalDays,
-                deviceConfigurationDto.wateringAmount,
-                deviceConfigurationDto.wateringTime
-            )
-            println(newDeviceConfiguration)
-            deviceConfigurationDao.updateDeviceConfiguration(newDeviceConfiguration)
+        try {
+            call.receive<DeviceConfigurationDto>().let { deviceConfigurationDto ->
+                val newDeviceConfiguration = DeviceConfiguration(
+                    deviceId,
+                    deviceConfigurationDto.sleepTimeMinutes,
+                    deviceConfigurationDto.wateringOn.toBoolean(),
+                    deviceConfigurationDto.wateringIntervalDays,
+                    deviceConfigurationDto.wateringAmount,
+                    deviceConfigurationDto.wateringTime
+                )
+                println("New DeviceConfiguration: $newDeviceConfiguration")
+                deviceConfigurationDao.updateDeviceConfiguration(newDeviceConfiguration)
+            }
             call.response.status(HttpStatusCode.OK)
+        } catch (e: Exception) {
+            e.printStack()
+            call.response.status(HttpStatusCode.BadRequest)
         }
     }
 }

@@ -1,9 +1,11 @@
 package com.corrot
 
+import com.corrot.Constants.DEBUG_MODE
 import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.dao.DeviceConfigurationDao
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
+import com.corrot.db.populateDatabase
 import com.corrot.plugins.configureKoin
 import com.corrot.plugins.configureMonitoring
 import com.corrot.plugins.configureRouting
@@ -31,17 +33,10 @@ fun main() {
 
         configureRouting(deviceDao, deviceUpdatesDao, deviceConfigurationDao)
 
-        if (deviceDao.getDevice("testid") == null) {
-            println("Adding test device")
-            deviceDao.createDevice("testid")
-            deviceUpdatesDao.createDeviceUpdate(
-                "testid",
-                timestamp = 123456,
-                batteryLevel = 50,
-                batteryVoltage = 3.56f,
-                temperature = 22.3f,
-                humidity = 55.4f
-            )
+        if (DEBUG_MODE) {
+            populateDatabase("test_id_1", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+            populateDatabase("test_id_2", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+            populateDatabase("test_id_3", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
         }
 
     }.start(wait = true)

@@ -2,6 +2,7 @@ package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceUpdateDao
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
@@ -10,7 +11,7 @@ fun Route.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdateDao) {
         val deviceId = call.parameters["id"]
 
         if (deviceId == null) {
-            call.respondText("Kwiatonomous device id can't be null!")
+            call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
             return@get
         }
 
@@ -18,20 +19,20 @@ fun Route.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdateDao) {
         val from = call.request.queryParameters["from"]?.toLongOrNull()
         val to = call.request.queryParameters["to"]?.toLongOrNull()
 
-        println("limit=$limit, from=$from, to=$to")
-
         val deviceUpdates = deviceUpdateDao.getAllDeviceUpdates(
-                deviceID = deviceId,
-                limit = limit,
-                fromTimestamp = from,
-                toTimestamp = to
+            deviceID = deviceId,
+            limit = limit,
+            fromTimestamp = from,
+            toTimestamp = to
         )
 
         if (deviceUpdates.isEmpty()) {
-            call.respondText("Can't find Kwiatonomous device updates of id: '$deviceId'.\n" +
-                    "Parameters given: limit=$limit, from=$from, to=$to")
+            call.respond(
+                HttpStatusCode.BadRequest, "Can't find Kwiatonomous device updates of id: '$deviceId'.\n" +
+                        "Parameters given: limit=$limit, from=$from, to=$to"
+            )
         } else {
-            call.respond(deviceUpdates)
+            call.respond(HttpStatusCode.OK, deviceUpdates)
         }
     }
 }

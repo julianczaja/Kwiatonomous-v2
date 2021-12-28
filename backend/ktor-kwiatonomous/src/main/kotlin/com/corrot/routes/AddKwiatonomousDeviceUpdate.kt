@@ -9,15 +9,22 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.utils.io.*
 
 fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: DeviceUpdateDao) {
     post("/kwiatonomous/{id}/updates") {
         val id = call.parameters["id"]
 
-        if (id != null) {
-            if (deviceDao.getDevice(id) == null) {
-                deviceDao.createDevice(id)
-            }
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
+            return@post
+        }
+
+        if (deviceDao.getDevice(id) == null) {
+            deviceDao.createDevice(id)
+        }
+
+        try {
             call.receive<DeviceUpdateDto>().let { deviceUpdate ->
                 println(deviceUpdate)
                 deviceUpdateDao.createDeviceUpdate(
@@ -31,10 +38,10 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
 
                 deviceDao.updateDevice(id, TimeUtils.getCurrentTimestamp())
             }
-
             call.response.status(HttpStatusCode.OK)
-        } else {
-            call.respondText("Kwiatonomous device id can't be null!")
+        } catch (e: Exception) {
+            e.printStack()
+            call.response.status(HttpStatusCode.BadRequest)
         }
     }
 }
