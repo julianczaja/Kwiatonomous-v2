@@ -6,8 +6,10 @@ import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepositor
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+
 
 class UpdateDeviceConfigurationUseCaseTest {
 
@@ -22,15 +24,30 @@ class UpdateDeviceConfigurationUseCaseTest {
     }
 
     @ExperimentalCoroutinesApi
-    @Test(expected = Exception::class)
-    fun execute_failure() = runBlockingTest {
+    @Test
+    fun execute_failure_blank_id() {
         // GIVEN
         val deviceConfigurationMock = mockk<DeviceConfiguration>()
 
-        // WHEN
-        fakeUpdateDeviceConfigurationUseCase.execute("wrong_id", deviceConfigurationMock)
+        // THEN
+        Assert.assertThrows(Exception::class.java) {
+            runBlockingTest {
+                fakeUpdateDeviceConfigurationUseCase.execute("", deviceConfigurationMock)
+            }
+        }
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun execute_failure_unknown_id() {
+        // GIVEN
+        val deviceConfigurationMock = mockk<DeviceConfiguration>()
 
         // THEN
-        // exception happens
+        Assert.assertThrows(Exception::class.java) {
+            runBlockingTest {
+                fakeUpdateDeviceConfigurationUseCase.execute("aaaa", deviceConfigurationMock)
+            }
+        }
     }
 }
