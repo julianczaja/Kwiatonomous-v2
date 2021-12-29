@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
+import com.corrot.kwiatonomousapp.presentation.app_settings.AppSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
 import com.corrot.kwiatonomousapp.presentation.device_details.DeviceDetailsScreen
 import com.corrot.kwiatonomousapp.presentation.device_settings.DeviceSettingsScreen
@@ -41,6 +42,12 @@ fun Navigation() {
         }
 
         composable(
+            route = Screen.AppSettings.route
+        ) {
+            AppSettingsScreen()
+        }
+
+        composable(
             route = Screen.Dashboard.route
         ) {
             DashboardScreen(navController)
@@ -63,6 +70,7 @@ sealed class Screen(val route: String) {
     object Splash : Screen("/splash")
     object Dashboard : Screen("/dashboard")
     object Devices : Screen("/devices")
+    object AppSettings : Screen("/app_settings")
     object DeviceDetails : Screen("/device_details")
     object DeviceSettings : Screen("/device_settings")
 

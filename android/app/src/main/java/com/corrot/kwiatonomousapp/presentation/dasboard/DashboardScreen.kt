@@ -64,7 +64,7 @@ fun DashboardScreen(
                 item {
                     DashboardCardItem(
                         "Settings",
-                        onClicked = { navController.navigate(Screen.Splash.route) }
+                        onClicked = { navController.navigate(Screen.AppSettings.route) }
                     )
                 }
                 item {
