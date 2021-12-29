@@ -43,7 +43,7 @@ fun SplashScreen(navController: NavController) {
             withTimeout(1500L) { while (!isClicked) delay(50) }
         } finally {
             navController.popBackStack()
-            navController.navigate(Screen.Devices.route)
+            navController.navigate(Screen.Dashboard.route)
         }
     }
 

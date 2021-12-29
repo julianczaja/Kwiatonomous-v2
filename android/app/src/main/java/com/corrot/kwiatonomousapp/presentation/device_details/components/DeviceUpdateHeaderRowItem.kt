@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp.presentation.dasboard.components
+package com.corrot.kwiatonomousapp.presentation.device_details.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
