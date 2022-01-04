@@ -9,7 +9,10 @@
 #include "Led.h"
 #include "BatteryManager.h"
 #include "WateringManager.h"
+#include "DataManager.h"
 #include "DeviceConfiguration.h"
+#include "WiFiConfiguration.h"
+#include "DeviceUpdate.h"
 
 #define LED_BLUE_PIN 15
 #define LED_BUILTIN_PIN 2
@@ -25,25 +28,18 @@
 
 // TODO: Hide in local file
 #define DEVICE_ID "---"
-#define WIFI_SSID "---"
-#define WIFI_PASSWORD "---"
 #define SERVER_NAME "---"
 #define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
 #define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
 
 void lowBatteryCallback();
 void goToSleep(unsigned long sleepTime);
-void connectToWifi();
+void connectToWifi(WiFiConfiguration *wifiConfiguration);
 unsigned long getEpochTime();
 bool getDeviceConfiguration(DeviceConfiguration *configuration);
 bool getNextWatering(unsigned long *nextWatering);
 bool updateNextWatering(unsigned long newNextWatering);
-bool sendUpdate(
-    unsigned long epochTime,
-    int8_t batteryLevel,
-    float batteryVoltage,
-    float temperature,
-    float humidity);
+bool sendUpdate(DeviceUpdate *deviceUpdate);
 
 WiFiUDP ntpUDP;
 HTTPClient http;
@@ -53,11 +49,14 @@ Adafruit_AHTX0 aht;
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
 Led ledInfo = Led(LED_BLUE_PIN);
 WateringManager wateringManager = WateringManager(PUMP_PIN);
+DataManager dataManager = DataManager();
 BatteryManager batteryManager = BatteryManager(BATTERY_VOLTAGE_PIN,
                                                VOLTAGE_DIVIDER_PIN,
                                                25,
                                                20,
                                                &lowBatteryCallback);
+
+
 
 void setup()
 {
@@ -68,6 +67,7 @@ void setup()
   ledInfo.init(false);
   batteryManager.init();
   wateringManager.init();
+  dataManager.init();
   delay(250);
 
   // Get battery status before Wi-Fi is on
@@ -76,7 +76,8 @@ void setup()
   ledInfo.off();
 
   // Connect to Wi-Fi
-  connectToWifi();
+  WiFiConfiguration wifiConfiguration = dataManager.getWiFiConfiguration();
+  connectToWifi(&wifiConfiguration);
 
   ledInfo.on(10);
 
@@ -136,12 +137,13 @@ void setup()
   }
 
   // Send device update
-  sendUpdate(
-      epochTime,
-      batteryManager.getBatteryLevel(),
-      batteryManager.getBatteryVoltage(),
-      temperature,
-      humidity);
+  DeviceUpdate deviceUpdate = DeviceUpdate();
+  deviceUpdate.epochTime = epochTime;
+  deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
+  deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
+  deviceUpdate.temperature = temperature;
+  deviceUpdate.humidity = humidity;
+  sendUpdate(&deviceUpdate);
 
   // Finish http connection
   delay(500);
@@ -156,7 +158,7 @@ void setup()
 
 void loop() {}
 
-void connectToWifi()
+void connectToWifi(WiFiConfiguration *wifiConfiguration)
 {
   Serial.println("Connecting to Wi-Fi...");
   ledBuiltin.on(5);
@@ -164,7 +166,7 @@ void connectToWifi()
   unsigned long *startConnection = (unsigned long *)malloc(sizeof(unsigned long));
   *startConnection = millis();
 
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.begin(wifiConfiguration->ssid, wifiConfiguration->password);
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -326,12 +328,7 @@ bool getDeviceConfiguration(DeviceConfiguration *configuration)
   return true;
 }
 
-bool sendUpdate(
-    unsigned long epochTime,
-    int8_t batteryLevel,
-    float batteryVoltage,
-    float temperature,
-    float humidity)
+bool sendUpdate(DeviceUpdate *deviceUpdate)
 {
   Serial.println("\n> sendUpdate");
 
@@ -342,11 +339,11 @@ bool sendUpdate(
 
   char payload[256];
   sprintf(payload, POST_UPDATE_FORMAT,
-          epochTime,
-          batteryLevel,
-          batteryVoltage,
-          temperature,
-          humidity);
+          deviceUpdate->epochTime,
+          deviceUpdate->batteryLevel,
+          deviceUpdate->batteryVoltage,
+          deviceUpdate->temperature,
+          deviceUpdate->humidity);
   Serial.print("Sending payload: ");
   Serial.println(payload);
 
