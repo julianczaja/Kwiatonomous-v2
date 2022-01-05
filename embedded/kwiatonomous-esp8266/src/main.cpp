@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 #include <Adafruit_AHTX0.h>
@@ -13,6 +11,7 @@
 #include "DeviceConfiguration.h"
 #include "WiFiConfiguration.h"
 #include "DeviceUpdate.h"
+#include "KwiatonomousApi.h"
 
 #define LED_BLUE_PIN 15
 #define LED_BUILTIN_PIN 2
@@ -26,37 +25,27 @@
 #define WIFI_CONNECTION_TIMEOUT 15e3 // ms
 #define NTP_TIMEOUT 10e3             // ms
 
-// TODO: Hide in local file
 #define DEVICE_ID "---"
-#define SERVER_NAME "---"
-#define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
-#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
 
 void lowBatteryCallback();
-void onError();
+void onError(char *message);
 void goToSleep(unsigned long sleepTime);
 void connectToWifi(WiFiConfiguration *wifiConfiguration);
 unsigned long getEpochTime();
-bool getDeviceConfiguration(DeviceConfiguration *configuration);
-bool getNextWatering(unsigned long *nextWatering);
-bool updateNextWatering(unsigned long newNextWatering);
-bool sendUpdate(DeviceUpdate *deviceUpdate);
 
 WiFiUDP ntpUDP;
-HTTPClient http;
-WiFiClient client;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 Adafruit_AHTX0 aht;
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
 Led ledInfo = Led(LED_BLUE_PIN);
 WateringManager wateringManager = WateringManager(PUMP_PIN);
 DataManager dataManager = DataManager();
+KwiatonomousApi kwiatonomousApi = KwiatonomousApi();
 BatteryManager batteryManager = BatteryManager(BATTERY_VOLTAGE_PIN,
                                                VOLTAGE_DIVIDER_PIN,
                                                25,
                                                20,
                                                &lowBatteryCallback);
-
 
 
 void setup()
@@ -69,7 +58,7 @@ void setup()
   batteryManager.init();
   wateringManager.init();
   dataManager.init();
-  delay(250);
+  delay(200);
 
   // Get battery status before Wi-Fi is on
   ledInfo.on(20);
@@ -81,6 +70,8 @@ void setup()
   connectToWifi(&wifiConfiguration);
 
   ledInfo.on(10);
+  kwiatonomousApi.init((char *) DEVICE_ID);
+
   DeviceUpdate deviceUpdate = DeviceUpdate();
   deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
   deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
@@ -101,23 +92,19 @@ void setup()
   // Get current time from NTP server
   deviceUpdate.epochTime = getEpochTime();
 
-  // Configure http client
-  http.setReuse(false);
-  http.setTimeout(5000);
-
   // Get device configuration
   DeviceConfiguration configuration = DeviceConfiguration();
-  bool getDeviceConfigurationSuccess = getDeviceConfiguration(&configuration);
+  bool getDeviceConfigurationSuccess = kwiatonomousApi.getDeviceConfiguration(&configuration);
   if (getDeviceConfigurationSuccess == false)
   {
-    onError("Can't get device configuration");
+    onError((char *)"Can't get device configuration");
   }
 
   // Get next watering info
-  bool getNextWateringSuccess = getNextWatering(&(wateringManager.nextWatering));
+  bool getNextWateringSuccess = kwiatonomousApi.getNextWatering(&(wateringManager.nextWatering));
   if (getNextWateringSuccess == false)
   {
-    onError("Can't get next waterig");
+    onError((char *)"Can't get next watering");
   }
 
   // Update watering manager
@@ -125,7 +112,7 @@ void setup()
   wateringManager.update(configuration, deviceUpdate.epochTime);
   if (wateringManager.nextWateringUpdated == true)
   {
-    if (updateNextWatering(wateringManager.nextWatering) == false)
+    if (kwiatonomousApi.updateNextWatering(wateringManager.nextWatering) == false)
     {
       //                  TODO
       // Important part - update next watering time
@@ -137,11 +124,14 @@ void setup()
   }
 
   // Send device update
-  sendUpdate(&deviceUpdate);
+  if (kwiatonomousApi.sendUpdate(&deviceUpdate) == false)
+  {
+    onError((char *)"Can't send device update");
+  }
 
   // Finish http connection
   delay(500);
-  http.end();
+  kwiatonomousApi.end();
   delay(500);
 
   // Everything done, go to sleep
@@ -166,7 +156,7 @@ void connectToWifi(WiFiConfiguration *wifiConfiguration)
   {
     if ((millis() - *startConnection) > WIFI_CONNECTION_TIMEOUT)
     {
-      onError("Can't connect to Wi-Fi");
+      onError((char *)"Can't connect to Wi-Fi");
     }
     Serial.print(".");
     delay(100);
@@ -206,150 +196,12 @@ unsigned long getEpochTime()
     // If error in UDP packet (year bigger than 2035) - sleep
     if (epochTime > 2051222400)
     {
-      onError("Something is wrong with epochTime (year > 2035)");
+      onError((char *)"Something is wrong with epochTime (year > 2035)");
     }
   }
   timeClient.end();
 
   return epochTime;
-}
-
-bool getNextWatering(unsigned long *nextWatering)
-{
-  Serial.println("\n> getNextWatering");
-  char path[128];
-  sprintf(path, "%s/%s/nextwatering", SERVER_NAME, DEVICE_ID);
-  http.begin(client, path);
-  http.addHeader("Content-Type", "application/json");
-
-  int httpGetResponseCode = http.GET();
-  if (httpGetResponseCode == HTTP_CODE_OK)
-  {
-    Serial.println("Success");
-    String in_payload = http.getString();
-    char *end;
-    *nextWatering = strtoul(in_payload.c_str(), &end, 10);
-
-    Serial.print("Next watering: ");
-    Serial.println(*nextWatering);
-    return true;
-  }
-  else
-  {
-    Serial.print("Error code: ");
-    Serial.println(httpGetResponseCode);
-    return false;
-  }
-}
-
-bool updateNextWatering(unsigned long newNextWatering) 
-{
-  Serial.println("\n> updateNextWatering");
-  char path[128];
-  sprintf(path, "%s/%s/nextwatering", SERVER_NAME, DEVICE_ID);
-  http.begin(client, path);
-  http.addHeader("Content-Type", "application/json");
-
-  char payload[sizeof(newNextWatering)];
-  sprintf(payload, "%lu", newNextWatering);
-  Serial.print("Sending payload: ");
-  Serial.println(payload);
-
-
-  int httpResponseCode = http.POST(payload);
-  if (httpResponseCode == HTTP_CODE_OK)
-  {
-    Serial.println("Success");
-    return true;
-  }
-  else
-  {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-    return false;
-  }
-}
-
-bool getDeviceConfiguration(DeviceConfiguration *configuration)
-{
-  Serial.println("\n> getDeviceConfiguration");
-  char path[128];
-  sprintf(path, "%s/%s/configuration", SERVER_NAME, DEVICE_ID);
-  http.begin(client, path);
-  http.addHeader("Content-Type", "application/json");
-
-  int httpGetResponseCode = http.GET();
-  if (httpGetResponseCode == HTTP_CODE_OK)
-  {
-    Serial.println("Success");
-    String in_payload = http.getString();
-    Serial.print("payload: ");
-    Serial.println(in_payload);
-
-    int parametersParsed = sscanf(in_payload.c_str(),
-                                  GET_CONFIGURATION_FORMAT,
-                                  &(configuration->sleepTimeMinutes),
-                                  &(configuration->wateringOn),
-                                  &(configuration->wateringIntervalDays),
-                                  &(configuration->wateringAmount),
-                                  &(configuration->wateringTime));
-
-    if (parametersParsed == 5)
-    {
-      Serial.printf("sleepTimeMinutes=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\nwateringTime=%s\n",
-                    (*configuration).sleepTimeMinutes,
-                    (*configuration).wateringOn,
-                    (*configuration).wateringIntervalDays,
-                    (*configuration).wateringAmount,
-                    (*configuration).wateringTime);
-    }
-    else
-    {
-      Serial.println("Parsing failed");
-      return false;
-    }
-  }
-  else
-  {
-    Serial.print("Error code: ");
-    Serial.println(httpGetResponseCode);
-    return false;
-  }
-
-  return true;
-}
-
-bool sendUpdate(DeviceUpdate *deviceUpdate)
-{
-  Serial.println("\n> sendUpdate");
-
-  char path[128];
-  sprintf(path, "%s/%s/updates", SERVER_NAME, DEVICE_ID);
-  http.begin(client, path);
-  http.addHeader("Content-Type", "application/json");
-
-  char payload[256];
-  sprintf(payload, POST_UPDATE_FORMAT,
-          deviceUpdate->epochTime,
-          deviceUpdate->batteryLevel,
-          deviceUpdate->batteryVoltage,
-          deviceUpdate->temperature,
-          deviceUpdate->humidity);
-  Serial.print("Sending payload: ");
-  Serial.println(payload);
-
-  int httpResponseCode = http.POST(payload);
-  if (httpResponseCode == HTTP_CODE_OK)
-  {
-    Serial.println("Success");
-    return true;
-  }
-  else
-  {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-    return false;
-  }
 }
 
 void lowBatteryCallback()
@@ -364,6 +216,7 @@ void onError(char *message)
   Serial.println(message);
   dataManager.increaseFailuresCount();
   ledInfo.signalizeLowBattery();
+  kwiatonomousApi.end();
   goToSleep(SLEEP_TIME_ERROR);
 }
 
