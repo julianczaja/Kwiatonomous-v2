@@ -11,7 +11,7 @@ void KwiatonomousApi::init(const char *deviceId)
     Serial.println(_deviceId);
 
     // Configure http client
-    _http.setReuse(false);
+    _http.setReuse(true);
     _http.setTimeout(5000);
 }
 

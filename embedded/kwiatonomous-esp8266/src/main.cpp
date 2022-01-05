@@ -19,13 +19,12 @@
 #define PUMP_PIN 12
 #define BATTERY_VOLTAGE_PIN A0
 
-#define SLEEP_CORRECTION_TIME 25e5
-#define SLEEP_TIME_NORMAL 30 * 60e6  // us
-#define SLEEP_TIME_ERROR 15 * 60e6   // us
+#define SLEEP_CORRECTION_TIME 25e5   // us
+#define SLEEP_TIME_DEFAULT 30 * 60e6 // us
 #define WIFI_CONNECTION_TIMEOUT 15e3 // ms
 #define NTP_TIMEOUT 10e3             // ms
 
-#define DEVICE_ID "---"
+#define DEVICE_ID "testid"
 
 void lowBatteryCallback();
 void onError(char *message);
@@ -33,9 +32,6 @@ void goToSleep(unsigned long sleepTime);
 void connectToWifi(WiFiConfiguration *wifiConfiguration);
 unsigned long getEpochTime();
 
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org");
-Adafruit_AHTX0 aht;
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
 Led ledInfo = Led(LED_BLUE_PIN);
 WateringManager wateringManager = WateringManager(PUMP_PIN);
@@ -46,7 +42,6 @@ BatteryManager batteryManager = BatteryManager(BATTERY_VOLTAGE_PIN,
                                                25,
                                                20,
                                                &lowBatteryCallback);
-
 
 void setup()
 {
@@ -60,23 +55,47 @@ void setup()
   dataManager.init();
   delay(200);
 
+  Serial.print("Failure count: ");
+  Serial.println(dataManager.getFailuresCount());
+
   // Get battery status before Wi-Fi is on
   ledInfo.on(20);
   batteryManager.update();
   ledInfo.off();
 
   // Connect to Wi-Fi
-  WiFiConfiguration wifiConfiguration = dataManager.getWiFiConfiguration();
+  WiFiConfiguration wifiConfiguration = WiFiConfiguration();
+  dataManager.getWiFiConfiguration(&wifiConfiguration);
   connectToWifi(&wifiConfiguration);
 
   ledInfo.on(10);
-  kwiatonomousApi.init((char *) DEVICE_ID);
+  kwiatonomousApi.init((char *)DEVICE_ID);
+
+  // Get device configuration
+  DeviceConfiguration configuration = DeviceConfiguration();
+  bool getDeviceConfigurationSuccess = kwiatonomousApi.getDeviceConfiguration(&configuration);
+  if (getDeviceConfigurationSuccess == false)
+  {
+    onError((char *)"Can't get device configuration");
+  }
+
+  // Save device configuration to EEPROM
+  dataManager.setDeviceConfiguration(&configuration);
+
+  // Get next watering info
+  bool getNextWateringSuccess = kwiatonomousApi.getNextWatering(&(wateringManager.nextWatering));
+  if (getNextWateringSuccess == false)
+  {
+    onError((char *)"Can't get next watering");
+  }
 
   DeviceUpdate deviceUpdate = DeviceUpdate();
+  deviceUpdate.epochTime = getEpochTime();
   deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
   deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
 
   // Get temperature and humidity from AHT sensor
+  Adafruit_AHTX0 aht;
   if (aht.begin())
   {
     sensors_event_t sensor_temperature, sensor_humidity;
@@ -87,24 +106,6 @@ void setup()
   else
   {
     Serial.println("Couldn't find AHT. Check wiring!");
-  }
-
-  // Get current time from NTP server
-  deviceUpdate.epochTime = getEpochTime();
-
-  // Get device configuration
-  DeviceConfiguration configuration = DeviceConfiguration();
-  bool getDeviceConfigurationSuccess = kwiatonomousApi.getDeviceConfiguration(&configuration);
-  if (getDeviceConfigurationSuccess == false)
-  {
-    onError((char *)"Can't get device configuration");
-  }
-
-  // Get next watering info
-  bool getNextWateringSuccess = kwiatonomousApi.getNextWatering(&(wateringManager.nextWatering));
-  if (getNextWateringSuccess == false)
-  {
-    onError((char *)"Can't get next watering");
   }
 
   // Update watering manager
@@ -135,9 +136,9 @@ void setup()
   delay(500);
 
   // Everything done, go to sleep
-  Serial.println("Going to sleep...");
   ledInfo.off();
-  goToSleep(SLEEP_TIME_NORMAL);
+  unsigned long  sleepTimeMicros = configuration.sleepTimeMinutes * 60e6;
+  goToSleep(sleepTimeMicros);
 }
 
 void loop() {}
@@ -172,6 +173,9 @@ void connectToWifi(WiFiConfiguration *wifiConfiguration)
 unsigned long getEpochTime()
 {
   Serial.println("\n> getEpochTime");
+
+  WiFiUDP ntpUDP;
+  NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
   timeClient.begin();
   unsigned long *startNtp = (unsigned long *)malloc(sizeof(unsigned long));
@@ -210,18 +214,37 @@ void lowBatteryCallback()
   ledInfo.signalizeLowBattery();
 }
 
-void onError(char *message) 
+void onError(char *message)
 {
   Serial.print("Error! Message: ");
   Serial.println(message);
   dataManager.increaseFailuresCount();
   ledInfo.signalizeLowBattery();
   kwiatonomousApi.end();
-  goToSleep(SLEEP_TIME_ERROR);
+
+  DeviceConfiguration savedDeviceConfiguration = DeviceConfiguration();
+  dataManager.getDeviceConfiguration(&savedDeviceConfiguration);
+
+  if (savedDeviceConfiguration.sleepTimeMinutes == 0)
+  {
+    goToSleep(SLEEP_TIME_DEFAULT);
+  }
+  else
+  {
+    // Sleep for half of normal time
+    unsigned long sleepTimeMicros = (savedDeviceConfiguration.sleepTimeMinutes * 60e6) / 2;
+    goToSleep(sleepTimeMicros);
+  }
 }
 
-void goToSleep(unsigned long sleepTime)
+void goToSleep(unsigned long sleepTimeMicros)
 {
-  // ESP.deepSleep(SLEEP_TIME_NORMAL - micros());
-  ESP.deepSleepInstant(sleepTime - micros() + SLEEP_CORRECTION_TIME, RF_NO_CAL);
+  Serial.print("\nGoing to sleep for ");
+  Serial.print(sleepTimeMicros / 60e6);
+  Serial.println(" minutes!");
+  Serial.flush();
+  Serial.end();
+
+  ESP.deepSleepInstant(sleepTimeMicros - micros(), RF_NO_CAL);
+  // ESP.deepSleepInstant(sleepTimeMicros - micros() + SLEEP_CORRECTION_TIME, RF_NO_CAL);
 }
