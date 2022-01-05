@@ -8,6 +8,7 @@
 
 #define SSID_ADDRESS 0
 #define PASSWORD_ADDRESS 32
+#define FAILURES_COUNT_ADDRESS 64
 
 class DataManager
 {
@@ -17,6 +18,7 @@ public:
     void init();
     void setWiFiConfiguration(WiFiConfiguration *wifiConfiguration);
     WiFiConfiguration getWiFiConfiguration();
+    void increaseFailuresCount();
     void clearAll();
 
 private:

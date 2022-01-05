@@ -33,6 +33,7 @@
 #define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
 
 void lowBatteryCallback();
+void onError();
 void goToSleep(unsigned long sleepTime);
 void connectToWifi(WiFiConfiguration *wifiConfiguration);
 unsigned long getEpochTime();
@@ -80,16 +81,17 @@ void setup()
   connectToWifi(&wifiConfiguration);
 
   ledInfo.on(10);
+  DeviceUpdate deviceUpdate = DeviceUpdate();
+  deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
+  deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
 
   // Get temperature and humidity from AHT sensor
-  float temperature = 0.0f;
-  float humidity = 0.0f;
   if (aht.begin())
   {
     sensors_event_t sensor_temperature, sensor_humidity;
     aht.getEvent(&sensor_humidity, &sensor_temperature);
-    temperature = sensor_temperature.temperature;
-    humidity = sensor_humidity.relative_humidity;
+    deviceUpdate.temperature = sensor_temperature.temperature;
+    deviceUpdate.humidity = sensor_humidity.relative_humidity;
   }
   else
   {
@@ -97,32 +99,30 @@ void setup()
   }
 
   // Get current time from NTP server
-  unsigned long epochTime = getEpochTime();
+  deviceUpdate.epochTime = getEpochTime();
 
   // Configure http client
   http.setReuse(false);
-  http.setTimeout(3000);
+  http.setTimeout(5000);
 
   // Get device configuration
   DeviceConfiguration configuration = DeviceConfiguration();
   bool getDeviceConfigurationSuccess = getDeviceConfiguration(&configuration);
   if (getDeviceConfigurationSuccess == false)
   {
-    ledInfo.signalizeError();
-    goToSleep(SLEEP_TIME_ERROR);
+    onError("Can't get device configuration");
   }
 
   // Get next watering info
   bool getNextWateringSuccess = getNextWatering(&(wateringManager.nextWatering));
   if (getNextWateringSuccess == false)
   {
-    ledInfo.signalizeError();
-    goToSleep(SLEEP_TIME_ERROR);
+    onError("Can't get next waterig");
   }
 
   // Update watering manager
   Serial.println("\n> Watering manager update");
-  wateringManager.update(configuration, epochTime);
+  wateringManager.update(configuration, deviceUpdate.epochTime);
   if (wateringManager.nextWateringUpdated == true)
   {
     if (updateNextWatering(wateringManager.nextWatering) == false)
@@ -137,12 +137,6 @@ void setup()
   }
 
   // Send device update
-  DeviceUpdate deviceUpdate = DeviceUpdate();
-  deviceUpdate.epochTime = epochTime;
-  deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
-  deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
-  deviceUpdate.temperature = temperature;
-  deviceUpdate.humidity = humidity;
   sendUpdate(&deviceUpdate);
 
   // Finish http connection
@@ -172,9 +166,7 @@ void connectToWifi(WiFiConfiguration *wifiConfiguration)
   {
     if ((millis() - *startConnection) > WIFI_CONNECTION_TIMEOUT)
     {
-      // If can't connect to Wi-Fi, sleep for some time an try again
-      ledInfo.signalizeError();
-      goToSleep(SLEEP_TIME_ERROR);
+      onError("Can't connect to Wi-Fi");
     }
     Serial.print(".");
     delay(100);
@@ -214,8 +206,7 @@ unsigned long getEpochTime()
     // If error in UDP packet (year bigger than 2035) - sleep
     if (epochTime > 2051222400)
     {
-      ledInfo.signalizeError();
-      goToSleep(SLEEP_TIME_ERROR);
+      onError("Something is wrong with epochTime (year > 2035)");
     }
   }
   timeClient.end();
@@ -365,6 +356,15 @@ void lowBatteryCallback()
 {
   Serial.println("LOW BATTERY!!!");
   ledInfo.signalizeLowBattery();
+}
+
+void onError(char *message) 
+{
+  Serial.print("Error! Message: ");
+  Serial.println(message);
+  dataManager.increaseFailuresCount();
+  ledInfo.signalizeLowBattery();
+  goToSleep(SLEEP_TIME_ERROR);
 }
 
 void goToSleep(unsigned long sleepTime)
