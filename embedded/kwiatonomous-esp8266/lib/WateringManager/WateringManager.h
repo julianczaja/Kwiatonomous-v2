@@ -13,8 +13,6 @@ public:
 
     void init();
     void update(DeviceConfiguration configuration, unsigned long currentEpochTime);
-    void on();
-    void off();
     bool isOn();
 
     unsigned long nextWatering = 4294967294; // max unsigned long value
@@ -22,9 +20,7 @@ public:
 
 private:
     void waterNow(int waterAmount);
-    
     Pump _pump;
-    bool _isOn;
 };
 
 #endif
