@@ -11,13 +11,16 @@ import com.corrot.plugins.configureMonitoring
 import com.corrot.plugins.configureRouting
 import com.corrot.plugins.configureSerialization
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.jetty.*
 import org.koin.ktor.ext.inject
 
 
 fun main() {
-    embeddedServer(Netty, port = 8015, host = "192.168.43.195") {
-
+    embeddedServer(
+        factory = Jetty,
+         port = 8015,
+         host = "192.168.43.195"
+    ) {
         configureKoin()
         configureSerialization()
         configureMonitoring()
@@ -26,11 +29,10 @@ fun main() {
         val deviceDao by inject<DeviceDao>()
         val deviceUpdatesDao by inject<DeviceUpdateDao>()
         val deviceConfigurationDao by inject<DeviceConfigurationDao>()
-
+//
         if (!database.isConnected()) {
             throw RuntimeException("Error during DB connection!")
         }
-
         configureRouting(deviceDao, deviceUpdatesDao, deviceConfigurationDao)
 
         if (DEBUG_MODE) {

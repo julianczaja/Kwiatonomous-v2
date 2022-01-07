@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.0.1"
+version = "0.0.2"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -24,22 +24,28 @@ tasks{
     shadowJar {
         manifest {
             attributes(Pair("Main-Class", "com.example.ApplicationKt"))
+            mergeServiceFiles()
         }
     }
 }
 
 dependencies {
+    // Ktor
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-jetty:$ktor_version")
+
+    // Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+
+    // Test
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
+    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
 
     // Database
     implementation("org.jetbrains.exposed:exposed:0.17.14")
     implementation("com.h2database:h2:1.4.200")
 
     // DI
-    implementation("io.insert-koin:koin-ktor:3.1.3")
+    implementation("io.insert-koin:koin-ktor:3.1.4")
 }

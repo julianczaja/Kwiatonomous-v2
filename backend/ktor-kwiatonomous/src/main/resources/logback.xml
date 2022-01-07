@@ -4,10 +4,23 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="trace">
+
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd_HH:mm:ss"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/${bySecond}.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </root>
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="Exposed" level="WARN"/>
+
+    <logger name="io.jetty" level="INFO"/>
+    <logger name="Exposed" level="INFO"/>
+
 </configuration>
