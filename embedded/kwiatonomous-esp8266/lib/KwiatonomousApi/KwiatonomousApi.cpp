@@ -17,7 +17,7 @@ void KwiatonomousApi::init(const char *deviceId)
 
 bool KwiatonomousApi::getDeviceConfiguration(DeviceConfiguration *configuration)
 {
-    Serial.println("\n> getDeviceConfiguration");
+    Serial.println("\n> KwiatonomousApi::getDeviceConfiguration");
 
     char path[128];
     sprintf(path, "%s/%s/configuration", SERVER_NAME, _deviceId);
@@ -68,7 +68,7 @@ bool KwiatonomousApi::getDeviceConfiguration(DeviceConfiguration *configuration)
 
 bool KwiatonomousApi::getNextWatering(unsigned long *nextWatering)
 {
-    Serial.println("\n> getNextWatering");
+    Serial.println("\n> KwiatonomousApi::getNextWatering");
 
     char path[128];
     sprintf(path, "%s/%s/nextwatering", SERVER_NAME, _deviceId);
@@ -98,7 +98,7 @@ bool KwiatonomousApi::getNextWatering(unsigned long *nextWatering)
 
 bool KwiatonomousApi::updateNextWatering(unsigned long newNextWatering)
 {
-    Serial.println("\n> updateNextWatering");
+    Serial.println("\n> KwiatonomousApi::updateNextWatering");
 
     char path[128];
     sprintf(path, "%s/%s/nextwatering", SERVER_NAME, _deviceId);
@@ -127,7 +127,7 @@ bool KwiatonomousApi::updateNextWatering(unsigned long newNextWatering)
 
 bool KwiatonomousApi::sendUpdate(DeviceUpdate *deviceUpdate)
 {
-    Serial.println("\n> sendUpdate");
+    Serial.println("\n> KwiatonomousApi::sendUpdate");
 
     char path[128];
     sprintf(path, "%s/%s/updates", SERVER_NAME, _deviceId);
@@ -161,5 +161,7 @@ bool KwiatonomousApi::sendUpdate(DeviceUpdate *deviceUpdate)
 
 void KwiatonomousApi::end()
 {
+    Serial.println("\n> KwiatonomousApi::end");
+
     _http.end();
 }

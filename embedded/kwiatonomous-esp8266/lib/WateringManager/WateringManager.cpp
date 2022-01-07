@@ -12,6 +12,8 @@ void WateringManager::init()
 
 void WateringManager::update(DeviceConfiguration configuration, unsigned long currentEpochTime)
 {
+    Serial.println("\n> WateringManager::update");
+
     if (configuration.wateringOn == 1)
     {
         on();
@@ -52,7 +54,7 @@ bool WateringManager::isOn()
 
 void WateringManager::waterNow(int waterAmount)
 {
-    Serial.println("waterNow");
+    Serial.println("\n> WateringManager::waterNow");
 
     uint16_t pumpingTime = 1000;
 

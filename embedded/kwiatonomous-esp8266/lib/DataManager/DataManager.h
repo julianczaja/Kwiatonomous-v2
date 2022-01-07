@@ -25,6 +25,7 @@ public:
     void getDeviceConfiguration(DeviceConfiguration *deviceConfiguration);
 
     void increaseFailuresCount();
+    void resetFailuresCount();
     uint16_t getFailuresCount();
 
     void clearAll();

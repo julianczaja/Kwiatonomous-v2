@@ -35,6 +35,8 @@ void BatteryManager::voltageDividerOff()
 
 void BatteryManager::update()
 {
+    Serial.println("\n> BatteryManager::update");
+    
     voltageDividerOn();
     delay(50);
 

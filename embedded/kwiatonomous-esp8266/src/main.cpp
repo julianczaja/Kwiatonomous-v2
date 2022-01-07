@@ -53,7 +53,7 @@ void setup()
   batteryManager.init();
   wateringManager.init();
   dataManager.init();
-  delay(200);
+  delay(100);
 
   Serial.print("Failure count: ");
   Serial.println(dataManager.getFailuresCount());
@@ -109,7 +109,6 @@ void setup()
   }
 
   // Update watering manager
-  Serial.println("\n> Watering manager update");
   wateringManager.update(configuration, deviceUpdate.epochTime);
   if (wateringManager.nextWateringUpdated == true)
   {
