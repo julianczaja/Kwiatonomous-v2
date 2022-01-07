@@ -53,8 +53,31 @@ bool WateringManager::isOn()
 void WateringManager::waterNow(int waterAmount)
 {
     Serial.println("waterNow");
+
+    uint16_t pumpingTime = 1000;
+
+    // For now just define values available in application
     // TODO: Make formula to calculate delay for given water amount
+    switch (waterAmount)
+    {
+    case 50:
+        pumpingTime = 2500;
+        break;
+    case 100:
+        pumpingTime = 5000;
+        break;
+    case 150:
+        pumpingTime = 6500;
+        break;
+    case 250:
+        pumpingTime = 10000;
+        break;
+    default:
+        Serial.print("Unknown watering amount: ");
+        Serial.println(waterAmount);
+    }
+    
     _pump.on();
-    delay(1000);
+    delay(pumpingTime);
     _pump.off();
 }
