@@ -63,6 +63,9 @@ fun DeviceSettingsScreen(
                                     )
                                 )
                             },
+                            onTimeZoneChanged = {
+                                viewModel.onDeviceTimeZoneChanged(it)
+                            },
                             onWateringOnChanged = {
                                 viewModel.onDeviceConfigurationChanged(
                                     state.deviceConfiguration.copy(

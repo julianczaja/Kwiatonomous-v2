@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 
 @Preview(
@@ -31,6 +32,7 @@ fun DeviceConfigurationPreviewLight() {
             DeviceConfigurationItem(
                 DeviceConfiguration(
                     30,
+                    ZoneOffset.ofHours(1),
                     true,
                     2,
                     200,
@@ -66,6 +68,21 @@ fun DeviceConfigurationItem(
                     )
                     Text(
                         text = "${deviceConfiguration.sleepTimeMinutes}m",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2,
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Time zone: ",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body1,
+                    )
+                    Text(
+                        text = "UTC${deviceConfiguration.timeZoneOffset}",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body2,
                     )

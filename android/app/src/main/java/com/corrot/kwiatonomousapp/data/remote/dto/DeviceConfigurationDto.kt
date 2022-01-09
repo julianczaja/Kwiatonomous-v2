@@ -3,10 +3,12 @@ package com.corrot.kwiatonomousapp.data.remote.dto
 import com.corrot.kwiatonomousapp.common.toBoolean
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 data class DeviceConfigurationDto(
     val sleepTimeMinutes: Int,
+    val timeZoneOffset: Int,
     val wateringOn: Int,
     val wateringIntervalDays: Int,
     val wateringAmount: Int,
@@ -16,6 +18,7 @@ data class DeviceConfigurationDto(
 fun DeviceConfigurationDto.toDeviceConfiguration() =
     DeviceConfiguration(
         sleepTimeMinutes = sleepTimeMinutes,
+        timeZoneOffset = ZoneOffset.ofHours(timeZoneOffset),
         wateringOn = wateringOn.toBoolean(),
         wateringIntervalDays = wateringIntervalDays,
         wateringAmount = wateringAmount,

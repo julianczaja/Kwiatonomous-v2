@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.device_settings
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +28,10 @@ class DeviceSettingsViewModel @Inject constructor(
     private val getDeviceNextWateringUseCase: GetDeviceNextWateringUseCase,
     private val updateDeviceNextWateringUseCase: UpdateDeviceNextWateringUseCase
 ) : ViewModel() {
+
+    private companion object {
+        const val TAG = "DeviceSettingsViewModel"
+    }
 
     private val _state = mutableStateOf(DeviceSettingsState())
     val state: State<DeviceSettingsState> = _state
@@ -65,18 +71,60 @@ class DeviceSettingsViewModel @Inject constructor(
         _state.value = _state.value.copy(deviceConfiguration = deviceConfiguration)
     }
 
-    fun onDeviceWateringTimeChanged(hour: Int, minute: Int) {
-        val newWateringDateTime =
-            _state.value.nextWatering!!.withHour(hour).withMinute(minute).withSecond(0)
+    fun onDeviceTimeZoneChanged(timeZoneString: String) {
+        val zoneOffset = if (timeZoneString == "UTC") {
+            ZoneOffset.UTC
+        } else {
+            ZoneOffset.of(timeZoneString.replace("UTC", ""))
+        }
 
-        _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+        // TODO: What should happen when time zone has changed?
+
+        onDeviceConfigurationChanged(
+            _state.value.deviceConfiguration!!.copy(timeZoneOffset = zoneOffset)
+        )
+    }
+
+    fun onDeviceWateringTimeChanged(hour: Int, minute: Int) {
+        // Convert new watering datetime to be in device time zone
+        val currentZoneOffset = _state.value.deviceConfiguration?.timeZoneOffset
+        if (currentZoneOffset != null) {
+            val newWateringDateTime = _state.value.nextWatering!!
+                .withHour(hour)
+                .withMinute(minute)
+                .withSecond(0)
+                .atOffset(currentZoneOffset)
+                .toLocalDateTime()
+
+            _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+        } else {
+            // TODO: Handle exception
+            Log.e(
+                TAG, "onDeviceWateringTimeChanged: " +
+                        "Can't update watering time, because the current zone offset is unknown (null)"
+            )
+        }
     }
 
     fun onDeviceWateringDateChanged(year: Int, month: Int, dayOfMonth: Int) {
-        val newWateringDateTime =
-            _state.value.nextWatering!!.withYear(year).withMonth(month).withDayOfMonth(dayOfMonth)
+        // Convert new watering datetime to be in device time zone
+        val currentZoneOffset = _state.value.deviceConfiguration?.timeZoneOffset
+        if (currentZoneOffset != null) {
+            val newWateringDateTime = _state.value.nextWatering!!
+                .withYear(year)
+                .withMonth(month)
+                .withDayOfMonth(dayOfMonth)
+                .atOffset(currentZoneOffset)
+                .toLocalDateTime()
 
-        _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+            _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+        } else {
+            // TODO: Handle exception
+            Log.e(
+                TAG, "onDeviceWateringDateChanged: " +
+                        "Can't update watering time, because the current zone offset is unknown (null)"
+            )
+        }
     }
 
     private fun getDeviceConfiguration(id: String) {

@@ -9,12 +9,15 @@ import java.util.*
 
 const val DEFAULT_DATE_TIME_FORMAT = "dd.MM.yyyy, HH:mm:ss"
 
+// Always convert as UTC, because device send datetime with applied zone offset
 fun Long.toLocalDateTime(): LocalDateTime =
     if (this > 1e10)
+        // seconds
         LocalDateTime.ofInstant(
             Instant.ofEpochMilli(this), TimeZone.getTimeZone("UTC").toZoneId()
         )
     else
+        // milliseconds
         LocalDateTime.ofInstant(
             Instant.ofEpochSecond(this), TimeZone.getTimeZone("UTC").toZoneId()
         )
@@ -27,3 +30,6 @@ fun LocalDateTime.toLong(): Long =
 
 fun LocalTime.toDatabaseString(): String =
     String.format("%02d:%02d", this.hour, this.minute)
+
+fun ZoneOffset.totalHours(): Int =
+    this.totalSeconds / 3600

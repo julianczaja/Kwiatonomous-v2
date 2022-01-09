@@ -15,6 +15,7 @@ import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
@@ -36,6 +37,7 @@ fun DeviceConfigurationEditPreviewLight() {
                     DeviceConfigurationEditItem(
                         DeviceConfiguration(
                             30,
+                            ZoneOffset.ofHours(1),
                             true,
                             2,
                             200,
@@ -43,6 +45,7 @@ fun DeviceConfigurationEditPreviewLight() {
                         ),
                         LocalDateTime.now(),
                         onSleepTimeChanged = {},
+                        onTimeZoneChanged = {},
                         onWateringAmountChanged = {},
                         onWateringIntervalDaysChanged = {},
                         onWateringOnChanged = {},
@@ -60,6 +63,7 @@ fun DeviceConfigurationEditItem(
     deviceConfiguration: DeviceConfiguration,
     nextWatering: LocalDateTime,
     onSleepTimeChanged: (Int) -> Unit,
+    onTimeZoneChanged: (String) -> Unit,
     onWateringOnChanged: (Boolean) -> Unit,
     onWateringIntervalDaysChanged: (Int) -> Unit,
     onWateringAmountChanged: (Int) -> Unit,
@@ -102,6 +106,12 @@ fun DeviceConfigurationEditItem(
                 currentValue = deviceConfiguration.sleepTimeMinutes,
                 listOfValues = listOf(10, 30, 60),
                 onValueChange = { newSleepTime -> onSleepTimeChanged(newSleepTime) }
+            )
+            DropdownableRow(
+                title = "Time zone",
+                currentValue = "UTC${deviceConfiguration.timeZoneOffset}",
+                listOfValues = getAllUTCZones(),
+                onValueChange = { newTimeZone -> onTimeZoneChanged(newTimeZone) }
             )
             DropdownableRow(
                 title = "Watering",
@@ -163,4 +173,25 @@ fun DeviceConfigurationEditItem(
             }
         }
     }
+}
+
+private fun getAllUTCZones(): List<String> {
+    val list = mutableListOf<String>()
+
+    for (i in -12..14) {
+        val format = when {
+            i > 0 -> {
+                "UTC%+03d:00"
+            }
+            i < 0 -> {
+                "UTC%03d:00"
+            }
+            else -> {
+                "UTC"
+            }
+        }
+        list.add(String.format(format, i))
+    }
+
+    return list
 }
