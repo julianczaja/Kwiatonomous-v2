@@ -130,7 +130,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun calculateDateRange(dateType: LineChartDateType): Pair<Long, Long> {
         val from: Long
         val to: Long
-        val midnightTomorrow = LocalDateTime.now()
+        val currentDateTime = LocalDateTime.now()
+        val midnightTomorrow = currentDateTime
             .withHour(0)
             .withMinute(0)
             .plusDays(1L)
@@ -138,15 +139,16 @@ class DeviceDetailsViewModel @Inject constructor(
 
         when (dateType) {
             LineChartDateType.DAY -> {
-                from = midnightTomorrow - 24 * 3600
+                from = midnightTomorrow - (24 * 3600)
                 to = midnightTomorrow
             }
             LineChartDateType.WEEK -> {
-                from = midnightTomorrow - 7 * 24 * 3600
+                from = midnightTomorrow - (6 * 24 * 3600)
                 to = midnightTomorrow
             }
             LineChartDateType.MONTH -> {
-                from = midnightTomorrow - 28 * 24 * 3600
+                val daysInMonth = currentDateTime.month.maxLength()
+                from = midnightTomorrow - (daysInMonth * 24 * 3600)
                 to = midnightTomorrow
             }
         }

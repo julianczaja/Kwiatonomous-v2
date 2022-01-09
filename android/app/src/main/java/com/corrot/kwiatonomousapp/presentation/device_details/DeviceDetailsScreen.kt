@@ -216,7 +216,6 @@ private fun DeviceUpdatesSection(
                 fromDate = selectedDateRange.first,
                 toDate = selectedDateRange.second,
                 dateType = selectedChartDateType,
-                title = selectedChartDataType.name,
                 yAxisUnit = when (selectedChartDataType) {
                     LineChartDataType.TEMPERATURE -> "°C"
                     LineChartDataType.HUMIDITY -> "%"

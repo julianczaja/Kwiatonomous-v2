@@ -94,7 +94,6 @@ fun DateLineChartPreviewLight() {
                     toDate = 1639749402L,
                     dateType = LineChartDateType.DAY,
                     yAxisUnit = "%",
-                    title = "Humidity",
                 )
             }
         }
@@ -154,7 +153,6 @@ fun DateLineChartPreviewDark() {
                     fromDate = 1639663002L,
                     toDate = 1639749402L,
                     dateType = LineChartDateType.DAY,
-                    title = "Temperature",
                     yAxisUnit = "°C",
                     renderDropLines = true,
                     marginX = 0f,
@@ -184,7 +182,6 @@ fun DateLineChart(
     fromDate: Long,
     toDate: Long,
     dateType: LineChartDateType,
-    title: String = "",
     yAxisUnit: String = "",
     marginX: Float = 50f,
     marginY: Float = 50f,
@@ -222,152 +219,143 @@ fun DateLineChart(
     val axisPaddingY = 50f
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                .align(Alignment.CenterHorizontally),
+    Canvas(Modifier.fillMaxSize()) {
+        val xMin = axisPaddingX + marginX
+        val xMax = size.width - marginX
+        val yMin = marginY
+        val yMax = size.height - marginY - axisPaddingY
+
+        // X axis data
+        val xAxis = xData.map {
+            it.toFloat().mapBetween(
+                xValueMin.toFloat(), xValueMax.toFloat(),
+                xMin, xMax
+            )
+        }
+
+        // Y axis data
+        val yAxis = yData.map {
+            it.mapBetween(
+                yValueMax, yValueMin,
+                yMin, yMax
+            )
+        }
+
+        assert(yAxis.size == xAxis.size)
+
+        // X axis decoration
+        drawLine(
+            color = axisDecorationColor,
+            start = Offset(axisPaddingX, size.height - axisPaddingY),
+            end = Offset(size.width - marginX, size.height - axisPaddingY),
+            strokeWidth = 2f
         )
-        Canvas(Modifier.fillMaxSize()) {
-            val xMin = axisPaddingX + marginX
-            val xMax = size.width - marginX
-            val yMin = marginY
-            val yMax = size.height - marginY - axisPaddingY
-
-            // X axis data
-            val xAxis = xData.map {
-                it.toFloat().mapBetween(
-                    xValueMin.toFloat(), xValueMax.toFloat(),
-                    xMin, xMax
-                )
-            }
-
-            // Y axis data
-            val yAxis = yData.map {
-                it.mapBetween(
-                    yValueMax, yValueMin,
-                    yMin, yMax
-                )
-            }
-
-            assert(yAxis.size == xAxis.size)
-
-            // X axis decoration
+        val xAxisValueStep = (xValueMax - xValueMin) / (xAxisDividersCount - 1)
+        for (i in 0 until xAxisDividersCount) {
+            val xCurrent = xValueMin + (xAxisValueStep * i)
+            val xAxisValue = xCurrent.toFloat().mapBetween(
+                xValueMin.toFloat(), xValueMax.toFloat(),
+                xMin, xMax
+            )
             drawLine(
                 color = axisDecorationColor,
-                start = Offset(axisPaddingX, size.height - axisPaddingY),
-                end = Offset(size.width - marginX, size.height - axisPaddingY),
+                start = Offset(xAxisValue, size.height - axisPaddingY - 10f),
+                end = Offset(xAxisValue, size.height - axisPaddingY + 10f),
                 strokeWidth = 2f
             )
-            val xAxisValueStep = (xValueMax - xValueMin) / (xAxisDividersCount - 1)
-            for (i in 0 until xAxisDividersCount) {
-                val xCurrent = xValueMin + (xAxisValueStep * i)
-                val xAxisValue = xCurrent.toFloat().mapBetween(
-                    xValueMin.toFloat(), xValueMax.toFloat(),
-                    xMin, xMax
-                )
+            if (renderDropLines) {
                 drawLine(
                     color = axisDecorationColor,
-                    start = Offset(xAxisValue, size.height - axisPaddingY - 10f),
-                    end = Offset(xAxisValue, size.height - axisPaddingY + 10f),
-                    strokeWidth = 2f
+                    start = Offset(xAxisValue, yMin),
+                    end = Offset(xAxisValue, size.height - axisPaddingY),
+                    strokeWidth = 2f,
+                    alpha = 0.5f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f))
                 )
-                if (renderDropLines) {
-                    drawLine(
-                        color = axisDecorationColor,
-                        start = Offset(xAxisValue, yMin),
-                        end = Offset(xAxisValue, size.height - axisPaddingY),
-                        strokeWidth = 2f,
-                        alpha = 0.5f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f))
-                    )
-                }
-                drawIntoCanvas {
-                    val xText = when (dateType) {
-                        LineChartDateType.DAY -> "%02d:%02d".format(
-                            xCurrent.toLocalDateTime().hour,
-                            xCurrent.toLocalDateTime().minute,
-                        )
-                        LineChartDateType.WEEK -> xCurrent.toLocalDateTime().format(
-                            DateTimeFormatter.ofPattern("E")
-                        )
-                        LineChartDateType.MONTH -> "%02d:%02d".format(
-                            xCurrent.toLocalDateTime().dayOfMonth,
-                            xCurrent.toLocalDateTime().monthValue,
-                        )
-                    }
-                    it.nativeCanvas.drawText(
-                        xText,
-                        xAxisValue,
-                        size.height - axisPaddingY + 36f,
-                        xAxisPaint
-                    )
-                }
             }
+            drawIntoCanvas {
+                val xText = when (dateType) {
+                    LineChartDateType.DAY -> "%02d:%02d".format(
+                        xCurrent.toLocalDateTime().hour,
+                        xCurrent.toLocalDateTime().minute,
+                    )
+                    LineChartDateType.WEEK -> xCurrent.toLocalDateTime().format(
+                        DateTimeFormatter.ofPattern("E")
+                    )
+                    LineChartDateType.MONTH -> "%02d:%02d".format(
+                        xCurrent.toLocalDateTime().dayOfMonth,
+                        xCurrent.toLocalDateTime().monthValue,
+                    )
+                }
+                it.nativeCanvas.drawText(
+                    xText,
+                    xAxisValue,
+                    size.height - axisPaddingY + 36f,
+                    xAxisPaint
+                )
+            }
+        }
 
 
-            // Y axis decoration
+        // Y axis decoration
+        drawLine(
+            color = axisDecorationColor,
+            start = Offset(axisPaddingX, yMin),
+            end = Offset(axisPaddingX, size.height - axisPaddingY),
+            strokeWidth = 2f
+        )
+        val yAxisValueStep = (yValueMax - yValueMin) / (yAxisDividersCount - 1)
+        for (i in 0 until yAxisDividersCount) {
+            val yCurrent = (yValueMin + (yAxisValueStep * i))
+            val yAxisValue: Float = yCurrent.mapBetween(
+                yValueMax, yValueMin,
+                yMin, yMax
+            )
             drawLine(
                 color = axisDecorationColor,
-                start = Offset(axisPaddingX, yMin),
-                end = Offset(axisPaddingX, size.height - axisPaddingY),
+                start = Offset(axisPaddingX - 10f, yAxisValue),
+                end = Offset(axisPaddingX + 10f, yAxisValue),
                 strokeWidth = 2f
             )
-            val yAxisValueStep = (yValueMax - yValueMin) / (yAxisDividersCount - 1)
-            for (i in 0 until yAxisDividersCount) {
-                val yCurrent = (yValueMin + (yAxisValueStep * i))
-                val yAxisValue: Float = yCurrent.mapBetween(
-                    yValueMax, yValueMin,
-                    yMin, yMax
-                )
+            if (renderGridLines) {
                 drawLine(
                     color = axisDecorationColor,
-                    start = Offset(axisPaddingX - 10f, yAxisValue),
-                    end = Offset(axisPaddingX + 10f, yAxisValue),
+                    start = Offset(axisPaddingX + 20f, yAxisValue),
+                    end = Offset(size.width - marginX, yAxisValue),
+                    strokeWidth = 2f,
+                    alpha = 0.5f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f))
+                )
+            }
+
+            drawIntoCanvas {
+                it.nativeCanvas.drawText(
+                    "%.1f%s".format(yCurrent, yAxisUnit),
+                    axisPaddingX - 24f,
+                    yAxisValue,
+                    yAxisPaint
+                )
+            }
+        }
+
+        if (isLoading) {
+            return@Canvas
+        }
+
+        // Data line
+        var lastPoint = Offset.Unspecified
+        for (i in xAxis.indices) {
+            if (i == 0) {
+                lastPoint = Offset(xAxis[0], yAxis[0])
+            } else {
+                val newPoint = Offset(xAxis[i], yAxis[i])
+                drawLine(
+                    start = lastPoint,
+                    end = newPoint,
+                    color = lineColor,
                     strokeWidth = 2f
                 )
-                if (renderGridLines) {
-                    drawLine(
-                        color = axisDecorationColor,
-                        start = Offset(axisPaddingX + 20f, yAxisValue),
-                        end = Offset(size.width - marginX, yAxisValue),
-                        strokeWidth = 2f,
-                        alpha = 0.5f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f))
-                    )
-                }
-
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        "%.1f%s".format(yCurrent, yAxisUnit),
-                        axisPaddingX - 24f,
-                        yAxisValue,
-                        yAxisPaint
-                    )
-                }
-            }
-
-            if (isLoading) {
-                return@Canvas
-            }
-
-            // Data line
-            var lastPoint = Offset.Unspecified
-            for (i in xAxis.indices) {
-                if (i == 0) {
-                    lastPoint = Offset(xAxis[0], yAxis[0])
-                } else {
-                    val newPoint = Offset(xAxis[i], yAxis[i])
-                    drawLine(
-                        start = lastPoint,
-                        end = newPoint,
-                        color = lineColor,
-                        strokeWidth = 2f
-                    )
-                    lastPoint = newPoint.copy()
-                }
+                lastPoint = newPoint.copy()
             }
         }
     }
