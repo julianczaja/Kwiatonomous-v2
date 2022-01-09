@@ -32,6 +32,7 @@ fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceCo
                 val newDeviceConfiguration = DeviceConfiguration(
                     deviceId,
                     deviceConfigurationDto.sleepTimeMinutes,
+                    deviceConfigurationDto.timeZoneOffset,
                     deviceConfigurationDto.wateringOn.toBoolean(),
                     deviceConfigurationDto.wateringIntervalDays,
                     deviceConfigurationDto.wateringAmount,

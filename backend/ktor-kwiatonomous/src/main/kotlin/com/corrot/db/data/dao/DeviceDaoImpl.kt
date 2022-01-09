@@ -52,9 +52,10 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
             DevicesConfigurations.insert {
                 it[DevicesConfigurations.deviceID] = deviceID
                 it[DevicesConfigurations.sleepTimeMinutes] = 30
+                it[DevicesConfigurations.timeZoneOffset] = 1
                 it[DevicesConfigurations.wateringOn] = false
                 it[DevicesConfigurations.wateringIntervalDays] = 2
-                it[DevicesConfigurations.wateringAmount] = 250
+                it[DevicesConfigurations.wateringAmount] = 50
                 it[DevicesConfigurations.wateringTime] = "12:00" // HH:MM
             }
         }

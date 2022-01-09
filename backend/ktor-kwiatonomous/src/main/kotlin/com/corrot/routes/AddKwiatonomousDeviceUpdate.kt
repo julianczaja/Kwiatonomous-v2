@@ -36,7 +36,7 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
                     deviceUpdate.humidity
                 )
 
-                deviceDao.updateDevice(id, TimeUtils.getCurrentTimestamp())
+                deviceDao.updateDevice(id, deviceUpdate.timestamp)
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {

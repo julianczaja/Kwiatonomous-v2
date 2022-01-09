@@ -9,6 +9,7 @@ interface DeviceConfigurationDao {
     fun createDeviceConfiguration(
         deviceID: String,
         sleepTimeMinutes: Int,
+        timeZoneOffset: Int,
         wateringOn: Boolean,
         wateringIntervalDays: Int,
         wateringAmount: Int,

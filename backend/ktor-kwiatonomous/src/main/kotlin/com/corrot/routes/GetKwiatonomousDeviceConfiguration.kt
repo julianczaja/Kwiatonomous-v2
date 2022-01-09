@@ -26,6 +26,7 @@ fun Route.getKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceConfi
             call.respond(
                 HttpStatusCode.OK, DeviceConfigurationDto(
                     deviceConfiguration.sleepTimeMinutes,
+                    deviceConfiguration.timeZoneOffset,
                     deviceConfiguration.wateringOn.toInt(),
                     deviceConfiguration.wateringIntervalDays,
                     deviceConfiguration.wateringAmount,

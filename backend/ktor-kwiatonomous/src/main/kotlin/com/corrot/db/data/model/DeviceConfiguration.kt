@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class DeviceConfiguration(
     val deviceID: String,
     val sleepTimeMinutes: Int,
+    val timeZoneOffset: Int,
     val wateringOn: Boolean,
     val wateringIntervalDays: Int,
     val wateringAmount: Int,

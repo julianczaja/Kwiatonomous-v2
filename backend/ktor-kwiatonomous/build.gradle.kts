@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.0.2"
+version = "0.0.3"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
