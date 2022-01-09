@@ -1,5 +1,11 @@
 package com.corrot.db.data.dao
 
+import com.corrot.Constants.DEFAULT_SLEEP_TIME_MINUTES
+import com.corrot.Constants.DEFAULT_TIME_ZONE_OFFSET
+import com.corrot.Constants.DEFAULT_WATERING_AMOUNT
+import com.corrot.Constants.DEFAULT_WATERING_INTERVAL_DAYS
+import com.corrot.Constants.DEFAULT_WATERING_ON
+import com.corrot.Constants.DEFAULT_WATERING_TIME
 import com.corrot.db.Devices
 import com.corrot.db.DevicesConfigurations
 import com.corrot.db.KwiatonomousDatabase
@@ -51,12 +57,12 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
             // Add default device configuration
             DevicesConfigurations.insert {
                 it[DevicesConfigurations.deviceID] = deviceID
-                it[DevicesConfigurations.sleepTimeMinutes] = 30
-                it[DevicesConfigurations.timeZoneOffset] = 1
-                it[DevicesConfigurations.wateringOn] = false
-                it[DevicesConfigurations.wateringIntervalDays] = 2
-                it[DevicesConfigurations.wateringAmount] = 50
-                it[DevicesConfigurations.wateringTime] = "12:00" // HH:MM
+                it[DevicesConfigurations.sleepTimeMinutes] = DEFAULT_SLEEP_TIME_MINUTES
+                it[DevicesConfigurations.timeZoneOffset] = DEFAULT_TIME_ZONE_OFFSET
+                it[DevicesConfigurations.wateringOn] = DEFAULT_WATERING_ON
+                it[DevicesConfigurations.wateringIntervalDays] = DEFAULT_WATERING_INTERVAL_DAYS
+                it[DevicesConfigurations.wateringAmount] = DEFAULT_WATERING_AMOUNT
+                it[DevicesConfigurations.wateringTime] = DEFAULT_WATERING_TIME
             }
         }
     }
