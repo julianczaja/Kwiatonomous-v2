@@ -30,7 +30,7 @@ void lowBatteryCallback();
 void onError(char *message);
 void goToSleep(unsigned long sleepTime);
 void connectToWifi(WiFiConfiguration *wifiConfiguration);
-unsigned long getEpochTime();
+unsigned long getEpochTime(int16_t timeZoneOffset);
 
 Led ledBuiltin = Led(LED_BUILTIN_PIN);
 Led ledInfo = Led(LED_BLUE_PIN);
@@ -90,7 +90,7 @@ void setup()
   }
 
   DeviceUpdate deviceUpdate = DeviceUpdate();
-  deviceUpdate.epochTime = getEpochTime();
+  deviceUpdate.epochTime = getEpochTime(configuration.timeZoneOffset * 3600);
   deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
   deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
 
@@ -169,7 +169,7 @@ void connectToWifi(WiFiConfiguration *wifiConfiguration)
   ledBuiltin.off();
 }
 
-unsigned long getEpochTime()
+unsigned long getEpochTime(int16_t timeZoneOffset)
 {
   Serial.println("\n> getEpochTime");
 
@@ -177,22 +177,25 @@ unsigned long getEpochTime()
   NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
   timeClient.begin();
-  unsigned long *startNtp = (unsigned long *)malloc(sizeof(unsigned long));
-  *startNtp = millis();
+  timeClient.setTimeOffset(timeZoneOffset);
+
+  unsigned long startNtp = millis();
   bool ntpSuccess = false;
   unsigned long epochTime = 0;
+
   while ((ntpSuccess = timeClient.update()) != true)
   {
-    if ((millis() - *startNtp) > NTP_TIMEOUT)
+    if ((millis() - startNtp) > NTP_TIMEOUT)
     {
       break;
     }
     delay(100);
   }
+
   if (ntpSuccess)
   {
     epochTime = timeClient.getEpochTime();
-    Serial.print("timestamp: ");
+    Serial.print("Current epoch time: ");
     Serial.println(epochTime);
 
     // https://github.com/gmag11/NtpClient/issues/70
@@ -202,6 +205,11 @@ unsigned long getEpochTime()
       onError((char *)"Something is wrong with epochTime (year > 2035)");
     }
   }
+  else 
+  {
+      onError((char *)"Can't get epochTime");
+  }
+
   timeClient.end();
 
   return epochTime;

@@ -36,15 +36,17 @@ bool KwiatonomousApi::getDeviceConfiguration(DeviceConfiguration *configuration)
         int parametersParsed = sscanf(in_payload.c_str(),
                                       GET_CONFIGURATION_FORMAT,
                                       &(configuration->sleepTimeMinutes),
+                                      &(configuration->timeZoneOffset),
                                       &(configuration->wateringOn),
                                       &(configuration->wateringIntervalDays),
                                       &(configuration->wateringAmount),
                                       &(configuration->wateringTime));
 
-        if (parametersParsed == 5)
+        if (parametersParsed == 6)
         {
-            Serial.printf("sleepTimeMinutes=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\nwateringTime=%s\n",
+            Serial.printf("sleepTimeMinutes=%d\ntimeZoneOffset=%d\nwateringOn=%d\nwateringIntervalDays=%d\nwateringAmount=%d\nwateringTime=%s\n",
                           (*configuration).sleepTimeMinutes,
+                          (*configuration).timeZoneOffset,
                           (*configuration).wateringOn,
                           (*configuration).wateringIntervalDays,
                           (*configuration).wateringAmount,

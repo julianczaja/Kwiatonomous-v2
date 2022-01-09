@@ -3,6 +3,7 @@
 
 struct DeviceConfiguration {
     int sleepTimeMinutes;
+    int timeZoneOffset;
     int wateringOn;
     int wateringIntervalDays;
     int wateringAmount;
