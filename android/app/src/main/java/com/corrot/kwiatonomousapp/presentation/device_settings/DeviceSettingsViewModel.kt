@@ -14,6 +14,8 @@ import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceNextWateringUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceNextWateringUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -36,17 +38,16 @@ class DeviceSettingsViewModel @Inject constructor(
     private val _state = mutableStateOf(DeviceSettingsState())
     val state: State<DeviceSettingsState> = _state
 
-    private var originalDeviceConfiguration: DeviceConfiguration? = null
-    private var originalNextWatering: LocalDateTime? = null
+    // mutableStateOf type to trigger isModified on value change
+    private var _originalDeviceConfiguration = mutableStateOf<DeviceConfiguration?>(null)
+    private var _originalNextWatering = mutableStateOf<LocalDateTime?>(null)
 
     val settingsChanged: Boolean
-        get() = (_state.value.deviceConfiguration != originalDeviceConfiguration || _state.value.nextWatering != originalNextWatering)
+        get() = _state.value.deviceConfiguration != _originalDeviceConfiguration.value
+                || _state.value.nextWatering != _originalNextWatering.value
 
     init {
-        savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
-            getDeviceConfiguration(it)
-            getDeviceNextWatering(it)
-        }
+        refreshData()
     }
 
     fun refreshData() {
@@ -56,15 +57,23 @@ class DeviceSettingsViewModel @Inject constructor(
         }
     }
 
+    fun resetChanges() {
+        _state.value =
+            _state.value.copy(
+                deviceConfiguration = _originalDeviceConfiguration.value,
+                isLoading = false,
+                error = null
+            )
+    }
+
     fun saveNewDeviceConfiguration() {
         savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
             updateDeviceConfiguration(it, _state.value.deviceConfiguration!!)
 
-            if (_state.value.nextWatering != originalNextWatering) {
+            if (_state.value.nextWatering != _originalNextWatering.value) {
                 updateNextWatering(it, _state.value.nextWatering!!)
             }
         }
-        // TODO: show snackbar with success/failed
     }
 
     fun onDeviceConfigurationChanged(deviceConfiguration: DeviceConfiguration) {
@@ -128,6 +137,7 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     private fun getDeviceConfiguration(id: String) {
+//            viewModelScope.launch(Dispatchers.IO) {
         viewModelScope.launch {
             getDeviceConfigurationUseCase.execute(id).collect { ret ->
                 when (ret) {
@@ -140,7 +150,7 @@ class DeviceSettingsViewModel @Inject constructor(
                                 isLoading = false,
                                 error = null
                             )
-                        originalDeviceConfiguration = ret.data
+                        _originalDeviceConfiguration.value = ret.data
                     }
                     is Result.Error -> _state.value =
                         DeviceSettingsState(error = ret.throwable.message)
@@ -150,6 +160,7 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     private fun getDeviceNextWatering(id: String) {
+//        viewModelScope.launch(Dispatchers.IO) {
         viewModelScope.launch {
             getDeviceNextWateringUseCase.execute(id).collect { ret ->
                 when (ret) {
@@ -162,7 +173,7 @@ class DeviceSettingsViewModel @Inject constructor(
                                 isLoading = false,
                                 error = null
                             )
-                        originalNextWatering = ret.data
+                        _originalNextWatering.value = ret.data
                     }
                     is Result.Error -> _state.value =
                         DeviceSettingsState(error = ret.throwable.message)
@@ -172,14 +183,25 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     private fun updateDeviceConfiguration(id: String, deviceConfiguration: DeviceConfiguration) {
-        viewModelScope.launch {
-            updateDeviceConfigurationUseCase.execute(id, deviceConfiguration)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                async { updateDeviceConfigurationUseCase.execute(id, deviceConfiguration) }.await()
+                refreshData()
+            } catch (e: Exception) {
+                // TODO: Show snackbar
+                Log.e(TAG, "updateDeviceConfiguration ($e)")
+            }
         }
     }
 
     private fun updateNextWatering(id: String, newWateringTime: LocalDateTime) {
-        viewModelScope.launch {
-            updateDeviceNextWateringUseCase.execute(id, newWateringTime)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                updateDeviceNextWateringUseCase.execute(id, newWateringTime)
+            } catch (e: Exception) {
+                // TODO: Show snackbar
+                Log.e(TAG, "updateNextWatering ($e)")
+            }
         }
     }
 }

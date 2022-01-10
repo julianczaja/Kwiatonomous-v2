@@ -108,13 +108,20 @@ fun DeviceSettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(8.dp),
-                                horizontalArrangement = Arrangement.Center
+                                horizontalArrangement = Arrangement.SpaceAround
                             ) {
                                 Button(
-                                    modifier = Modifier.width(200.dp),
+                                    modifier = Modifier.width(150.dp),
+                                    onClick = {
+                                        viewModel.resetChanges()
+                                    }
+                                ) {
+                                    Text("Reset")
+                                }
+                                Button(
+                                    modifier = Modifier.width(150.dp),
                                     onClick = {
                                         viewModel.saveNewDeviceConfiguration()
-                                        navController.popBackStack()
                                     }
                                 ) {
                                     Text("Save")
