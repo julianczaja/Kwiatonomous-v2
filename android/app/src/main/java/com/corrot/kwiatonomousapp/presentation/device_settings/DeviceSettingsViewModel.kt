@@ -15,7 +15,6 @@ import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceConfigurationUseCas
 import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceNextWateringUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -137,7 +136,6 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     private fun getDeviceConfiguration(id: String) {
-//            viewModelScope.launch(Dispatchers.IO) {
         viewModelScope.launch {
             getDeviceConfigurationUseCase.execute(id).collect { ret ->
                 when (ret) {
@@ -160,7 +158,6 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     private fun getDeviceNextWatering(id: String) {
-//        viewModelScope.launch(Dispatchers.IO) {
         viewModelScope.launch {
             getDeviceNextWateringUseCase.execute(id).collect { ret ->
                 when (ret) {
@@ -184,24 +181,36 @@ class DeviceSettingsViewModel @Inject constructor(
 
     private fun updateDeviceConfiguration(id: String, deviceConfiguration: DeviceConfiguration) {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                async { updateDeviceConfigurationUseCase.execute(id, deviceConfiguration) }.await()
-                refreshData()
-            } catch (e: Exception) {
-                // TODO: Show snackbar
-                Log.e(TAG, "updateDeviceConfiguration ($e)")
+            updateDeviceConfigurationUseCase.execute(id, deviceConfiguration).collect { ret ->
+                when (ret) {
+                    Result.Loading -> _state.value =
+                        _state.value.copy(isLoading = true, error = null)
+                    is Result.Success -> {
+                        _state.value =
+                            _state.value.copy(isLoading = false, error = null)
+                        refreshData()
+                    }
+                    is Result.Error -> _state.value =
+                        DeviceSettingsState(isLoading = false, error = ret.throwable.message)
+                }
             }
         }
     }
 
     private fun updateNextWatering(id: String, newWateringTime: LocalDateTime) {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                updateDeviceNextWateringUseCase.execute(id, newWateringTime)
-            } catch (e: Exception) {
-                // TODO: Show snackbar
-                Log.e(TAG, "updateNextWatering ($e)")
+            updateDeviceNextWateringUseCase.execute(id, newWateringTime).collect { ret ->
+                when (ret) {
+                    Result.Loading -> _state.value =
+                        _state.value.copy(isLoading = true, error = null)
+                    is Result.Success -> _state.value =
+                        _state.value.copy(isLoading = false, error = null)
+                    is Result.Error -> _state.value =
+                        DeviceSettingsState(isLoading = false, error = ret.throwable.message)
+
+                }
             }
+
         }
     }
 }
