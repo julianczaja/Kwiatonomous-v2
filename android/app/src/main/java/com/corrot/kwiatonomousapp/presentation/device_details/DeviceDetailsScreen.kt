@@ -131,10 +131,7 @@ fun DeviceDetailsScreen(
 
 @Composable
 private fun DeviceSection(device: Device) {
-    DeviceItem(
-        device = device,
-        onItemClick = {}
-    )
+    DeviceItem(device)
     Divider(
         color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
         modifier = Modifier.padding(vertical = 8.dp)
