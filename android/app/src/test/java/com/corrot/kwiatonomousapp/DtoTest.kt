@@ -9,6 +9,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 class DtoTest {
 
@@ -17,6 +18,7 @@ class DtoTest {
         // GIVEN
         val deviceConfigurationDto = DeviceConfigurationDto(
             sleepTimeMinutes = 30,
+            timeZoneOffset = 1,
             wateringOn = 1,
             wateringIntervalDays = 2,
             wateringAmount = 250,
@@ -30,6 +32,7 @@ class DtoTest {
         assertThat(result).isEqualTo(
             DeviceConfiguration(
                 sleepTimeMinutes = 30,
+                timeZoneOffset = ZoneOffset.ofHours(1),
                 wateringOn = true,
                 wateringIntervalDays = 2,
                 wateringAmount = 250,
@@ -43,6 +46,7 @@ class DtoTest {
         // GIVEN
         val deviceConfiguration = DeviceConfiguration(
             sleepTimeMinutes = 30,
+            timeZoneOffset = ZoneOffset.ofHours(1),
             wateringOn = true,
             wateringIntervalDays = 2,
             wateringAmount = 250,
@@ -56,6 +60,7 @@ class DtoTest {
         assertThat(result).isEqualTo(
             DeviceConfigurationDto(
                 sleepTimeMinutes = 30,
+                timeZoneOffset = 1,
                 wateringOn = 1,
                 wateringIntervalDays = 2,
                 wateringAmount = 250,

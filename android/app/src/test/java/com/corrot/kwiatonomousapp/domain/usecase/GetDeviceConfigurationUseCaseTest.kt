@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 class GetDeviceConfigurationUseCaseTest {
 
@@ -32,7 +33,8 @@ class GetDeviceConfigurationUseCaseTest {
         val collected = flow.toList()
 
         // WHEN
-        val correctResult = DeviceConfiguration(30, true, 2, 100, LocalTime.of(10, 0))
+        val correctResult =
+            DeviceConfiguration(30, ZoneOffset.ofHours(1), true, 2, 100, LocalTime.of(10, 0))
 
         // THEN
         Truth.assertThat(collected.size).isEqualTo(2)

@@ -6,8 +6,8 @@ import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepositor
 class FakeDeviceConfigurationRepository : DeviceConfigurationRepository {
 
     private val devicesConfigurations = mutableListOf(
-        DeviceConfigurationDto(30, 1, 2, 100, "10:00"),
-        DeviceConfigurationDto(15, 1, 1, 250, "13:30"),
+        DeviceConfigurationDto(30, 1, 1, 2, 100, "10:00"),
+        DeviceConfigurationDto(15, 1, 1, 1, 250, "13:30"),
     )
 
     override suspend fun getDeviceConfigurationByDeviceId(id: String): DeviceConfigurationDto {
