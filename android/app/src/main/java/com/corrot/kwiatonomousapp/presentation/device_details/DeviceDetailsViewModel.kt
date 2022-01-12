@@ -60,7 +60,6 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDevice(id: String) {
         viewModelScope.launch {
             getDeviceUseCase.execute(id).collect { ret ->
-                Log.i("DeviceDetailsViewModel", "getDevice: $ret")
                 _state.value = _state.value.copy(device = ret)
             }
         }
@@ -70,7 +69,6 @@ class DeviceDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             getDeviceUpdatesByDateUseCase.execute(id, from, to)
                 .collect { ret ->
-                    Log.i("DeviceDetailsViewModel", "getDeviceUpdates: $ret")
                     _state.value = _state.value.copy(deviceUpdates = ret)
                 }
         }
@@ -79,7 +77,6 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDeviceConfiguration(id: String) {
         viewModelScope.launch {
             getDeviceConfigurationUseCase.execute(id).collect { ret ->
-                Log.i("DeviceDetailsViewModel", "getDeviceConfiguration: $ret")
                 _state.value = _state.value.copy(deviceConfiguration = ret)
             }
         }

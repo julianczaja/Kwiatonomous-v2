@@ -10,7 +10,7 @@ import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 data class DeviceDetailsState(
     val device: Result<Device> = Result.Loading,
     val deviceUpdates: Result<List<DeviceUpdate>> = Result.Loading,
-    val deviceConfiguration: Result<DeviceConfiguration> = Result.Loading,
+    val deviceConfiguration: Result<DeviceConfiguration?> = Result.Loading,
     val selectedChartDateType: LineChartDateType = LineChartDateType.DAY,
     val selectedChartDataType: LineChartDataType = LineChartDataType.TEMPERATURE,
     val selectedDateRange: Pair<Long, Long> = (Pair(0L, 0L))

@@ -7,6 +7,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 data class DeviceConfigurationDto(
+    val deviceId: String,
     val sleepTimeMinutes: Int,
     val timeZoneOffset: Int,
     val wateringOn: Int,
@@ -17,6 +18,7 @@ data class DeviceConfigurationDto(
 
 fun DeviceConfigurationDto.toDeviceConfiguration() =
     DeviceConfiguration(
+        deviceId = deviceId,
         sleepTimeMinutes = sleepTimeMinutes,
         timeZoneOffset = ZoneOffset.ofHours(timeZoneOffset),
         wateringOn = wateringOn.toBoolean(),

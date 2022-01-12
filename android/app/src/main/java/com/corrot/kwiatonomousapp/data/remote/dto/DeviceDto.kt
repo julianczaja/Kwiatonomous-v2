@@ -5,7 +5,7 @@ import com.corrot.kwiatonomousapp.domain.model.Device
 
 // DTO to ease later use when project will be more complex
 data class DeviceDto(
-    val deviceID: String,
+    val deviceId: String,
     val birthday: Long,
     val lastUpdate: Long,
     var nextWatering: Long
@@ -13,7 +13,7 @@ data class DeviceDto(
 
 
 fun DeviceDto.toDevice() = Device(
-    id = this.deviceID,
+    deviceId = this.deviceId,
     birthday = birthday.toLocalDateTime(),
     lastUpdate = lastUpdate.toLocalDateTime(),
     nextWatering = nextWatering.toLocalDateTime()

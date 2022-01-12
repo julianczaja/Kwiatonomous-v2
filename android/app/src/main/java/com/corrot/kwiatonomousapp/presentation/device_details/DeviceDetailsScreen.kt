@@ -67,14 +67,14 @@ fun DeviceDetailsScreen(
                     when (state.deviceConfiguration) {
                         Result.Loading -> {}
                         is Result.Success -> {
-                            if (state.device is Result.Success) {
+                            if (state.device is Result.Success && state.deviceConfiguration.data != null) {
                                 item {
                                     DeviceConfigurationSection(
                                         state.deviceConfiguration.data,
                                         onEditClicked = {
                                             navController.navigate(
                                                 Screen.DeviceSettings.withArgs(
-                                                    state.device.data.id
+                                                    state.device.data.deviceId
                                                 )
                                             )
                                         }

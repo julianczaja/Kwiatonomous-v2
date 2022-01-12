@@ -4,8 +4,8 @@ import com.corrot.kwiatonomousapp.common.toLocalDateTime
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 
 data class DeviceUpdateDto(
-    val updateID: Int,
-    val deviceID: String,
+    val updateId: Int,
+    val deviceId: String,
     val timestamp: Long,
     val batteryLevel: Int,
     val batteryVoltage: Float,
@@ -14,7 +14,7 @@ data class DeviceUpdateDto(
 )
 
 fun DeviceUpdateDto.toDeviceUpdate() = DeviceUpdate(
-    deviceID = deviceID,
+    deviceId = deviceId,
     updateTime = timestamp.toLocalDateTime(),
     batteryLevel = batteryLevel,
     batteryVoltage = batteryVoltage,

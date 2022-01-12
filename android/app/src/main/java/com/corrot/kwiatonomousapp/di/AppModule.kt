@@ -5,10 +5,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.room.Room
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
 import com.corrot.kwiatonomousapp.common.Constants.PREFERENCES_DATA_STORE_NAME
+import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.DeviceConfigurationRepositoryImpl
 import com.corrot.kwiatonomousapp.data.repository.DeviceRepositoryImpl
@@ -62,6 +64,16 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideKwiatonomousDatabase(@ApplicationContext applicationContext: Context): KwiatonomousDatabase {
+        return Room.databaseBuilder(
+            applicationContext,
+            KwiatonomousDatabase::class.java,
+            "kwiatonomous_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
     fun providePreferencesDataStore(@ApplicationContext applicationContext: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
             produceFile = {
@@ -72,20 +84,29 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDeviceRepository(kwiatonomousApi: KwiatonomousApi): DeviceRepository {
-        return DeviceRepositoryImpl(kwiatonomousApi)
+    fun provideDeviceRepository(
+        kwiatonomousApi: KwiatonomousApi,
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): DeviceRepository {
+        return DeviceRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
 
     @Provides
     @Singleton
-    fun provideDeviceUpdateRepository(kwiatonomousApi: KwiatonomousApi): DeviceUpdateRepository {
-        return DeviceUpdateRepositoryImpl(kwiatonomousApi)
+    fun provideDeviceUpdateRepository(
+        kwiatonomousApi: KwiatonomousApi,
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): DeviceUpdateRepository {
+        return DeviceUpdateRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
 
     @Provides
     @Singleton
-    fun provideDeviceConfigurationRepository(kwiatonomousApi: KwiatonomousApi): DeviceConfigurationRepository {
-        return DeviceConfigurationRepositoryImpl(kwiatonomousApi)
+    fun provideDeviceConfigurationRepository(
+        kwiatonomousApi: KwiatonomousApi,
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): DeviceConfigurationRepository {
+        return DeviceConfigurationRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
 
     @Provides

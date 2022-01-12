@@ -51,7 +51,7 @@ fun DevicesScreen(
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(state.devices) { device ->
                         DeviceItem(device = device, onItemClick = {
-                            navController.navigate(Screen.DeviceDetails.withArgs(device.id))
+                            navController.navigate(Screen.DeviceDetails.withArgs(device.deviceId))
                         })
                     }
                 }

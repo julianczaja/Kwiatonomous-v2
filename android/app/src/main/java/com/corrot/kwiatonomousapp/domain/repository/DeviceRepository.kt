@@ -1,15 +1,28 @@
 package com.corrot.kwiatonomousapp.domain.repository
 
+import com.corrot.kwiatonomousapp.data.local.database.entity.DeviceEntity
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
+import com.corrot.kwiatonomousapp.domain.model.Device
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface DeviceRepository {
 
-    suspend fun getDevices(): List<DeviceDto>
+    // Remote
+    suspend fun fetchDevices(): List<DeviceDto>
 
-    suspend fun getDeviceById(id: String): DeviceDto
+    suspend fun fetchDeviceById(id: String): DeviceDto
 
-    suspend fun getNextWateringByDeviceId(id: String): LocalDateTime
+    suspend fun fetchNextWateringByDeviceId(id: String): LocalDateTime
 
     suspend fun updateNextWateringByDeviceId(id: String, nextWatering: LocalDateTime)
+
+    // Local
+    fun getDeviceFromDatabase(deviceId: String): Flow<Device>
+
+    fun getDevicesFromDatabase(): Flow<List<Device>>
+
+    suspend fun saveFetchedDevice(device: DeviceEntity)
+
+    suspend fun saveFetchedDevices(devices: List<DeviceEntity>)
 }

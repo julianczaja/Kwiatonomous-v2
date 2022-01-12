@@ -31,6 +31,7 @@ fun DeviceConfigurationPreviewLight() {
         Surface {
             DeviceConfigurationItem(
                 DeviceConfiguration(
+                    "test_id",
                     30,
                     ZoneOffset.ofHours(1),
                     true,

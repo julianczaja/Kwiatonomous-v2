@@ -128,7 +128,7 @@ fun DeviceItem(
                             style = MaterialTheme.typography.body1,
                         )
                         Text(
-                            text = device.id,
+                            text = device.deviceId,
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body2,
                         )
