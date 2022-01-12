@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.0.3"
+version = "0.0.4"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -44,8 +44,7 @@ dependencies {
 
     // Database
     implementation("org.jetbrains.exposed:exposed:0.17.14")
-    implementation("com.h2database:h2:1.4.200")
-
+    implementation("org.xerial:sqlite-jdbc:3.36.0.2")
     // DI
     implementation("io.insert-koin:koin-ktor:3.1.4")
 }

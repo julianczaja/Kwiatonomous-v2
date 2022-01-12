@@ -7,19 +7,23 @@ import com.corrot.db.data.dao.DeviceUpdateDao
 import com.corrot.db.data.model.DeviceConfiguration
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.sql.DriverManager
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
 
 class KwiatonomousDatabase {
 
-    val db: Database = Database.connect(
-        url = if (DEBUG_MODE)
-            "jdbc:h2:mem:test_mem;DB_CLOSE_DELAY=-1;"
-        else
-            "jdbc:h2:file:${System.getProperty("user.home")}/kwiatonomous",
-        driver = "org.h2.Driver"
-    )
+    private val dbPath =
+        if (DEBUG_MODE) "jdbc:sqlite:file:test?mode=memory&cache=shared"
+        else "jdbc:sqlite:file:${System.getProperty("user.home")}/kwiatonomous.sqlite"
+
+    // Hack to not close in memory database
+    // https://github.com/JetBrains/Exposed/issues/726#issuecomment-932202379
+    private val keepAliveConnection =
+        if (DEBUG_MODE) DriverManager.getConnection(dbPath) else null
+
+    val db: Database = Database.connect(dbPath, "org.sqlite.JDBC")
 
     fun isConnected() = try {
         transaction { !connection.isClosed }
@@ -47,6 +51,7 @@ fun populateDatabase(
         DeviceConfiguration(
             deviceId,
             30,
+            1,
             true,
             1,
             250,
