@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Device(
-    val deviceID: String,
+    val deviceId: String,
     val birthday: Long,
     var lastUpdate: Long,
     var nextWatering: Long

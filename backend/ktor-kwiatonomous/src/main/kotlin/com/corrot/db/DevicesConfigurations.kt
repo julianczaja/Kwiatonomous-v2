@@ -15,7 +15,7 @@ object DevicesConfigurations : Table() {
     val wateringOn = bool("wateringOn").default(DEFAULT_WATERING_ON)
     val wateringIntervalDays = integer("wateringIntervalDays").default(DEFAULT_WATERING_INTERVAL_DAYS)
     val wateringAmount = integer("wateringAmount").default(DEFAULT_WATERING_AMOUNT)
-    val wateringTime = varchar("wateringTime", 6).default(DEFAULT_WATERING_TIME) // MM:HH
+    val wateringTime = varchar("wateringTime", 6).default(DEFAULT_WATERING_TIME)
 
-    val deviceID = varchar("deviceID", 12).references(Devices.deviceID, onDelete = ReferenceOption.CASCADE)
+    val deviceId = varchar("deviceId", 12).references(Devices.deviceId, onDelete = ReferenceOption.CASCADE)
 }

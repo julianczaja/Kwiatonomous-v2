@@ -20,7 +20,7 @@ fun Route.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdateDao) {
         val to = call.request.queryParameters["to"]?.toLongOrNull()
 
         val deviceUpdates = deviceUpdateDao.getAllDeviceUpdates(
-            deviceID = deviceId,
+            deviceId = deviceId,
             limit = limit,
             fromTimestamp = from,
             toTimestamp = to

@@ -4,12 +4,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DeviceConfigurationDto(
-    val sleepTimeMinutes: Int,
-    val timeZoneOffset: Int,
-    val wateringOn: Int,
-    val wateringIntervalDays: Int,
-    val wateringAmount: Int,
-    val wateringTime: String
+        val sleepTimeMinutes: Int,
+        val timeZoneOffset: Int,
+        val wateringOn: Int,
+        val wateringIntervalDays: Int,
+        val wateringAmount: Int,
+        val wateringTime: String
 ) {
     override fun toString(): String {
         return "> Sleep time: $sleepTimeMinutes minutes\n" +

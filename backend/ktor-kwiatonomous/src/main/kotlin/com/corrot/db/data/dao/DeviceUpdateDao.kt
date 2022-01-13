@@ -7,16 +7,16 @@ interface DeviceUpdateDao {
     fun getAllDeviceUpdates(): List<DeviceUpdate>
 
     fun getAllDeviceUpdates(
-        deviceID: String,
+        deviceId: String,
         limit: Int? = null,
         fromTimestamp: Long? = null,
         toTimestamp: Long? = null
     ): List<DeviceUpdate>
 
-    fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate?
+    fun getDeviceUpdate(deviceId: String, updateId: Int): DeviceUpdate?
 
     fun createDeviceUpdate(
-        deviceID: String,
+        deviceId: String,
         timestamp: Long,
         batteryLevel: Int,
         batteryVoltage: Float,
@@ -24,5 +24,5 @@ interface DeviceUpdateDao {
         humidity: Float
     ): Int
 
-    fun deleteDeviceUpdate(updateID: Int)
+    fun deleteDeviceUpdate(updateId: Int)
 }

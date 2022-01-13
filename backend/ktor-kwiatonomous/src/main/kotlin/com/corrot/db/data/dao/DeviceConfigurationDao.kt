@@ -4,10 +4,10 @@ import com.corrot.db.data.model.DeviceConfiguration
 
 interface DeviceConfigurationDao {
 
-    fun getDeviceConfiguration(deviceID: String): DeviceConfiguration?
+    fun getDeviceConfiguration(deviceId: String): DeviceConfiguration?
 
     fun createDeviceConfiguration(
-        deviceID: String,
+        deviceId: String,
         sleepTimeMinutes: Int,
         timeZoneOffset: Int,
         wateringOn: Boolean,

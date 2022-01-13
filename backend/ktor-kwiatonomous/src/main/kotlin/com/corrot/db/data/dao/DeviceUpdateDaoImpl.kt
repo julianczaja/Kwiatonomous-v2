@@ -18,8 +18,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
         transaction(database.db) {
             DeviceUpdates.selectAll().map {
                 DeviceUpdate(
-                    updateID = it[DeviceUpdates.updateID],
-                    deviceID = it[DeviceUpdates.deviceID],
+                    updateId = it[DeviceUpdates.updateId],
+                    deviceId = it[DeviceUpdates.deviceId],
                     timestamp = it[DeviceUpdates.timestamp],
                     batteryLevel = it[DeviceUpdates.batteryLevel],
                     batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -30,14 +30,14 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
         }
 
     override fun getAllDeviceUpdates(
-        deviceID: String,
+        deviceId: String,
         limit: Int?,
         fromTimestamp: Long?,
         toTimestamp: Long?
     ): List<DeviceUpdate> =
         transaction(database.db) {
             DeviceUpdates
-                .select { DeviceUpdates.deviceID eq deviceID }
+                .select { DeviceUpdates.deviceId eq deviceId }
                 .apply {
                     if (fromTimestamp != null && toTimestamp != null) {
                         andWhere { DeviceUpdates.timestamp greaterEq fromTimestamp }
@@ -52,8 +52,8 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                 .orderBy(DeviceUpdates.timestamp, SortOrder.DESC)
                 .map {
                     DeviceUpdate(
-                        updateID = it[DeviceUpdates.updateID],
-                        deviceID = it[DeviceUpdates.deviceID],
+                        updateId = it[DeviceUpdates.updateId],
+                        deviceId = it[DeviceUpdates.deviceId],
                         timestamp = it[DeviceUpdates.timestamp],
                         batteryLevel = it[DeviceUpdates.batteryLevel],
                         batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -64,15 +64,15 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
         }
 
 
-    override fun getDeviceUpdate(deviceID: String, updateID: Int): DeviceUpdate? =
+    override fun getDeviceUpdate(deviceId: String, updateId: Int): DeviceUpdate? =
         transaction(database.db) {
             DeviceUpdates
-                .select { DeviceUpdates.deviceID eq deviceID }
-                .andWhere { DeviceUpdates.updateID eq updateID }
+                .select { DeviceUpdates.deviceId eq deviceId }
+                .andWhere { DeviceUpdates.updateId eq updateId }
                 .map {
                     DeviceUpdate(
-                        updateID = it[DeviceUpdates.updateID],
-                        deviceID = it[DeviceUpdates.deviceID],
+                        updateId = it[DeviceUpdates.updateId],
+                        deviceId = it[DeviceUpdates.deviceId],
                         timestamp = it[DeviceUpdates.timestamp],
                         batteryLevel = it[DeviceUpdates.batteryLevel],
                         batteryVoltage = it[DeviceUpdates.batteryVoltage],
@@ -83,7 +83,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
         }
 
     override fun createDeviceUpdate(
-        deviceID: String,
+        deviceId: String,
         timestamp: Long,
         batteryLevel: Int,
         batteryVoltage: Float,
@@ -92,7 +92,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
     ): Int {
         val deviceUpdate = transaction(database.db) {
             return@transaction DeviceUpdates.insert {
-                it[DeviceUpdates.deviceID] = deviceID
+                it[DeviceUpdates.deviceId] = deviceId
                 it[DeviceUpdates.timestamp] = timestamp
                 it[DeviceUpdates.batteryLevel] = batteryLevel
                 it[DeviceUpdates.batteryVoltage] = batteryVoltage
@@ -100,12 +100,12 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
                 it[DeviceUpdates.humidity] = humidity
             }
         }
-        return deviceUpdate[DeviceUpdates.updateID]
+        return deviceUpdate[DeviceUpdates.updateId]
     }
 
 
-    override fun deleteDeviceUpdate(updateID: Int) {
-        DeviceUpdates.deleteWhere { DeviceUpdates.updateID eq updateID }
+    override fun deleteDeviceUpdate(updateId: Int) {
+        DeviceUpdates.deleteWhere { DeviceUpdates.updateId eq updateId }
     }
 }
 

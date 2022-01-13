@@ -6,13 +6,13 @@ interface DeviceDao {
 
     fun getAllDevices(): List<Device>
 
-    fun getDevice(deviceID: String): Device?
+    fun getDevice(deviceId: String): Device?
 
-    fun createDevice(deviceID: String, birthday: Long? = null)
+    fun createDevice(deviceId: String, birthday: Long? = null)
 
-    fun updateDevice(deviceID: String, lastUpdate: Long)
+    fun updateDevice(deviceId: String, lastUpdate: Long)
 
-    fun updateNextWatering(deviceID: String, newNextWateringTime: Long)
+    fun updateNextWatering(deviceId: String, newNextWateringTime: Long)
 
-    fun deleteDevice(deviceID: String)
+    fun deleteDevice(deviceId: String)
 }

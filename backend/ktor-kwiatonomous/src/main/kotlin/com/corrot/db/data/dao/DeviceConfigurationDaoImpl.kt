@@ -17,11 +17,11 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
         }
     }
 
-    override fun getDeviceConfiguration(deviceID: String): DeviceConfiguration? =
+    override fun getDeviceConfiguration(deviceId: String): DeviceConfiguration? =
         transaction(database.db) {
-            DevicesConfigurations.select { DevicesConfigurations.deviceID eq deviceID }.map {
+            DevicesConfigurations.select { DevicesConfigurations.deviceId eq deviceId }.map {
                 DeviceConfiguration(
-                    deviceID = it[DevicesConfigurations.deviceID],
+                    deviceId = it[DevicesConfigurations.deviceId],
                     sleepTimeMinutes = it[DevicesConfigurations.sleepTimeMinutes],
                     timeZoneOffset = it[DevicesConfigurations.timeZoneOffset],
                     wateringOn = it[DevicesConfigurations.wateringOn],
@@ -33,7 +33,7 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
         }
 
     override fun createDeviceConfiguration(
-        deviceID: String,
+        deviceId: String,
         sleepTimeMinutes: Int,
         timeZoneOffset: Int,
         wateringOn: Boolean,
@@ -43,7 +43,7 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
     ): Unit =
         transaction(database.db) {
             DevicesConfigurations.insert {
-                it[DevicesConfigurations.deviceID] = deviceID
+                it[DevicesConfigurations.deviceId] = deviceId
                 it[DevicesConfigurations.sleepTimeMinutes] = sleepTimeMinutes
                 it[DevicesConfigurations.timeZoneOffset] = timeZoneOffset
                 it[DevicesConfigurations.wateringOn] = wateringOn
@@ -56,9 +56,9 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
     override fun updateDeviceConfiguration(deviceConfiguration: DeviceConfiguration): Unit =
         transaction(database.db) {
             DevicesConfigurations.update(
-                where = { DevicesConfigurations.deviceID eq deviceConfiguration.deviceID },
+                where = { DevicesConfigurations.deviceId eq deviceConfiguration.deviceId },
                 body = {
-                    it[DevicesConfigurations.deviceID] = deviceConfiguration.deviceID
+                    it[DevicesConfigurations.deviceId] = deviceConfiguration.deviceId
                     it[DevicesConfigurations.sleepTimeMinutes] = deviceConfiguration.sleepTimeMinutes
                     it[DevicesConfigurations.timeZoneOffset] = deviceConfiguration.timeZoneOffset
                     it[DevicesConfigurations.wateringOn] = deviceConfiguration.wateringOn
