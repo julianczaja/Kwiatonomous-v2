@@ -19,7 +19,7 @@ class GetDeviceConfigurationUseCase @Inject constructor(
             },
             fetch = {
                 deviceConfigurationRepository.fetchDeviceConfigurationByDeviceId(deviceId)
-                    .toDeviceConfiguration()
+                    .toDeviceConfiguration(deviceId)
             },
             saveFetchResult = { ret ->
                 deviceConfigurationRepository.saveFetchedDeviceConfiguration(

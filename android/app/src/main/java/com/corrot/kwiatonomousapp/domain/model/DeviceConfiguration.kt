@@ -20,7 +20,6 @@ data class DeviceConfiguration(
 
 fun DeviceConfiguration.toDeviceConfigurationDto() =
     DeviceConfigurationDto(
-        deviceId = this.deviceId,
         sleepTimeMinutes = this.sleepTimeMinutes,
         timeZoneOffset = this.timeZoneOffset.totalHours(),
         wateringOn = this.wateringOn.toInt(),
