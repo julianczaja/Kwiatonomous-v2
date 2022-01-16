@@ -9,12 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
-import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.*
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
@@ -30,101 +28,73 @@ fun DeviceDetailsScreen(
     navController: NavController,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
-
     val state = viewModel.state.value
-    val isLoading = (state.device is Result.Loading)
-            || (state.deviceUpdates is Result.Loading)
-            || (state.deviceConfiguration is Result.Loading)
+    val isLoading = viewModel.isLoading
 
-    Scaffold {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(12.dp)
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isLoading),
+            onRefresh = { viewModel.refreshData() }
         ) {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isLoading),
-                onRefresh = { viewModel.refreshDevice() }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
             ) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-
-                    // Device
-                    when (state.device) {
-                        Result.Loading -> {}
-                        is Result.Success -> {
-                            item {
-                                DeviceSection(device = state.device.data)
-                            }
-                        }
-                        is Result.Error -> {
-                            item {
-                                DefaultErrorBox(state.device.throwable.message)
-                            }
-                        }
+                state.device?.let { device ->
+                    item {
+                        DeviceSection(device)
                     }
+                }
 
-                    // Device configuration
-                    when (state.deviceConfiguration) {
-                        Result.Loading -> {}
-                        is Result.Success -> {
-                            if (state.device is Result.Success && state.deviceConfiguration.data != null) {
-                                item {
-                                    DeviceConfigurationSection(
-                                        state.deviceConfiguration.data,
-                                        onEditClicked = {
-                                            navController.navigate(
-                                                Screen.DeviceSettings.withArgs(
-                                                    state.device.data.deviceId
-                                                )
-                                            )
-                                        }
+                state.deviceConfiguration?.let { deviceConfiguration ->
+                    item {
+                        DeviceConfigurationSection(
+                            deviceConfiguration,
+                            onEditClicked = {
+                                navController.navigate(
+                                    Screen.DeviceSettings.withArgs(
+                                        deviceConfiguration.deviceId
                                     )
-                                }
+                                )
                             }
-                        }
-                        is Result.Error -> {
-                            item {
-                                DefaultErrorBox(state.deviceConfiguration.throwable.message)
-                            }
-                        }
+                        )
                     }
+                }
 
-                    // Device updates
-                    when (state.deviceUpdates) {
-                        Result.Loading -> {}
-                        is Result.Success -> {
-                            item {
-                                DeviceUpdatesSection(
-                                    deviceUpdates = state.deviceUpdates.data,
-                                    selectedChartDateType = viewModel.state.value.selectedChartDateType,
-                                    selectedDateRange = viewModel.state.value.selectedDateRange,
-                                    selectedChartDataType = viewModel.state.value.selectedChartDataType,
-                                    onChartDateTypeSelected = {
-                                        viewModel.onChartDateTypeSelected(
-                                            LineChartDateType.valueOf(
-                                                it
-                                            )
-                                        )
-                                    },
-                                    onChartDataTypeSelected = {
-                                        viewModel.onChartDataTypeSelected(
-                                            LineChartDataType.valueOf(
-                                                it
-                                            )
-                                        )
-                                    })
-
+                state.deviceUpdates?.let { deviceUpdates ->
+                    item {
+                        DeviceUpdatesSection(
+                            deviceUpdates = deviceUpdates,
+                            selectedChartDateType = viewModel.state.value.selectedChartDateType,
+                            selectedDateRange = viewModel.state.value.selectedDateRange,
+                            selectedChartDataType = viewModel.state.value.selectedChartDataType,
+                            onChartDateTypeSelected = {
+                                viewModel.onChartDateTypeSelected(
+                                    LineChartDateType.valueOf(it)
+                                )
+                            },
+                            onChartDataTypeSelected = {
+                                viewModel.onChartDataTypeSelected(
+                                    LineChartDataType.valueOf(it)
+                                )
                             }
-                        }
-                        is Result.Error -> {
-                            item {
-                                DefaultErrorBox(state.deviceUpdates.throwable.message)
-                            }
-                        }
+                        )
                     }
-
                 }
             }
+        }
+        state.error?.let { error ->
+            ErrorBoxCancelRetry(
+                message = error,
+                onCancel = { viewModel.confirmError() },
+                onRetry = {
+                    viewModel.confirmError()
+                    viewModel.refreshData()
+                }
+            )
         }
     }
 }
@@ -239,17 +209,3 @@ private fun DeviceUpdatesSection(
         }
     }
 }
-
-@Composable
-private fun DefaultErrorBox(errorText: String?) {
-    Text(
-        text = errorText ?: "Unknown error",
-        textAlign = TextAlign.Center,
-    )
-    Divider(
-        color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
-        modifier = Modifier.padding(vertical = 8.dp)
-    )
-}
-
-

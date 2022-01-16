@@ -9,10 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceNextWateringUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceNextWateringUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -26,7 +23,7 @@ class DeviceSettingsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
     private val updateDeviceConfigurationUseCase: UpdateDeviceConfigurationUseCase,
-    private val getDeviceNextWateringUseCase: GetDeviceNextWateringUseCase,
+    private val getDeviceUseCase: GetDeviceUseCase,
     private val updateDeviceNextWateringUseCase: UpdateDeviceNextWateringUseCase
 ) : ViewModel() {
 
@@ -159,18 +156,18 @@ class DeviceSettingsViewModel @Inject constructor(
 
     private fun getDeviceNextWatering(id: String) {
         viewModelScope.launch {
-            getDeviceNextWateringUseCase.execute(id).collect { ret ->
+            getDeviceUseCase.execute(id).collect {ret ->
                 when (ret) {
                     is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
                     is Result.Success -> {
                         _state.value =
                             _state.value.copy(
-                                nextWatering = ret.data,
+                                nextWatering = ret.data.nextWatering,
                                 isLoading = false,
                                 error = null
                             )
-                        _originalNextWatering.value = ret.data
+                        _originalNextWatering.value = ret.data.nextWatering
                     }
                     is Result.Error -> _state.value =
                         DeviceSettingsState(error = ret.throwable.message)
@@ -183,7 +180,7 @@ class DeviceSettingsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             updateDeviceConfigurationUseCase.execute(id, deviceConfiguration).collect { ret ->
                 when (ret) {
-                    Result.Loading -> _state.value =
+                    is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
                     is Result.Success -> {
                         _state.value =
@@ -201,7 +198,7 @@ class DeviceSettingsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             updateDeviceNextWateringUseCase.execute(id, newWateringTime).collect { ret ->
                 when (ret) {
-                    Result.Loading -> _state.value =
+                    is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
                     is Result.Success -> _state.value =
                         _state.value.copy(isLoading = false, error = null)

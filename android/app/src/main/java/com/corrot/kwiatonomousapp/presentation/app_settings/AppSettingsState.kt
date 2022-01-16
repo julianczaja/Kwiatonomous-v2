@@ -4,5 +4,5 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
 
 data class AppSettingsState(
-    val appPreferences: Result<AppPreferences> = Result.Loading
+    val appPreferences: Result<AppPreferences> = Result.Loading()
 )

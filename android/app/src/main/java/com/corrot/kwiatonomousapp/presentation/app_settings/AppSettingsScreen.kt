@@ -26,7 +26,7 @@ fun AppSettingsScreen(
             LazyColumn(modifier = Modifier.fillMaxSize()) {
 
                 when (state.appPreferences) {
-                    Result.Loading -> {
+                    is Result.Loading -> {
                         item {
                             CircularProgressIndicator()
                         }

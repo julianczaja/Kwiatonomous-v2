@@ -1,7 +1,5 @@
 package com.corrot.kwiatonomousapp.presentation.device_details
 
-import android.util.Log
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -11,117 +9,177 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
-import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(DeviceDetailsState())
-    val state: State<DeviceDetailsState> = _state
+    private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
+
+    val state = mutableStateOf(DeviceDetailsState())
+
+    // Keep track of jobs to cancel it first when refreshData() is triggered
+    // otherwise there will be multiple coroutines in background
+    // TODO: is that a good approach
+    private var getDeviceJob: Job? = null
+    private var getDeviceUpdatesJob: Job? = null
+    private var getDeviceConfigurationJob: Job? = null
+
+    val isLoading: Boolean
+        get() = state.value.isDeviceLoading
+                || state.value.isDeviceUpdatesLoading
+                || state.value.isDeviceConfigurationLoading
 
     init {
-        onChartDateTypeSelected(LineChartDateType.WEEK)
-        savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
+        state.value = state.value.copy(
+            selectedDateRange = calculateDateRange(LineChartDateType.WEEK)
+        )
+        refreshData()
+    }
+
+    fun refreshData() {
+        deviceId?.let {
             getDevice(it)
+            getDeviceConfiguration(it)
             getDeviceUpdates(
                 id = it,
-                from = _state.value.selectedDateRange.first,
-                to = _state.value.selectedDateRange.second
+                from = state.value.selectedDateRange.first,
+                to = state.value.selectedDateRange.second
             )
-            getDeviceConfiguration(it)
         }
     }
 
-    fun refreshDevice() {
-        savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
-            getDevice(it)
-            getDeviceUpdates(
-                id = it,
-                from = _state.value.selectedDateRange.first,
-                to = _state.value.selectedDateRange.second
-            )
-            getDeviceConfiguration(it)
-        }
+    fun confirmError() {
+        state.value = state.value.copy(error = null)
     }
 
     private fun getDevice(id: String) {
-        viewModelScope.launch {
-            getDeviceUseCase.execute(id).collect { ret ->
-                _state.value = _state.value.copy(device = ret)
+        viewModelScope.launch(Dispatchers.IO) {
+            getDeviceJob?.cancelAndJoin()
+            getDeviceJob = viewModelScope.launch(Dispatchers.IO) {
+                getDeviceUseCase.execute(id).collect { ret ->
+                    withContext(Dispatchers.Main) {
+                        when (ret) {
+                            is Result.Loading -> state.value = state.value.copy(
+                                isDeviceLoading = true,
+                                device = ret.data
+                            )
+                            is Result.Success -> state.value = state.value.copy(
+                                isDeviceLoading = false,
+                                device = ret.data/*, error = null*/
+                            )
+                            is Result.Error -> state.value = state.value.copy(
+                                isDeviceLoading = false,
+                                error = ret.throwable.message
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     private fun getDeviceUpdates(id: String, from: Long, to: Long) {
-        viewModelScope.launch {
-            getDeviceUpdatesByDateUseCase.execute(id, from, to)
-                .collect { ret ->
-                    _state.value = _state.value.copy(deviceUpdates = ret)
+        viewModelScope.launch(Dispatchers.IO) {
+            getDeviceUpdatesJob?.cancelAndJoin()
+            getDeviceUpdatesJob = viewModelScope.launch(Dispatchers.IO) {
+                getDeviceUpdatesByDateUseCase.execute(id, from, to).collect { ret ->
+                    withContext(Dispatchers.Main) {
+                        when (ret) {
+                            is Result.Loading -> state.value = state.value.copy(
+                                isDeviceUpdatesLoading = true,
+                                deviceUpdates = ret.data
+                            )
+                            is Result.Success -> state.value = state.value.copy(
+                                isDeviceUpdatesLoading = false,
+                                deviceUpdates = ret.data/*, error = null*/
+                            )
+                            is Result.Error -> state.value = state.value.copy(
+                                isDeviceUpdatesLoading = false,
+                                error = ret.throwable.message
+                            )
+                        }
+                    }
                 }
+            }
         }
     }
 
     private fun getDeviceConfiguration(id: String) {
-        viewModelScope.launch {
-            getDeviceConfigurationUseCase.execute(id).collect { ret ->
-                _state.value = _state.value.copy(deviceConfiguration = ret)
+        viewModelScope.launch(Dispatchers.IO) {
+            getDeviceConfigurationJob?.cancelAndJoin()
+            getDeviceConfigurationJob = viewModelScope.launch(Dispatchers.IO) {
+                getDeviceConfigurationUseCase.execute(id).collect { ret ->
+                    withContext(Dispatchers.Main) {
+                        when (ret) {
+                            is Result.Loading -> state.value = state.value.copy(
+                                isDeviceConfigurationLoading = true,
+                                deviceConfiguration = ret.data
+                            )
+                            is Result.Success -> state.value = state.value.copy(
+                                isDeviceConfigurationLoading = false,
+                                deviceConfiguration = ret.data/*, error = null*/
+                            )
+                            is Result.Error -> state.value = state.value.copy(
+                                isDeviceConfigurationLoading = false,
+                                error = ret.throwable.message
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     fun onChartDateTypeSelected(dateType: LineChartDateType) {
-        when {
-            dateType.ordinal < state.value.selectedChartDateType.ordinal -> {
-                if (_state.value.deviceUpdates is Result.Success) {
-                    val newDataRange = calculateDateRange(dateType)
-                    val oldDeviceUpdates =
-                        (_state.value.deviceUpdates as Result.Success<List<DeviceUpdate>>).data
-                    val newDeviceUpdates = oldDeviceUpdates.filter {
-                        it.updateTime.toLong() in newDataRange.first..newDataRange.second
+        viewModelScope.launch{
+            when {
+                dateType.ordinal < state.value.selectedChartDateType.ordinal -> {
+                    state.value.deviceUpdates?.let { oldDeviceUpdates ->
+                        val newDataRange = calculateDateRange(dateType)
+                        val newDeviceUpdates = oldDeviceUpdates.filter {
+                            it.updateTime.toLong() in newDataRange.first..newDataRange.second
+                        }
+                        state.value = state.value.copy(
+                            deviceUpdates = newDeviceUpdates,
+                            selectedChartDateType = dateType,
+                            selectedDateRange = newDataRange
+                        )
                     }
-
-                    _state.value = _state.value.copy(
-                        deviceUpdates = Result.Success(newDeviceUpdates),
+                }
+                dateType.ordinal > state.value.selectedChartDateType.ordinal -> {
+                    val newDataRange = calculateDateRange(dateType)
+                    deviceId?.let {
+                        getDeviceUpdates(
+                            id = it,
+                            from = newDataRange.first,
+                            to = newDataRange.second
+                        )
+                    }
+                    state.value = state.value.copy(
                         selectedChartDateType = dateType,
                         selectedDateRange = newDataRange
                     )
                 }
-            }
-            dateType.ordinal == state.value.selectedChartDateType.ordinal -> {
-                return
-            }
-            dateType.ordinal > state.value.selectedChartDateType.ordinal -> {
-                val newDataRange = calculateDateRange(dateType)
-                _state.value = _state.value.copy(
-                    selectedChartDateType = dateType,
-                    selectedDateRange = newDataRange
-                )
-                savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
-                    getDeviceUpdates(
-                        id = it,
-                        from = newDataRange.first,
-                        to = newDataRange.second
-                    )
-                }
+                dateType.ordinal == state.value.selectedChartDateType.ordinal -> {}
             }
         }
     }
 
     fun onChartDataTypeSelected(dataType: LineChartDataType) {
-        _state.value = _state.value.copy(selectedChartDataType = dataType)
+        state.value = state.value.copy(selectedChartDataType = dataType)
     }
 
     private fun calculateDateRange(dateType: LineChartDateType): Pair<Long, Long> {

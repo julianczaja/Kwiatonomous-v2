@@ -11,7 +11,7 @@ class UpdateDeviceNextWateringUseCase @Inject constructor(
 ) {
     suspend fun execute(deviceId: String, nextWatering: LocalDateTime) = flow {
         try {
-            emit(Result.Loading)
+            emit(Result.Loading())
             deviceRepository.updateNextWateringByDeviceId(deviceId, nextWatering)
             emit(Result.Success(null))
         } catch (e: Exception) {

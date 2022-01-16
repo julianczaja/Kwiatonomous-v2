@@ -11,7 +11,7 @@ class UpdateDeviceConfigurationUseCase @Inject constructor(
     private val deviceConfigurationRepository: DeviceConfigurationRepository
 ) {
     suspend fun execute(deviceId: String, configuration: DeviceConfiguration) = flow {
-        emit(Result.Loading)
+        emit(Result.Loading())
         try {
             validateInput(deviceId, configuration)
             val configurationDto = configuration.toDeviceConfigurationDto()
