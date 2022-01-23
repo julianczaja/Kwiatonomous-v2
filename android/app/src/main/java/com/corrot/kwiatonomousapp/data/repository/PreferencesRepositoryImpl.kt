@@ -4,10 +4,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.data.local.datastore.PreferencesDataStoreKeys.DARK_MODE_KEY
+import com.corrot.kwiatonomousapp.data.local.datastore.PreferencesDataStoreKeys.APP_THEME_KEY
 import com.corrot.kwiatonomousapp.data.local.datastore.PreferencesDataStoreKeys.FIRST_TIME_USER_KEY
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
 import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -25,7 +26,7 @@ class PreferencesRepositoryImpl @Inject constructor(
             Result.Success(
                 AppPreferences(
                     isFirstTimeUser = preferences[FIRST_TIME_USER_KEY] ?: false,
-                    isDarkMode = preferences[DARK_MODE_KEY] ?: false
+                    appTheme = AppTheme.values()[preferences[APP_THEME_KEY] ?: 0]
                 )
             )
         }
@@ -33,7 +34,7 @@ class PreferencesRepositoryImpl @Inject constructor(
     override suspend fun updateAppPreferences(newAppPreferences: AppPreferences) {
         dataStore.edit { preferences ->
             preferences[FIRST_TIME_USER_KEY] = newAppPreferences.isFirstTimeUser
-            preferences[DARK_MODE_KEY] = newAppPreferences.isDarkMode
+            preferences[APP_THEME_KEY] = newAppPreferences.appTheme.ordinal
         }
     }
 
@@ -48,14 +49,14 @@ class PreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isDarkMode(): Flow<Boolean> = dataStore.data
+    override fun getAppTheme(): Flow<AppTheme> = dataStore.data
         .map { preferences ->
-            preferences[DARK_MODE_KEY] ?: false
+            AppTheme.values()[preferences[APP_THEME_KEY] ?: 0]
         }
 
-    override suspend fun updateDarkMode(isDarkMode: Boolean) {
+    override suspend fun updateAppTheme(appTheme: AppTheme) {
         dataStore.edit { preferences ->
-            preferences[DARK_MODE_KEY] = isDarkMode
+            preferences[APP_THEME_KEY] = appTheme.ordinal
         }
     }
 }

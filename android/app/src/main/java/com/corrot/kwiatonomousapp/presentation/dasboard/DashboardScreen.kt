@@ -1,6 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -8,8 +9,9 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,8 +28,16 @@ fun DashboardScreen(
     navController: NavController,
 //    viewModel: DashboardViewModel = hiltViewModel()
 ) {
-    Scaffold {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        TopAppBar(
+            modifier = Modifier.height(45.dp),
+            backgroundColor = MaterialTheme.colors.primary,
+            title = { Text(text = "Kwiatonomous") },
+        )
         Column(
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxSize()
         ) {
@@ -53,7 +63,7 @@ fun DashboardScreen(
 
             LazyVerticalGrid(
                 cells = GridCells.Adaptive(150.dp),
-                contentPadding = PaddingValues(8.dp)
+                contentPadding = PaddingValues(8.dp),
             ) {
                 item {
                     DashboardCardItem(

@@ -1,18 +1,16 @@
 package com.corrot.kwiatonomousapp.common.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +20,8 @@ import com.corrot.kwiatonomousapp.common.Constants.DEVICE_INACTIVE_TIME_SECONDS
 import com.corrot.kwiatonomousapp.common.toFormattedString
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.Device
+import com.corrot.kwiatonomousapp.presentation.theme.DeviceActiveColor
+import com.corrot.kwiatonomousapp.presentation.theme.DeviceInActiveColor
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalDateTime
 
@@ -76,11 +76,11 @@ fun DeviceItem(
 ) {
     val isDeviceActive =
         (LocalDateTime.now().toLong() - (device.lastUpdate.toLong())) < DEVICE_INACTIVE_TIME_SECONDS
-    val imageActiveIndicatorColor = if (isDeviceActive) Color.Green else Color.Red
-    val imageBackgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+    val imageActiveIndicatorColor = if (isDeviceActive) DeviceActiveColor else DeviceInActiveColor
 
     Card(
         shape = RoundedCornerShape(8.dp),
+        elevation = 8.dp,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = onItemClick != null) { onItemClick?.let { it(device) } }
@@ -100,16 +100,25 @@ fun DeviceItem(
                 Box(
                     Modifier
                         .fillMaxHeight()
-                        .background(imageBackgroundColor)
                         .clip(RoundedCornerShape(8.dp))
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.flower1),
-                        contentDescription = "",
-                        Modifier
-                            .align(Alignment.Center)
-                            .padding(8.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxHeight(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.flower3),
+                            contentDescription = "",
+                            Modifier.padding(vertical = 8.dp)
+                        )
+                        Divider(
+                            color = MaterialTheme.colors.background,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(1.dp)
+                        )
+
+                    }
                 }
 
                 Column(

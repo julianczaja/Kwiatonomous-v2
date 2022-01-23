@@ -49,7 +49,6 @@ fun WateringTimePicker(
 ) {
     var hours: Int? by rememberSaveable { mutableStateOf(initialValue?.hour ?: 0) }
     var minutes: Int? by rememberSaveable { mutableStateOf(initialValue?.minute ?: 0) }
-    val backgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.White
 
 
     Dialog(
@@ -57,7 +56,7 @@ fun WateringTimePicker(
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            backgroundColor = backgroundColor,
+            backgroundColor = MaterialTheme.colors.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)

@@ -50,6 +50,7 @@ fun DeviceConfigurationItem(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
+        elevation = 8.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -58,10 +59,7 @@ fun DeviceConfigurationItem(
                 .padding(8.dp)
         ) {
             Column {
-                Row(
-                    modifier = Modifier.padding(top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Sleep time: ",
                         textAlign = TextAlign.Center,

@@ -1,7 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.device_settings.components
 
 import android.widget.CalendarView
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -14,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,22 +36,25 @@ fun WateringDatePicker(
     ) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            backgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.White,
+            backgroundColor = MaterialTheme.colors.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
                 .height(IntrinsicSize.Min)
         ) {
             Column {
-                AndroidView(factory = { CalendarView(it) }, update = { views ->
-                    views.minDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000
-                    views.setOnDateChangeListener { _, _year, _month, _dayOfMonth ->
-                        year = _year
-                        month = _month + 1
-                        dayOfMonth = _dayOfMonth
+                AndroidView(
+                    factory = { CalendarView(it, ) },
+                    update = { views ->
+                        views.minDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000
+                        views.setOnDateChangeListener { _, _year, _month, _dayOfMonth ->
+                            year = _year
+                            month = _month + 1
+                            dayOfMonth = _dayOfMonth
+                        }
+                        initialValue?.let { views.date = it.toEpochSecond(ZoneOffset.UTC) * 1000 }
                     }
-                    initialValue?.let { views.date = it.toEpochSecond(ZoneOffset.UTC) * 1000 }
-                })
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(), horizontalArrangement = Arrangement.End

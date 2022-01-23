@@ -1,58 +1,163 @@
 package com.corrot.kwiatonomousapp.presentation.app_settings
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.corrot.kwiatonomousapp.common.Result
+import androidx.navigation.NavController
+import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
+import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @Composable
 fun AppSettingsScreen(
+    navController: NavController,
     viewModel: AppSettingsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
 
-    Scaffold {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(12.dp)
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        TopAppBar(
+            modifier = Modifier.height(45.dp),
+            backgroundColor = MaterialTheme.colors.primary,
+            title = { Text(text = "Settings") },
+            navigationIcon = {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Filled.ArrowBack, "")
+                }
+            }
+        )
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-
-                when (state.appPreferences) {
-                    is Result.Loading -> {
-                        item {
-                            CircularProgressIndicator()
-                        }
-                    }
-                    is Result.Success -> {
-                        val appPreferences = state.appPreferences.data
-                        item {
-                            AppSettingsToggleItem("Dark mode enabled", appPreferences.isDarkMode) {
-                                viewModel.updateAppPreferences(appPreferences.copy(isDarkMode = it))
-                            }
-                        }
-                        item {
-                            AppSettingsToggleItem(
-                                "First time user",
-                                appPreferences.isFirstTimeUser
-                            ) {
-                                viewModel.updateAppPreferences(appPreferences.copy(isFirstTimeUser = it))
-                            }
-                        }
-                    }
-                    is Result.Error -> {
-                        item {
-                            DefaultErrorBox(state.appPreferences.throwable.message)
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                state.appTheme?.let {
+                    item {
+                        AppThemeSection(
+                            currentAppTheme = state.appTheme,
+                            onAppThemeSelected = { viewModel.setAppTheme(it) }
+                        )
                     }
                 }
+            }
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            }
+            state.error?.let { error ->
+                ErrorBoxCancelRetry(
+                    message = error,
+                    onCancel = { /* TODO */ },
+                    onRetry = { /* TODO */ }
+                )
+            }
+        }
+    }
+
+}
+
+enum class AppTheme {
+    AUTO,
+    LIGHT,
+    DARK
+}
+
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
+@Composable
+private fun AppThemeSectionLightPreview() {
+    KwiatonomousAppTheme {
+        Surface {
+            AppThemeSection(
+                currentAppTheme = AppTheme.AUTO,
+                onAppThemeSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 300)
+@Composable
+private fun AppThemeSectionDarkPreview() {
+    KwiatonomousAppTheme {
+        Surface {
+            AppThemeSection(
+                currentAppTheme = AppTheme.AUTO,
+                onAppThemeSelected = {}
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppThemeSection(
+    currentAppTheme: AppTheme,
+    onAppThemeSelected: (AppTheme) -> Unit
+) {
+    Card(
+        elevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Text("App theme", style = MaterialTheme.typography.h2)
+            Divider(
+                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Sync with device")
+                RadioButton(
+                    selected = currentAppTheme == AppTheme.AUTO,
+                    onClick = { onAppThemeSelected(AppTheme.AUTO) }
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Light")
+                RadioButton(
+                    selected = currentAppTheme == AppTheme.LIGHT,
+                    onClick = { onAppThemeSelected(AppTheme.LIGHT) }
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text("Dark")
+                RadioButton(
+                    selected = currentAppTheme == AppTheme.DARK,
+                    onClick = { onAppThemeSelected(AppTheme.DARK) }
+                )
             }
         }
     }
@@ -80,19 +185,14 @@ private fun AppSettingsToggleItem(
                 text = title,
                 style = MaterialTheme.typography.body1
             )
-            Switch(checked = isChecked, onCheckedChange = onToggleClicked, Modifier.padding(8.dp))
+
+            Switch(
+                colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary),
+                checked = isChecked,
+                onCheckedChange = onToggleClicked,
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }
 
-@Composable
-private fun DefaultErrorBox(errorText: String?) {
-    Text(
-        text = errorText ?: "Unknown error",
-        textAlign = TextAlign.Center,
-    )
-    Divider(
-        color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
-        modifier = Modifier.padding(vertical = 8.dp)
-    )
-}

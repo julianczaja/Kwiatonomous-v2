@@ -9,6 +9,7 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
+import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
@@ -21,14 +22,15 @@ import javax.inject.Inject
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val appPreferencesRepository: PreferencesRepository,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase
 ) : ViewModel() {
 
     private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
-
     val state = mutableStateOf(DeviceDetailsState())
+    val currentAppTheme = appPreferencesRepository.getAppTheme()
 
     // Keep track of jobs to cancel it first when refreshData() is triggered
     // otherwise there will be multiple coroutines in background

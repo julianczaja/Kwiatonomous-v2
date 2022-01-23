@@ -17,7 +17,14 @@ val RobotoFamily = FontFamily(
     Font(R.font.roboto_italic, FontWeight.Normal, FontStyle.Italic)
 )
 
-val Typography = Typography(
+val OutfitFamily = FontFamily(
+    Font(R.font.outfit_light, FontWeight.Normal),
+    Font(R.font.outfit_bold, FontWeight.Bold),
+    Font(R.font.outfit_regular, FontWeight.Light),
+    Font(R.font.outfit_extra_light, FontWeight.ExtraLight),
+)
+
+val TypographyRoboto = Typography(
     h1 = TextStyle(
         fontFamily = RobotoFamily,
         fontWeight = FontWeight.Bold,
@@ -41,6 +48,34 @@ val Typography = Typography(
     body2 = TextStyle(
         fontFamily = RobotoFamily,
         fontWeight = FontWeight.Thin,
+        fontSize = 14.sp
+    )
+)
+
+val TypographyOutfit = Typography(
+    h1 = TextStyle(
+        fontFamily = OutfitFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp
+    ),
+    h2 = TextStyle(
+        fontFamily = OutfitFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp
+    ),
+    h3 = TextStyle(
+        fontFamily = OutfitFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp
+    ),
+    body1 = TextStyle(
+        fontFamily = OutfitFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    body2 = TextStyle(
+        fontFamily = OutfitFamily,
+        fontWeight = FontWeight.ExtraLight,
         fontSize = 14.sp
     )
 )

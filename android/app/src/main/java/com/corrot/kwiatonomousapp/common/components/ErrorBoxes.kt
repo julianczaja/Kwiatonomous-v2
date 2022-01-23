@@ -2,14 +2,12 @@ package com.corrot.kwiatonomousapp.common.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,14 +55,12 @@ fun ErrorBoxCancelRetry(
     onCancel: () -> Unit,
     onRetry: () -> Unit
 ) {
-    val backgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.White
-
     Dialog(
         onDismissRequest = onCancel
     ) {
         Card(
             shape = RoundedCornerShape(4.dp),
-            backgroundColor = backgroundColor,
+            backgroundColor = MaterialTheme.colors.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)

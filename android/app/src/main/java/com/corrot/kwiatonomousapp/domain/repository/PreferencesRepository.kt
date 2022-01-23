@@ -2,6 +2,7 @@ package com.corrot.kwiatonomousapp.domain.repository
 
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
+import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import kotlinx.coroutines.flow.Flow
 
 interface PreferencesRepository {
@@ -14,7 +15,7 @@ interface PreferencesRepository {
 
     suspend fun updateFirstTimeUser(isFirstTimeUser: Boolean)
 
-    fun isDarkMode(): Flow<Boolean>
+    fun getAppTheme(): Flow<AppTheme>
 
-    suspend fun updateDarkMode(isDarkMode: Boolean)
+    suspend fun updateAppTheme(appTheme: AppTheme)
 }

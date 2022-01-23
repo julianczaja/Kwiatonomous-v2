@@ -77,7 +77,7 @@ fun CustomRadioGroup(
                 Row {
                     Text(
                         text = option,
-                        style = typography.body2.copy(fontSize = 8.sp, fontWeight = FontWeight.Normal),
+                        style = typography.body2.copy(fontSize = 9.sp, fontWeight = FontWeight.Normal),
                         modifier = Modifier
                             .padding(8.dp)
                             .clickable {

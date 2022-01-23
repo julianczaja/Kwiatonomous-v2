@@ -5,38 +5,35 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-
-private val DarkColorPalette = darkColors(
-    primary = Green200,
-    primaryVariant = Green200,
-    secondary = Teal200,
-
-    background = Color.Black,
-    surface = Color.Black,
-    onPrimary = Color.Black,
-    onSecondary = Color.White,
-    onBackground = Color.White,
-    onSurface = Color.White,
-
-    error = RedError,
-    onError = Color.White
-)
 
 private val LightColorPalette = lightColors(
-    primary = Green500,
-    primaryVariant = Green700,
-    secondary = Teal200,
+    primary = DayPrimary,
+    primaryVariant = DayPrimaryVariant,
+    secondary = DaySecondary,
+    secondaryVariant = DaySecondaryVariant,
+    background = DayBackground,
+    surface = DaySurface,
+    onPrimary = DayOnPrimary,
+    onSecondary = DayOnSecondary,
+    onBackground = DayOnBackground,
+    onSurface = DayOnSurface,
+    error = Error,
+    onError = onError
+)
 
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.Black,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-
-    error = RedError,
-    onError = Color.White
+private val DarkColorPalette = darkColors(
+    primary = NightPrimary,
+    primaryVariant = NightPrimaryVariant,
+    secondary = NightSecondary,
+    secondaryVariant = NightSecondaryVariant,
+    background = NightBackground,
+    surface = NightSurface,
+    onPrimary = NightOnPrimary,
+    onSecondary = NightOnSecondary,
+    onBackground = NightOnBackground,
+    onSurface = NightOnSurface,
+    error = Error,
+    onError = onError
 )
 
 @Composable
@@ -52,7 +49,7 @@ fun KwiatonomousAppTheme(
 
     MaterialTheme(
         colors = colors,
-        typography = Typography,
+        typography = TypographyOutfit,
         shapes = Shapes,
         content = content
     )

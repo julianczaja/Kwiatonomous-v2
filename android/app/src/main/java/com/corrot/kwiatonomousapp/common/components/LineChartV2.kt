@@ -10,13 +10,14 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.corrot.kwiatonomousapp.common.mapBetween
@@ -61,7 +62,7 @@ fun DateLineChartPreviewLight() {
                         1639742202L,
                         1639745802L,
                         1639749402L,
-                    ),
+                    ).reversed(),
                     yData = listOf(
                         11f,
                         10f,
@@ -129,7 +130,7 @@ fun DateLineChartPreviewDark() {
                         1639724202L,
                         1639727802L,
                         1639731402L,
-                    ),
+                    ).reversed(),
                     yData = listOf(
                         13f,
                         14f,
@@ -188,9 +189,14 @@ fun DateLineChart(
     lineColor: Color = MaterialTheme.colors.primary,
     renderGridLines: Boolean = true,
     renderDropLines: Boolean = false,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
-    val isDarkTheme = isSystemInDarkTheme()
+    if (xData.isEmpty() || yData.isEmpty()) {
+        Text("No data", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        return
+    }
+
     val yAxisPaint = Paint().apply {
         color = if (isDarkTheme) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
         textSize = 24f
@@ -341,6 +347,15 @@ fun DateLineChart(
         if (isLoading) {
             return@Canvas
         }
+
+        // Data fill
+        val path = Path()
+        path.moveTo(xMax, yMax)
+        for (i in xAxis.indices) {
+            path.lineTo(xAxis[i], yAxis[i])
+        }
+        path.lineTo(xMin, yMax)
+        drawPath(path, color = lineColor, alpha = 0.2f)
 
         // Data line
         var lastPoint = Offset.Unspecified

@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 
 @ExperimentalMaterialApi
@@ -21,11 +20,11 @@ import androidx.compose.ui.unit.sp
 fun DashboardCardItem(text: String, onClicked: () -> Unit) {
     Card(
         elevation = 8.dp,
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.surface,
         onClick = onClicked,
         modifier = Modifier
-            .padding(4.dp)
-            .height(200.dp)
+            .padding(8.dp)
+            .height(150.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -33,9 +32,9 @@ fun DashboardCardItem(text: String, onClicked: () -> Unit) {
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.body1.copy(fontSize = 18.sp),
+                style = MaterialTheme.typography.body1,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onPrimary,
+                color = MaterialTheme.colors.onSurface,
                 modifier = Modifier.padding(16.dp)
             )
         }

@@ -1,10 +1,9 @@
 package com.corrot.kwiatonomousapp.presentation.app_settings
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.domain.model.AppPreferences
+import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
@@ -16,8 +15,7 @@ class AppSettingsViewModel @Inject constructor(
     private val appPreferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(AppSettingsState())
-    val state: State<AppSettingsState> = _state
+    val state = mutableStateOf(AppSettingsState())
 
     init {
         getAppPreferences()
@@ -25,15 +23,32 @@ class AppSettingsViewModel @Inject constructor(
 
     private fun getAppPreferences() {
         viewModelScope.launch {
-            appPreferencesRepository.getAppPreferences().collect {
-                _state.value = _state.value.copy(appPreferences = it)
+            appPreferencesRepository.getAppPreferences().collect { appPreferences ->
+                when (appPreferences) {
+                    is Result.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
+                    is Result.Success -> {
+                        state.value = state.value.copy(
+                            appTheme = appPreferences.data.appTheme,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                    is Result.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = appPreferences.throwable.message
+                        )
+                    }
+                }
             }
         }
     }
 
-    fun updateAppPreferences(newAppPreferences: AppPreferences) {
+    fun setAppTheme(appTheme: AppTheme) {
         viewModelScope.launch {
-            appPreferencesRepository.updateAppPreferences(newAppPreferences)
+            appPreferencesRepository.updateAppTheme(appTheme)
         }
     }
 }

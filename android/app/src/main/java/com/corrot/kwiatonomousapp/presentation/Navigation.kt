@@ -21,7 +21,7 @@ import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.Splash.route) {
+    NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
 
         composable(route = Screen.Splash.route) {
             SplashScreen(navController)
@@ -44,7 +44,7 @@ fun Navigation() {
         composable(
             route = Screen.AppSettings.route
         ) {
-            AppSettingsScreen()
+            AppSettingsScreen(navController)
         }
 
         composable(

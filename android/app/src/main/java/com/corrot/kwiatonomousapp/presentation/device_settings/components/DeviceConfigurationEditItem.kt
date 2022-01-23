@@ -31,7 +31,7 @@ fun DeviceConfigurationEditPreviewLight() {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp)
+                    .padding(12.dp)
             ) {
                 item {
                     DeviceConfigurationEditItem(
@@ -98,8 +98,8 @@ fun DeviceConfigurationEditItem(
 
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
+        elevation = 8.dp,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column {
             DropdownableRow(
