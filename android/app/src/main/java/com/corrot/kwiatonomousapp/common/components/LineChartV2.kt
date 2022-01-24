@@ -212,7 +212,7 @@ fun DateLineChart(
     val xAxisDividersCount = when (dateType) {
         LineChartDateType.DAY -> 7
         LineChartDateType.WEEK -> 7
-        LineChartDateType.MONTH -> 5
+        LineChartDateType.MONTH -> 6
     }
     val yAxisDividersCount = 5
 
@@ -350,11 +350,11 @@ fun DateLineChart(
 
         // Data fill
         val path = Path()
-        path.moveTo(xMax, yMax)
+        path.moveTo(xAxis.first(), yMax)
         for (i in xAxis.indices) {
             path.lineTo(xAxis[i], yAxis[i])
         }
-        path.lineTo(xMin, yMax)
+        path.lineTo(xAxis.last(), yMax)
         drawPath(path, color = lineColor, alpha = 0.2f)
 
         // Data line

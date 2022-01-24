@@ -49,9 +49,12 @@ fun DevicesScreen(
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .padding(vertical = 16.dp, horizontal = 12.dp)
+                        .padding(horizontal = 12.dp)
                 ) {
                     LazyColumn(Modifier.fillMaxSize()) {
+
+                        item { Spacer(Modifier.height(16.dp)) }
+
                         state.devices?.let {
                             items(it) { device ->
                                 Box(
@@ -70,6 +73,8 @@ fun DevicesScreen(
                                 }
                             }
                         }
+
+                        item { Spacer(Modifier.height(16.dp)) }
                     }
                 }
             }
