@@ -26,6 +26,9 @@ class GetAllDeviceUpdatesUseCase @Inject constructor(
                     ret.first().deviceId,
                     ret.map { it.toDeviceUpdateEntity() })
             },
+            onFetchFailed = {
+                throw it
+            },
             shouldFetch = { ret ->
                 // TODO: Check if data is old or not
                 true

@@ -13,7 +13,7 @@ interface DeviceConfigurationRepository {
     suspend fun updateDeviceConfiguration(id: String, configuration: DeviceConfigurationDto)
 
     // Local
-    fun getDeviceConfigurationFromDatabase(deviceId: String): Flow<DeviceConfiguration?>
+    fun getDeviceConfigurationFromDatabase(deviceId: String): Flow<DeviceConfiguration>
 
     suspend fun saveFetchedDeviceConfiguration(deviceConfiguration: DeviceConfigurationEntity)
 }

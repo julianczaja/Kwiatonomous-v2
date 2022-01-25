@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface DeviceConfigurationDao {
 
     @Query("SELECT * FROM device_configuration WHERE deviceId = :deviceId")
-    fun getDeviceConfiguration(deviceId: String): Flow<DeviceConfigurationEntity?>
+    fun getDeviceConfiguration(deviceId: String): Flow<DeviceConfigurationEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addDeviceConfiguration(deviceConfiguration: DeviceConfigurationEntity)

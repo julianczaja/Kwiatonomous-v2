@@ -23,6 +23,9 @@ class GetDeviceUseCase @Inject constructor(
             saveFetchResult = { ret ->
                 deviceRepository.saveFetchedDevice(ret.toDeviceEntity())
             },
+            onFetchFailed = {
+                throw it
+            },
             shouldFetch = { ret ->
                 // TODO: Check if data is old or not
                 true

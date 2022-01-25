@@ -12,7 +12,7 @@ import javax.inject.Inject
 class GetDeviceConfigurationUseCase @Inject constructor(
     private val deviceConfigurationRepository: DeviceConfigurationRepository
 ) {
-    fun execute(deviceId: String): Flow<Result<DeviceConfiguration?>> {
+    fun execute(deviceId: String): Flow<Result<DeviceConfiguration>> {
         return networkBoundResource(
             query = {
                 deviceConfigurationRepository.getDeviceConfigurationFromDatabase(deviceId)
@@ -25,6 +25,9 @@ class GetDeviceConfigurationUseCase @Inject constructor(
                 deviceConfigurationRepository.saveFetchedDeviceConfiguration(
                     ret.toDeviceConfigurationEntity()
                 )
+            },
+            onFetchFailed = {
+                throw it
             },
             shouldFetch = { ret ->
                 // TODO: Check if data is old or not
