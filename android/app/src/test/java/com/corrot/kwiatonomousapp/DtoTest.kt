@@ -26,11 +26,12 @@ class DtoTest {
         )
 
         // WHEN
-        val result = deviceConfigurationDto.toDeviceConfiguration()
+        val result = deviceConfigurationDto.toDeviceConfiguration("test_id")
 
         // THEN
         assertThat(result).isEqualTo(
             DeviceConfiguration(
+                deviceId = "test_id",
                 sleepTimeMinutes = 30,
                 timeZoneOffset = ZoneOffset.ofHours(1),
                 wateringOn = true,
@@ -45,6 +46,7 @@ class DtoTest {
     fun deviceConfigurationToDeviceConfigurationDto() {
         // GIVEN
         val deviceConfiguration = DeviceConfiguration(
+            deviceId = "test_id",
             sleepTimeMinutes = 30,
             timeZoneOffset = ZoneOffset.ofHours(1),
             wateringOn = true,
@@ -85,7 +87,7 @@ class DtoTest {
         // THEN
         assertThat(result).isEqualTo(
             Device(
-                id = "id",
+                deviceId = "id",
                 birthday = LocalDateTime.of(2021, 12, 17, 14, 27, 30),
                 lastUpdate = LocalDateTime.of(2021, 12, 18, 14, 27, 30),
                 nextWatering = LocalDateTime.of(2021, 12, 10, 8, 4, 16)

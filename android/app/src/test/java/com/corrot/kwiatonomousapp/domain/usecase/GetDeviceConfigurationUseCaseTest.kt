@@ -34,7 +34,15 @@ class GetDeviceConfigurationUseCaseTest {
 
         // WHEN
         val correctResult =
-            DeviceConfiguration(30, ZoneOffset.ofHours(1), true, 2, 100, LocalTime.of(10, 0))
+            DeviceConfiguration(
+                deviceId = "id1",
+                sleepTimeMinutes = 30,
+                timeZoneOffset = ZoneOffset.ofHours(1),
+                wateringOn = true,
+                wateringIntervalDays = 2,
+                wateringAmount = 100,
+                wateringTime = LocalTime.of(10, 0)
+            )
 
         // THEN
         Truth.assertThat(collected.size).isEqualTo(2)

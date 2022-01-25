@@ -41,7 +41,7 @@ class GetDeviceUseCaseTest {
         assertThat(collected[0]).isInstanceOf(Result.Loading::class.java)
         assertThat(collected[1]).isInstanceOf(Result.Success::class.java)
         val data = (collected[1] as Result.Success<Device>).data
-        assertThat(data.id).isEqualTo(correctId)
+        assertThat(data.deviceId).isEqualTo(correctId)
         assertThat(data.birthday).isEqualTo(correctBirthday)
         assertThat(data.lastUpdate).isEqualTo(correctLastUpdate)
         assertThat(data.nextWatering).isEqualTo(correctNextWatering)
