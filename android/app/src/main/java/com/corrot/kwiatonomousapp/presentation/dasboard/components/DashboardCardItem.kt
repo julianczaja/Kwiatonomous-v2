@@ -11,13 +11,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 
 @ExperimentalMaterialApi
 @Composable
-fun DashboardCardItem(text: String, onClicked: () -> Unit) {
+fun DashboardCardItem(text: String, onClicked: () -> Unit, testTag: String) {
     Card(
         elevation = 8.dp,
         backgroundColor = MaterialTheme.colors.surface,
@@ -25,6 +26,7 @@ fun DashboardCardItem(text: String, onClicked: () -> Unit) {
         modifier = Modifier
             .padding(8.dp)
             .height(150.dp)
+            .testTag(testTag)
     ) {
         Box(
             contentAlignment = Alignment.Center,

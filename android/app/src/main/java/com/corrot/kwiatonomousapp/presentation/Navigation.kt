@@ -3,10 +3,10 @@ package com.corrot.kwiatonomousapp.presentation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppSettingsScreen
@@ -19,9 +19,11 @@ import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
-fun Navigation() {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
+fun KwiatonomousNavHost(
+    navController: NavHostController,
+    startDestination: String = Screen.Dashboard.route
+) {
+    NavHost(navController = navController, startDestination = startDestination) {
 
         composable(route = Screen.Splash.route) {
             SplashScreen(navController)

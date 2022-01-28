@@ -68,25 +68,29 @@ fun DashboardScreen(
                 item {
                     DashboardCardItem(
                         text = "All devices",
-                        onClicked = { navController.navigate(Screen.Devices.route) }
+                        onClicked = { navController.navigate(Screen.Devices.route) },
+                        testTag = "allDevicesButton"
                     )
                 }
                 item {
                     DashboardCardItem(
                         "Settings",
-                        onClicked = { navController.navigate(Screen.AppSettings.route) }
+                        onClicked = { navController.navigate(Screen.AppSettings.route) },
+                        testTag = "settingsButton"
                     )
                 }
                 item {
                     DashboardCardItem(
                         "Placeholder",
-                        onClicked = { navController.navigate(Screen.Splash.route) }
+                        onClicked = { navController.navigate(Screen.Splash.route) },
+                        testTag = ""
                     )
                 }
                 item {
                     DashboardCardItem(
                         "Placeholder",
-                        onClicked = { navController.navigate(Screen.Splash.route) }
+                        onClicked = { navController.navigate(Screen.Splash.route) },
+                        testTag = ""
                     )
                 }
             }

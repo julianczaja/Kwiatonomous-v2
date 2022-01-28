@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.navigation.compose.rememberNavController
 import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -40,7 +41,8 @@ class MainActivity : ComponentActivity() {
 
                     KwiatonomousAppTheme(darkTheme = isDarkTheme) {
                         Surface(color = MaterialTheme.colors.background) {
-                            Navigation()
+                            val navController = rememberNavController()
+                            KwiatonomousNavHost(navController = navController)
                         }
                     }
                 }
