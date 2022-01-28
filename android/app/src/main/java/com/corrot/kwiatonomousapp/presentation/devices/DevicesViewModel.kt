@@ -12,7 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DevicesViewModel @Inject constructor(
-    private val getDevicesUseCase: GetDevicesUseCase
+    private val getDevicesUseCase: GetDevicesUseCase,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     val state = mutableStateOf(DevicesState())
@@ -31,9 +32,9 @@ class DevicesViewModel @Inject constructor(
     }
 
     private fun getDevices() {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             getDevicesJob?.cancelAndJoin()
-            getDevicesJob = viewModelScope.launch(Dispatchers.IO) {
+            getDevicesJob = viewModelScope.launch(ioDispatcher) {
                 getDevicesUseCase.execute().collect { ret ->
                     withContext(Dispatchers.Main) {
                         when (ret) {
