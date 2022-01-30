@@ -1,4 +1,5 @@
 <resources>
+    <string name="active">Aktywny</string>
     <string name="all_devices">Wszystkie urządzenia</string>
     <string name="app_name">KwiatonomousApp</string>
     <string name="application_settings">Ustawienia aplikacji</string>
@@ -9,8 +10,8 @@
     <string name="birthday">Urodziny</string>
     <string name="cancel">Anuluj</string>
     <string name="change">Zmień</string>
-    <string name="day">Dzień</string>
     <string name="date">Data</string>
+    <string name="day">Dzień</string>
     <string name="device">Urządzenie</string>
     <string name="device_configuration">Konfiguracja urządzenia</string>
     <string name="device_details">Szczegóły urządzenia</string>
@@ -21,6 +22,7 @@
     <string name="humidity">Wilgotność</string>
     <string name="humidity_abbr">Wilg.</string>
     <string name="id">ID</string>
+    <string name="inactive">Nieaktywny</string>
     <string name="last_update">Ostatnia aktualizacja</string>
     <string name="last_updates">Ostatnie aktualizacje</string>
     <string name="minute">Minuta</string>

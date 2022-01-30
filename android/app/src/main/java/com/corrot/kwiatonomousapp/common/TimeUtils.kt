@@ -7,7 +7,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-const val DEFAULT_DATE_TIME_FORMAT = "dd.MM.yyyy, HH:mm:ss"
+const val DEFAULT_DATE_TIME_FORMAT = "dd.MM.yyyy, HH:mm"
 
 // Always convert as UTC, because device send datetime with applied zone offset
 fun Long.toLocalDateTime(): LocalDateTime =

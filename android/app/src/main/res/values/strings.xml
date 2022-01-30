@@ -1,4 +1,5 @@
 <resources>
+    <string name="active">Active</string>
     <string name="all_devices">All devices</string>
     <string name="app_name">KwiatonomousApp</string>
     <string name="application_settings">Application settings</string>
@@ -9,8 +10,8 @@
     <string name="birthday">Birthday</string>
     <string name="cancel">Cancel</string>
     <string name="change">Change</string>
-    <string name="day">Day</string>
     <string name="date">Date</string>
+    <string name="day">Day</string>
     <string name="device">Device</string>
     <string name="device_configuration">Device configuration</string>
     <string name="device_details">Device details</string>
@@ -21,6 +22,7 @@
     <string name="humidity">Humidity</string>
     <string name="humidity_abbr">Hum.</string>
     <string name="id">ID</string>
+    <string name="inactive">Inactive</string>
     <string name="last_update">Last update</string>
     <string name="last_updates">Last updates</string>
     <string name="minute">Minute</string>
