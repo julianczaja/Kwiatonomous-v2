@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -132,7 +133,7 @@ fun DeviceItem(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "ID: ",
+                            text = stringResource(R.string.id) + ": ",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body1,
                         )
@@ -147,7 +148,7 @@ fun DeviceItem(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Birthday: ",
+                            text = stringResource(R.string.birthday) + ": ",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body1,
                         )
@@ -162,7 +163,7 @@ fun DeviceItem(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Last update: ",
+                            text = stringResource(R.string.last_update) + ": ",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body1,
                         )
@@ -177,7 +178,7 @@ fun DeviceItem(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Next watering: ",
+                            text = stringResource(R.string.next_watering) + ": ",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.body1,
                         )

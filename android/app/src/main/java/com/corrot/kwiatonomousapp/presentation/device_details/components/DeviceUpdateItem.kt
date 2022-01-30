@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.toFormattedString
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 
@@ -34,7 +36,7 @@ fun DeviceUpdateItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Update time: ",
+                    text = stringResource(R.string.update_time) + ": ",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body1,
                 )
@@ -49,7 +51,7 @@ fun DeviceUpdateItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Battery level: ",
+                    text = stringResource(R.string.battery_level) + ": ",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body1,
                 )
@@ -64,12 +66,12 @@ fun DeviceUpdateItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Battery voltage: ",
+                    text = stringResource(R.string.battery_voltage) + ": ",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body1,
                 )
                 Text(
-                    text = "%.2f V".format(deviceUpdate.batteryVoltage),
+                    text = stringResource(R.string.battery_voltage_format).format(deviceUpdate.batteryVoltage),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body2,
                 )
@@ -79,12 +81,12 @@ fun DeviceUpdateItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Temperature: ",
+                    text = stringResource(R.string.temperature) + ": ",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body1,
                 )
                 Text(
-                    text = "%.2f °C".format(deviceUpdate.temperature),
+                    text = stringResource(R.string.temperature_format).format(deviceUpdate.temperature),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body2,
                 )
@@ -94,12 +96,12 @@ fun DeviceUpdateItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Humidity: ",
+                    text = stringResource(R.string.humidity) + ": ",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body1,
                 )
                 Text(
-                    text = "%.1f%%".format(deviceUpdate.humidity),
+                    text = stringResource(R.string.humidity_format).format(deviceUpdate.humidity),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.body2,
                 )

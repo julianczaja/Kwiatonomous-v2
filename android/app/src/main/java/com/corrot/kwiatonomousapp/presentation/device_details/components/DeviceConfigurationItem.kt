@@ -10,9 +10,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalTime
@@ -61,7 +63,7 @@ fun DeviceConfigurationItem(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Sleep time: ",
+                        text = stringResource(R.string.sleep_time) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )
@@ -76,7 +78,7 @@ fun DeviceConfigurationItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Time zone: ",
+                        text = stringResource(R.string.time_zone) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )
@@ -91,12 +93,15 @@ fun DeviceConfigurationItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Watering: ",
+                        text = stringResource(R.string.watering) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )
                     Text(
-                        text = if (deviceConfiguration.wateringOn) "on" else "off",
+                        text = if (deviceConfiguration.wateringOn)
+                            stringResource(R.string.on_abbr)
+                        else
+                            stringResource(R.string.off_abbr),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body2,
                     )
@@ -106,7 +111,7 @@ fun DeviceConfigurationItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Watering interval: ",
+                        text = stringResource(R.string.watering_interval) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )
@@ -121,7 +126,7 @@ fun DeviceConfigurationItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Watering amount: ",
+                        text = stringResource(R.string.watering_amount) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )
@@ -136,7 +141,7 @@ fun DeviceConfigurationItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Watering time: ",
+                        text = stringResource(R.string.watering_time) + ": ",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
                     )

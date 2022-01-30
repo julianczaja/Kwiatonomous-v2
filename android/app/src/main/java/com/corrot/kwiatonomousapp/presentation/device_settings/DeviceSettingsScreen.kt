@@ -124,7 +124,7 @@ fun DeviceSettingsScreen(
                                         viewModel.resetChanges()
                                     }
                                 ) {
-                                    Text("Reset")
+                                    Text(stringResource(R.string.reset))
                                 }
                                 Button(
                                     modifier = Modifier.width(150.dp),
@@ -132,7 +132,7 @@ fun DeviceSettingsScreen(
                                         viewModel.saveNewDeviceConfiguration()
                                     }
                                 ) {
-                                    Text("Save")
+                                    Text(stringResource(R.string.save))
                                 }
                             }
                         }

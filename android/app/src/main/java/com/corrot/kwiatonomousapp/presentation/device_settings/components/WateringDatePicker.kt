@@ -13,11 +13,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import com.corrot.kwiatonomousapp.R
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -44,7 +46,7 @@ fun WateringDatePicker(
         ) {
             Column {
                 AndroidView(
-                    factory = { CalendarView(it, ) },
+                    factory = { CalendarView(it) },
                     update = { views ->
                         views.minDate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000
                         views.setOnDateChangeListener { _, _year, _month, _dayOfMonth ->
@@ -65,7 +67,7 @@ fun WateringDatePicker(
                         }
                     ) {
                         Text(
-                            text = "Cancel".uppercase(),
+                            text = stringResource(R.string.cancel).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )
@@ -76,7 +78,7 @@ fun WateringDatePicker(
                         }
                     ) {
                         Text(
-                            text = "Ok".uppercase(),
+                            text = stringResource(R.string.ok).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )

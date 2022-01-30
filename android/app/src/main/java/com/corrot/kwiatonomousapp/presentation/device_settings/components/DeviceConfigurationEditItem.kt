@@ -8,8 +8,10 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DropdownableRow
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -102,26 +104,28 @@ fun DeviceConfigurationEditItem(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
+            val onString = stringResource(R.string.on_abbr)
+            val offString = stringResource(R.string.off_abbr)
             DropdownableRow(
-                title = "Sleep time (minutes)",
+                title = stringResource(R.string.sleep_time) + " (minutes)",
                 currentValue = deviceConfiguration.sleepTimeMinutes,
                 listOfValues = listOf(10, 30, 60),
                 onValueChange = { newSleepTime -> onSleepTimeChanged(newSleepTime) }
             )
             DropdownableRow(
-                title = "Time zone",
+                title = stringResource(R.string.time_zone),
                 currentValue = "UTC${deviceConfiguration.timeZoneOffset}",
                 listOfValues = getAllUTCZones(),
                 onValueChange = { newTimeZone -> onTimeZoneChanged(newTimeZone) }
             )
             DropdownableRow(
-                title = "Watering",
-                currentValue = if (deviceConfiguration.wateringOn) "On" else "Off",
-                listOfValues = listOf("On", "Off"),
-                onValueChange = { newWateringOn -> onWateringOnChanged(newWateringOn == "On") }
+                title = stringResource(R.string.watering),
+                currentValue = if (deviceConfiguration.wateringOn) onString else offString,
+                listOfValues = listOf(onString, offString),
+                onValueChange = { newWateringOn -> onWateringOnChanged(newWateringOn == onString) }
             )
             DropdownableRow(
-                title = "Watering interval (days)",
+                title = stringResource(R.string.watering_interval) + " (days)",
                 currentValue = deviceConfiguration.wateringIntervalDays,
                 listOfValues = listOf(1, 2, 3, 4, 5, 6, 7, 14, 28),
                 onValueChange = { newWateringInterval ->
@@ -129,7 +133,7 @@ fun DeviceConfigurationEditItem(
                 }
             )
             DropdownableRow(
-                title = "Watering amount (ml)",
+                title = stringResource(R.string.watering_amount) + " (ml)",
                 currentValue = deviceConfiguration.wateringAmount,
                 listOfValues = listOf(50, 100, 150, 250),
                 onValueChange = { newWateringAmount -> onWateringAmountChanged(newWateringAmount) }
@@ -142,7 +146,8 @@ fun DeviceConfigurationEditItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Watering time: ~${deviceConfiguration.wateringTime}",
+                    text = stringResource(R.string.watering_time)
+                            + ": ~${deviceConfiguration.wateringTime}",
                     style = MaterialTheme.typography.body1
                 )
                 OutlinedButton(
@@ -150,7 +155,7 @@ fun DeviceConfigurationEditItem(
                     onClick = {
                         wateringTimePickerDialogOpened = true
                     }) {
-                    Text("Change")
+                    Text(stringResource(R.string.change))
                 }
             }
             Row(
@@ -161,7 +166,8 @@ fun DeviceConfigurationEditItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Next watering date: \n${nextWatering.format(DateTimeFormatter.ISO_DATE)}",
+                    text = stringResource(R.string.next_watering_date)
+                            + ": \n${nextWatering.format(DateTimeFormatter.ISO_DATE)}",
                     style = MaterialTheme.typography.body1
                 )
                 OutlinedButton(
@@ -169,7 +175,7 @@ fun DeviceConfigurationEditItem(
                     onClick = {
                         wateringDatePickerDialogOpened = true
                     }) {
-                    Text("Change")
+                    Text(stringResource(R.string.change))
                 }
             }
         }

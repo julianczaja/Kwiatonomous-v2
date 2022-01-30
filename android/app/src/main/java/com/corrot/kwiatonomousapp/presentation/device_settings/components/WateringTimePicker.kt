@@ -1,7 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.device_settings.components
 
 import android.content.res.Configuration
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -13,13 +12,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalTime
 
@@ -72,7 +72,7 @@ fun WateringTimePicker(
                     Modifier.padding(bottom = 8.dp)
                 ) {
                     Text(
-                        text = "Enter watering time".uppercase(),
+                        text = stringResource(R.string.enter_watering_time).uppercase(),
                         style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                     )
                 }
@@ -106,7 +106,7 @@ fun WateringTimePicker(
                             modifier = Modifier.height(75.dp)
                         )
                         Text(
-                            text = "Hour",
+                            text = stringResource(R.string.hour),
                             style = MaterialTheme.typography.overline,
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -142,7 +142,7 @@ fun WateringTimePicker(
                             modifier = Modifier.height(75.dp)
                         )
                         Text(
-                            text = "Minute",
+                            text = stringResource(R.string.minute),
                             style = MaterialTheme.typography.overline,
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -158,7 +158,7 @@ fun WateringTimePicker(
                         onClick = onDismiss
                     ) {
                         Text(
-                            text = "Cancel".uppercase(),
+                            text = stringResource(R.string.cancel).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )
@@ -173,7 +173,7 @@ fun WateringTimePicker(
                         }
                     ) {
                         Text(
-                            text = "Ok".uppercase(),
+                            text = stringResource(R.string.ok).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )

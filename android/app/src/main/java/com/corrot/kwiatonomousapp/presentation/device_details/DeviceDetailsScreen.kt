@@ -48,7 +48,7 @@ fun DeviceDetailsScreen(
         TopAppBar(
             modifier = Modifier.height(45.dp),
             backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = "Device details") },
+            title = { Text(text = stringResource(R.string.device_details)) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Filled.ArrowBack, "")

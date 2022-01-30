@@ -1,7 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -16,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 
@@ -34,7 +35,7 @@ fun DashboardScreen(
         TopAppBar(
             modifier = Modifier.height(45.dp),
             backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = "Kwiatonomous") },
+            title = { Text(text = stringResource(R.string.app_name)) },
         )
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
@@ -67,14 +68,14 @@ fun DashboardScreen(
             ) {
                 item {
                     DashboardCardItem(
-                        text = "All devices",
+                        text = stringResource(R.string.all_devices),
                         onClicked = { navController.navigate(Screen.Devices.route) },
                         testTag = "allDevicesButton"
                     )
                 }
                 item {
                     DashboardCardItem(
-                        "Settings",
+                        stringResource(R.string.application_settings),
                         onClicked = { navController.navigate(Screen.AppSettings.route) },
                         testTag = "settingsButton"
                     )

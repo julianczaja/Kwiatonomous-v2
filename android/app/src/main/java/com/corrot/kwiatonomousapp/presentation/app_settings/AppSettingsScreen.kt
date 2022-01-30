@@ -10,10 +10,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
@@ -30,7 +32,7 @@ fun AppSettingsScreen(
         TopAppBar(
             modifier = Modifier.height(45.dp),
             backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = "Settings") },
+            title = { Text(text = stringResource(R.string.application_settings)) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Filled.ArrowBack, "")
@@ -115,7 +117,7 @@ private fun AppThemeSection(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text("App theme", style = MaterialTheme.typography.h2)
+            Text(stringResource(R.string.application_theme), style = MaterialTheme.typography.h2)
             Divider(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -127,7 +129,7 @@ private fun AppThemeSection(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text("Sync with device")
+                Text(stringResource(R.string.theme_sync_with_device))
                 RadioButton(
                     selected = currentAppTheme == AppTheme.AUTO,
                     onClick = { onAppThemeSelected(AppTheme.AUTO) }
@@ -140,7 +142,7 @@ private fun AppThemeSection(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text("Light")
+                Text(stringResource(R.string.theme_light))
                 RadioButton(
                     selected = currentAppTheme == AppTheme.LIGHT,
                     onClick = { onAppThemeSelected(AppTheme.LIGHT) }
@@ -153,7 +155,7 @@ private fun AppThemeSection(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text("Dark")
+                Text(stringResource(R.string.theme_dark))
                 RadioButton(
                     selected = currentAppTheme == AppTheme.DARK,
                     onClick = { onAppThemeSelected(AppTheme.DARK) }

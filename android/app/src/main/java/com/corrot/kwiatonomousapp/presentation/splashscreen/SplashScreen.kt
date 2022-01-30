@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
@@ -60,7 +61,7 @@ fun SplashScreen(navController: NavController) {
             modifier = Modifier.scale(scale.value)
         )
         Text(
-            text = "Kwiatonomous",
+            text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.h1,
             modifier = Modifier.padding(top = 64.dp)
         )

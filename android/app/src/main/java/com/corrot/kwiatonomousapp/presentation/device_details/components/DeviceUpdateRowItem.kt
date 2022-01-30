@@ -27,7 +27,7 @@ fun DeviceUpdateRowItem(
             weight = 0.3f
         )
         TableCell(
-            text = stringResource(R.string.battery_format).format(
+            text = stringResource(R.string.battery_level_and_voltage_format).format(
                 deviceUpdate.batteryLevel,
                 deviceUpdate.batteryVoltage
             ),

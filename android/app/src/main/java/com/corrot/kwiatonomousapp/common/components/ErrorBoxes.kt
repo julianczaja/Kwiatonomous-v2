@@ -8,12 +8,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 
@@ -75,7 +77,7 @@ fun ErrorBoxCancelRetry(
                         .background(MaterialTheme.colors.error)
                 ) {
                     Text(
-                        text = "Error".uppercase(),
+                        text = stringResource(R.string.error).uppercase(),
                         textAlign = TextAlign.Center,
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
@@ -105,7 +107,7 @@ fun ErrorBoxCancelRetry(
                         onClick = { onCancel() }
                     ) {
                         Text(
-                            text = "Cancel".uppercase(),
+                            text = stringResource(R.string.cancel).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )
@@ -114,7 +116,7 @@ fun ErrorBoxCancelRetry(
                         onClick = onRetry
                     ) {
                         Text(
-                            text = "Retry".uppercase(),
+                            text = stringResource(R.string.retry).uppercase(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
                         )

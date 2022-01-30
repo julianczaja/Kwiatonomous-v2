@@ -8,9 +8,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DeviceItem
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
 import com.corrot.kwiatonomousapp.presentation.Screen
@@ -30,7 +32,7 @@ fun DevicesScreen(
         TopAppBar(
             modifier = Modifier.height(45.dp),
             backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = "All devices") },
+            title = { Text(text = stringResource(R.string.all_devices)) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Filled.ArrowBack, "")
