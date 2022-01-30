@@ -25,7 +25,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private val appPreferencesRepository: PreferencesRepository,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
-    private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase
+    private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
@@ -68,9 +69,9 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getDevice(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             getDeviceJob?.cancelAndJoin()
-            getDeviceJob = viewModelScope.launch(Dispatchers.IO) {
+            getDeviceJob = viewModelScope.launch(ioDispatcher) {
                 getDeviceUseCase.execute(id).collect { ret ->
                     withContext(Dispatchers.Main) {
                         when (ret) {
@@ -94,9 +95,9 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getDeviceUpdates(id: String, from: Long, to: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             getDeviceUpdatesJob?.cancelAndJoin()
-            getDeviceUpdatesJob = viewModelScope.launch(Dispatchers.IO) {
+            getDeviceUpdatesJob = viewModelScope.launch(ioDispatcher) {
                 getDeviceUpdatesByDateUseCase.execute(id, from, to).collect { ret ->
                     withContext(Dispatchers.Main) {
                         when (ret) {
@@ -120,9 +121,9 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private fun getDeviceConfiguration(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             getDeviceConfigurationJob?.cancelAndJoin()
-            getDeviceConfigurationJob = viewModelScope.launch(Dispatchers.IO) {
+            getDeviceConfigurationJob = viewModelScope.launch(ioDispatcher) {
                 getDeviceConfigurationUseCase.execute(id).collect { ret ->
                     withContext(Dispatchers.Main) {
                         when (ret) {
@@ -146,7 +147,7 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     fun onChartDateTypeSelected(dateType: LineChartDateType) {
-        viewModelScope.launch{
+        viewModelScope.launch {
             when {
                 dateType.ordinal < state.value.selectedChartDateType.ordinal -> {
                     state.value.deviceUpdates?.let { oldDeviceUpdates ->

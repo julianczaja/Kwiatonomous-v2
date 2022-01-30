@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.*
+import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
@@ -26,7 +27,6 @@ import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import java.time.ZoneOffset
 
 @Composable
 fun DeviceDetailsScreen(
@@ -145,18 +145,23 @@ private fun DeviceConfigurationSection(
     deviceConfiguration: DeviceConfiguration,
     onEditClicked: () -> Unit
 ) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text(
             text = stringResource(R.string.device_configuration),
             style = MaterialTheme.typography.h2,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             DeviceConfigurationItem(
                 deviceConfiguration = deviceConfiguration
             )
-            Box(Modifier.align(Alignment.TopEnd)) {
+            Box(
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
                 IconButton(onClick = { onEditClicked() }) {
                     Icon(Icons.Filled.Edit, "")
                 }
@@ -181,7 +186,9 @@ private fun DeviceUpdatesSection(
     onChartDateTypeSelected: (String) -> Unit,
     onChartDataTypeSelected: (String) -> Unit
 ) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text(
             text = stringResource(R.string.last_updates),
             style = MaterialTheme.typography.h2,
@@ -190,8 +197,7 @@ private fun DeviceUpdatesSection(
         Card(
             shape = RoundedCornerShape(8.dp),
             elevation = 8.dp,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
@@ -204,11 +210,7 @@ private fun DeviceUpdatesSection(
                         .height(200.dp)
                 ) {
                     DateLineChart(
-                        xData = deviceUpdates.map {
-                            it.updateTime.toEpochSecond(
-                                ZoneOffset.UTC
-                            )
-                        },
+                        xData = deviceUpdates.map { it.updateTime.toLong() },
                         yData = when (selectedChartDataType) {
                             LineChartDataType.TEMPERATURE -> deviceUpdates.map { it.temperature }
                             LineChartDataType.HUMIDITY -> deviceUpdates.map { it.humidity }
@@ -233,14 +235,12 @@ private fun DeviceUpdatesSection(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomRadioGroup(
-                        options = LineChartDateType.values()
-                            .map { it.name },
+                        options = LineChartDateType.values().map { it.name },
                         selectedOption = selectedChartDateType.name,
                         onOptionSelected = { onChartDateTypeSelected(it) }
                     )
                     CustomRadioGroup(
-                        options = LineChartDataType.values()
-                            .map { it.name },
+                        options = LineChartDataType.values().map { it.name },
                         selectedOption = selectedChartDataType.name,
                         onOptionSelected = { onChartDataTypeSelected(it) }
                     )
