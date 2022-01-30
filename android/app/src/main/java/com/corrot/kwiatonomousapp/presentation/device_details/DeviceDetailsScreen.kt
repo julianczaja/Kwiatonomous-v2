@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -99,16 +100,8 @@ fun DeviceDetailsScreen(
                                 selectedDateRange = viewModel.state.value.selectedDateRange,
                                 selectedChartDataType = viewModel.state.value.selectedChartDataType,
                                 isDarkMode = isDarkMode,
-                                onChartDateTypeSelected = {
-                                    viewModel.onChartDateTypeSelected(
-                                        LineChartDateType.valueOf(it)
-                                    )
-                                },
-                                onChartDataTypeSelected = {
-                                    viewModel.onChartDataTypeSelected(
-                                        LineChartDataType.valueOf(it)
-                                    )
-                                }
+                                onChartDateTypeSelected = { viewModel.onChartDateTypeSelected(it) },
+                                onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) }
                             )
                         }
                     }
@@ -183,8 +176,8 @@ private fun DeviceUpdatesSection(
     selectedChartDataType: LineChartDataType,
     selectedDateRange: Pair<Long, Long>,
     isDarkMode: Boolean,
-    onChartDateTypeSelected: (String) -> Unit,
-    onChartDataTypeSelected: (String) -> Unit
+    onChartDateTypeSelected: (LineChartDateType) -> Unit,
+    onChartDataTypeSelected: (LineChartDataType) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -235,14 +228,16 @@ private fun DeviceUpdatesSection(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     CustomRadioGroup(
-                        options = LineChartDateType.values().map { it.name },
-                        selectedOption = selectedChartDateType.name,
-                        onOptionSelected = { onChartDateTypeSelected(it) }
+                        options = LineChartDateType.values()
+                            .map { it.mapToString(LocalContext.current) },
+                        selectedIndex = selectedChartDateType.ordinal,
+                        onOptionSelected = { onChartDateTypeSelected(LineChartDateType.values()[it]) }
                     )
                     CustomRadioGroup(
-                        options = LineChartDataType.values().map { it.name },
-                        selectedOption = selectedChartDataType.name,
-                        onOptionSelected = { onChartDataTypeSelected(it) }
+                        options = LineChartDataType.values()
+                            .map { it.mapToString(LocalContext.current) },
+                        selectedIndex = selectedChartDataType.ordinal,
+                        onOptionSelected = { onChartDataTypeSelected(LineChartDataType.values()[it]) }
                     )
                 }
             }

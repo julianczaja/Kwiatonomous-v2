@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.common.components
 
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Paint
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.mapBetween
 import com.corrot.kwiatonomousapp.common.toLocalDateTime
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -170,10 +172,21 @@ enum class LineChartDateType {
     MONTH
 }
 
+fun LineChartDateType.mapToString(context: Context): String = when(this) {
+    LineChartDateType.DAY -> context.getString(R.string.day)
+    LineChartDateType.WEEK -> context.getString(R.string.week)
+    LineChartDateType.MONTH -> context.getString(R.string.month)
+}
 enum class LineChartDataType {
     TEMPERATURE,
     HUMIDITY,
     BATTERY
+}
+
+fun LineChartDataType.mapToString(context: Context): String = when(this) {
+    LineChartDataType.BATTERY -> context.getString(R.string.battery)
+    LineChartDataType.HUMIDITY -> context.getString(R.string.humidity_abbr)
+    LineChartDataType.TEMPERATURE -> context.getString(R.string.temperature_abbr)
 }
 
 @Composable

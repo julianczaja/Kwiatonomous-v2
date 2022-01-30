@@ -29,18 +29,14 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 @Composable
 fun CustomRadioGroupPreviewLight() {
     val options = LineChartDateType.values().map { it.name }
-    var selectedOption by remember {
-        mutableStateOf("")
-    }
-    val onOptionSelected = { text: String ->
-        selectedOption = text
-    }
+    var selectedOption by remember { mutableStateOf(2) }
+    val onOptionSelected = { index: Int -> selectedOption = index }
 
     KwiatonomousAppTheme(darkTheme = true) {
         Surface {
             CustomRadioGroup(
                 options = options,
-                selectedOption = selectedOption,
+                selectedIndex = selectedOption,
                 onOptionSelected = onOptionSelected
             )
         }
@@ -49,25 +45,25 @@ fun CustomRadioGroupPreviewLight() {
 
 @Composable
 fun CustomRadioGroup(
-    selectedOption: String,
+    selectedIndex: Int,
     options: List<String>,
-    onOptionSelected: (option: String) -> Unit
+    onOptionSelected: (ordinal: Int) -> Unit
 ) {
     Row {
-        options.forEach { option ->
+        options.forEachIndexed { index, s ->
             Surface(
-                color = when (option) {
-                    selectedOption -> MaterialTheme.colors.primary
+                color = when (index) {
+                    selectedIndex -> MaterialTheme.colors.primary
                     else -> Color.Transparent
                 },
-                contentColor = when (option) {
-                    selectedOption -> MaterialTheme.colors.onPrimary
+                contentColor = when (index) {
+                    selectedIndex -> MaterialTheme.colors.onPrimary
                     else -> MaterialTheme.colors.onSurface
                 },
                 border = BorderStroke(
                     width = 1.dp,
-                    color = when (option) {
-                        selectedOption -> MaterialTheme.colors.primary
+                    color = when (index) {
+                        selectedIndex -> MaterialTheme.colors.primary
                         else -> Color.LightGray
                     }
                 ),
@@ -76,13 +72,11 @@ fun CustomRadioGroup(
             ) {
                 Row {
                     Text(
-                        text = option,
+                        text = options[index],
                         style = typography.body2.copy(fontSize = 9.sp, fontWeight = FontWeight.Normal),
                         modifier = Modifier
                             .padding(8.dp)
-                            .clickable {
-                                onOptionSelected(option)
-                            }
+                            .clickable { onOptionSelected(index) }
                     )
                 }
             }
