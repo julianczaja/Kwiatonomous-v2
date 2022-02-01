@@ -23,7 +23,7 @@ fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceCo
         }
 
         if (deviceConfigurationDao.getDeviceConfiguration(deviceId) == null) {
-            call.respond(HttpStatusCode.BadRequest, "Can't find Kwiatonomous configuration for device of id: $deviceId")
+            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous configuration for device of id: $deviceId")
             return@post
         }
 
@@ -44,7 +44,7 @@ fun Route.updateKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceCo
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
             e.printStack()
-            call.response.status(HttpStatusCode.BadRequest)
+            call.response.status(HttpStatusCode.InternalServerError)
         }
     }
 }

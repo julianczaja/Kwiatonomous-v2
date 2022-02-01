@@ -8,12 +8,6 @@ import io.ktor.routing.*
 
 fun Route.getAllKwiatonomousDevices(deviceDao: DeviceDao) {
     get("/kwiatonomous/all") {
-        val devices = deviceDao.getAllDevices()
-
-        if (devices.isEmpty()) {
-            call.respond(HttpStatusCode.BadRequest, "There are no Kwiatonomous devices added :(")
-        } else {
-            call.respond(HttpStatusCode.OK, devices)
-        }
+        call.respond(HttpStatusCode.OK, deviceDao.getAllDevices())
     }
 }

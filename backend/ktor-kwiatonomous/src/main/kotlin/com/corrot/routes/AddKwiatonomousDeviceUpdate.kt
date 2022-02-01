@@ -16,7 +16,7 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
         val id = call.parameters["id"]
 
         if (id == null) {
-            call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
+            call.respond(HttpStatusCode.NotFound, "Kwiatonomous device id can't be null!")
             return@post
         }
 
@@ -41,7 +41,7 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
             e.printStack()
-            call.response.status(HttpStatusCode.BadRequest)
+            call.response.status(HttpStatusCode.InternalServerError)
         }
     }
 }

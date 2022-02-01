@@ -20,7 +20,7 @@ fun Route.getKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceConfi
         val deviceConfiguration = deviceConfigurationDao.getDeviceConfiguration(id)
 
         if (deviceConfiguration == null) {
-            call.respond(HttpStatusCode.BadRequest, "Can't find Kwiatonomous configuration for device of id: $id")
+            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous configuration for device of id: $id")
         } else {
             call.respond(
                 HttpStatusCode.OK, DeviceConfigurationDto(

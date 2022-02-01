@@ -28,7 +28,7 @@ fun Route.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdateDao) {
 
         if (deviceUpdates.isEmpty()) {
             call.respond(
-                HttpStatusCode.BadRequest, "Can't find Kwiatonomous device updates of id: '$deviceId'.\n" +
+                HttpStatusCode.NotFound, "Can't find Kwiatonomous device updates of id: '$deviceId'.\n" +
                         "Parameters given: limit=$limit, from=$from, to=$to"
             )
         } else {

@@ -20,7 +20,7 @@ fun Route.getKwiatonomousDevice(deviceDao: DeviceDao) {
         if (device != null) {
             call.respond(HttpStatusCode.OK, device)
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Can't find Kwiatonomous device of id: $id")
+            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous device of id: $id")
         }
     }
 }
