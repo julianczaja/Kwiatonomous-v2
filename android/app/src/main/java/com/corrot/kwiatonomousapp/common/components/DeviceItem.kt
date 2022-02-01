@@ -102,7 +102,7 @@ fun DeviceItem(
                 ) {
                     Image(
                         alignment = Alignment.Center,
-                        painter = painterResource(id = R.drawable.flower3),
+                        painter = painterResource(id = R.drawable.flower_2),
                         contentDescription = "",
                         modifier = Modifier
                             .size(100.dp)

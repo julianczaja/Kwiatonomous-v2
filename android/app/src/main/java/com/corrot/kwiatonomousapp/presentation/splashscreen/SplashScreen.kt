@@ -5,10 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -56,9 +53,11 @@ fun SplashScreen(navController: NavController) {
             .clickable { isClicked = true }
     ) {
         Image(
-            painter = painterResource(id = R.drawable.flower3),
+            painter = painterResource(id = R.drawable.flower_2),
             contentDescription = "",
-            modifier = Modifier.scale(scale.value)
+            modifier = Modifier
+                .size(100.dp)
+                .scale(scale.value)
         )
         Text(
             text = stringResource(R.string.app_name),
