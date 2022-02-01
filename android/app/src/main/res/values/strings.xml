@@ -47,7 +47,7 @@
     <string name="watering_amount">Watering amount</string>
     <string name="watering_interval">Watering interval</string>
     <string name="watering_time">Watering time</string>
-    <string name="week">week</string>
+    <string name="week">Week</string>
 
     <!--  Formats  -->
     <string name="battery_level_and_voltage_format" translatable="false">%d %% (%.2f V)</string>

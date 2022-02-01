@@ -47,7 +47,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     init {
         state.value = state.value.copy(
-            selectedDateRange = calculateDateRange(LineChartDateType.WEEK)
+            selectedDateRange = calculateDateRange(LineChartDateType.DAY)
         )
         refreshData()
     }

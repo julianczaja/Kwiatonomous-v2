@@ -21,7 +21,7 @@ data class DeviceDetailsState(
 
     val error: String? = null,
 
-    val selectedChartDateType: LineChartDateType = LineChartDateType.WEEK,
+    val selectedChartDateType: LineChartDateType = LineChartDateType.DAY,
     val selectedChartDataType: LineChartDataType = LineChartDataType.TEMPERATURE,
     val selectedDateRange: Pair<Long, Long> = (Pair(0L, 0L))
 )
