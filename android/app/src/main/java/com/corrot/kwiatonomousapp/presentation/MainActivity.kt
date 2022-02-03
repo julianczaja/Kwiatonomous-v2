@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var appPreferencesRepository: PreferencesRepository
 
+    @ExperimentalPagerApi
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {

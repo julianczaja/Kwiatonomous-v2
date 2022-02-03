@@ -1,5 +1,6 @@
 <resources>
     <string name="active">Active</string>
+    <string name="add_device">Add device</string>
     <string name="all_devices">All devices</string>
     <string name="app_name">KwiatonomousApp</string>
     <string name="application_settings">Application settings</string>
@@ -15,7 +16,10 @@
     <string name="device">Device</string>
     <string name="device_configuration">Device configuration</string>
     <string name="device_details">Device details</string>
+    <string name="device_id">Device ID</string>
+    <string name="device_name">Device name</string>
     <string name="device_settings">Device settings</string>
+    <string name="done">Done</string>
     <string name="enter_watering_time">Enter watering time</string>
     <string name="error">Error</string>
     <string name="hour">Hour</string>
@@ -52,6 +56,7 @@
     <!--  Formats  -->
     <string name="battery_level_and_voltage_format" translatable="false">%d %% (%.2f V)</string>
     <string name="battery_voltage_format" translatable="false">%.2f V</string>
+    <string name="device_id_length_format" translatable="false">%d / 10</string>
     <string name="humidity_format" translatable="false">%.1f%%</string>
     <string name="temperature_format" translatable="false">%.2f °C</string>
 </resources>

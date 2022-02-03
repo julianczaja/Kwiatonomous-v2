@@ -9,13 +9,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
+import com.corrot.kwiatonomousapp.presentation.add_user_device.AddUserDeviceScreen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
 import com.corrot.kwiatonomousapp.presentation.device_details.DeviceDetailsScreen
 import com.corrot.kwiatonomousapp.presentation.device_settings.DeviceSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.devices.DevicesScreen
 import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
+import com.google.accompanist.pager.ExperimentalPagerApi
 
+@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
@@ -65,6 +68,11 @@ fun KwiatonomousNavHost(
             DeviceSettingsScreen(navController)
         }
 
+        composable(
+            route = Screen.AddDevice.route
+        ) {
+            AddUserDeviceScreen(navController)
+        }
     }
 }
 
@@ -75,6 +83,7 @@ sealed class Screen(val route: String) {
     object AppSettings : Screen("/app_settings")
     object DeviceDetails : Screen("/device_details")
     object DeviceSettings : Screen("/device_settings")
+    object AddDevice : Screen("/add_device")
 
     fun withArgs(vararg args: String): String {
         return buildString {
