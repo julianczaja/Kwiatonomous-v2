@@ -12,14 +12,8 @@ import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
 import com.corrot.kwiatonomousapp.common.Constants.PREFERENCES_DATA_STORE_NAME
 import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
-import com.corrot.kwiatonomousapp.data.repository.DeviceConfigurationRepositoryImpl
-import com.corrot.kwiatonomousapp.data.repository.DeviceRepositoryImpl
-import com.corrot.kwiatonomousapp.data.repository.DeviceUpdateRepositoryImpl
-import com.corrot.kwiatonomousapp.data.repository.PreferencesRepositoryImpl
-import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.data.repository.*
+import com.corrot.kwiatonomousapp.domain.repository.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -109,6 +103,14 @@ object AppModule {
         kwiatonomousDatabase: KwiatonomousDatabase
     ): DeviceConfigurationRepository {
         return DeviceConfigurationRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserDeviceRepository(
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): UserDeviceRepository {
+        return UserDeviceRepositoryImpl(kwiatonomousDatabase)
     }
 
     @Provides
