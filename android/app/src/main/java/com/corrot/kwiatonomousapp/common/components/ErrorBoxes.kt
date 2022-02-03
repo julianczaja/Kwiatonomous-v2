@@ -51,6 +51,61 @@ fun ErrorBoxCancelRetryPreviewDark() {
     }
 }
 
+// TODO: Unify content of error boxes
+//       (https://stackoverflow.com/questions/65258997/how-to-pass-children-in-jetpack-compose-to-a-custom-composable)
+
+@Composable
+fun ErrorBoxCancel(
+    message: String,
+    onCancel: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onCancel
+    ) {
+        Card(
+            shape = RoundedCornerShape(4.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.error)
+                ) {
+                    Text(
+                        text = stringResource(R.string.error).uppercase(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colors.onError,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = message,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                CancelButton(onCancel)
+            }
+        }
+    }
+}
+
 @Composable
 fun ErrorBoxCancelRetry(
     message: String,
@@ -98,31 +153,58 @@ fun ErrorBoxCancelRetry(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(
-                        onClick = { onCancel() }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cancel).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
-                    }
-                    TextButton(
-                        onClick = onRetry
-                    ) {
-                        Text(
-                            text = stringResource(R.string.retry).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
-                    }
-                }
+                CancelRetryButtons(onCancel, onRetry)
             }
+        }
+    }
+}
+
+@Composable
+private fun CancelRetryButtons(
+    onCancel: () -> Unit,
+    onRetry: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(
+            onClick = { onCancel() }
+        ) {
+            Text(
+                text = stringResource(R.string.cancel).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+            )
+        }
+        TextButton(
+            onClick = onRetry
+        ) {
+            Text(
+                text = stringResource(R.string.retry).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CancelButton(
+    onCancel: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(
+            onClick = { onCancel() }
+        ) {
+            Text(
+                text = stringResource(R.string.cancel).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+            )
         }
     }
 }
