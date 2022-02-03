@@ -3,8 +3,7 @@ package com.corrot.kwiatonomousapp.presentation.devices
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.domain.usecase.GetDevicesUseCase
+import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -12,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DevicesViewModel @Inject constructor(
-    private val getDevicesUseCase: GetDevicesUseCase,
+    private val userDeviceRepository: UserDeviceRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -20,10 +19,6 @@ class DevicesViewModel @Inject constructor(
     private var getDevicesJob: Job? = null
 
     init {
-        getDevices()
-    }
-
-    fun refreshDevices() {
         getDevices()
     }
 
@@ -35,19 +30,11 @@ class DevicesViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             getDevicesJob?.cancelAndJoin()
             getDevicesJob = viewModelScope.launch(ioDispatcher) {
-                getDevicesUseCase.execute().collect { ret ->
+                userDeviceRepository.getUserDevices().collect { userDevices ->
                     withContext(Dispatchers.Main) {
-                        when (ret) {
-                            is Result.Loading -> state.value = state.value.copy(
-                                isLoading = true, devices = ret.data, error = null
-                            )
-                            is Result.Success -> state.value = state.value.copy(
-                                isLoading = false, devices = ret.data, error = null
-                            )
-                            is Result.Error -> state.value = state.value.copy(
-                                isLoading = false, error = ret.throwable.message
-                            )
-                        }
+                        state.value = state.value.copy(
+                            isLoading = false, userDevices = userDevices, error = null
+                        )
                     }
                 }
             }
