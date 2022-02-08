@@ -29,7 +29,7 @@ class DeviceConfigurationRepositoryImpl @Inject constructor(
     }
 
     override fun getDeviceConfigurationFromDatabase(deviceId: String) =
-        kwiatonomousDb.deviceConfigurationDao().getDeviceConfiguration(deviceId)
+        kwiatonomousDb.deviceConfigurationDao().getByDeviceId(deviceId)
             .map { it.toDeviceConfiguration() }
             // When database is empty null will be returned and `toDeviceConfiguration` will throw
             // exception. Let's catch it - this will also emit some kind of empty flow to notify
@@ -40,7 +40,7 @@ class DeviceConfigurationRepositoryImpl @Inject constructor(
 
     override suspend fun saveFetchedDeviceConfiguration(deviceConfiguration: DeviceConfigurationEntity) {
         kwiatonomousDb.withTransaction {
-            kwiatonomousDb.deviceConfigurationDao().addDeviceConfiguration(deviceConfiguration)
+            kwiatonomousDb.deviceConfigurationDao().insertOrUpdate(deviceConfiguration)
         }
     }
 }

@@ -22,9 +22,7 @@ class GetAllDeviceUpdatesUseCase @Inject constructor(
                     .map { it.toDeviceUpdate() }
             },
             saveFetchResult = { ret ->
-                deviceUpdateRepository.saveFetchedDeviceUpdates(
-                    ret.first().deviceId,
-                    ret.map { it.toDeviceUpdateEntity() })
+                deviceUpdateRepository.saveFetchedDeviceUpdates(ret.map { it.toDeviceUpdateEntity() })
             },
             onFetchFailed = {
                 throw it

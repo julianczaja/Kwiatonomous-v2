@@ -8,17 +8,41 @@ import kotlinx.coroutines.flow.Flow
 interface DeviceConfigurationDao {
 
     @Query("SELECT * FROM device_configuration WHERE deviceId = :deviceId")
-    fun getDeviceConfiguration(deviceId: String): Flow<DeviceConfigurationEntity>
+    fun getByDeviceId(deviceId: String): Flow<DeviceConfigurationEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addDeviceConfiguration(deviceConfiguration: DeviceConfigurationEntity)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(deviceConfiguration: DeviceConfigurationEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addDeviceConfigurations(deviceConfigurations: List<DeviceConfigurationEntity>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(deviceConfigurations: List<DeviceConfigurationEntity>): List<Long>
+
+    @Update
+    suspend fun update(deviceConfiguration: DeviceConfigurationEntity)
+
+    @Update
+    suspend fun update(deviceConfigurations: List<DeviceConfigurationEntity>)
 
     @Query("DELETE FROM device_configuration WHERE deviceId = :deviceId")
-    suspend fun removeDeviceConfiguration(deviceId: String)
+    suspend fun removeByDeviceId(deviceId: String)
 
     @Query("DELETE FROM device_configuration")
-    suspend fun removeAllDevicesConfigurations()
+    suspend fun removeAll()
+
+    @Transaction
+    suspend fun insertOrUpdate(deviceConfiguration: DeviceConfigurationEntity) {
+        val id = insert(deviceConfiguration)
+        if (id == -1L) update(deviceConfiguration)
+    }
+
+    @Transaction
+    suspend fun insertOrUpdate(deviceConfigurations: List<DeviceConfigurationEntity>) {
+        val insertResult = insert(deviceConfigurations)
+        val updateList = mutableListOf<DeviceConfigurationEntity>()
+
+        for (i in insertResult.indices) {
+            if (insertResult[i] == -1L) updateList.add(deviceConfigurations[i])
+        }
+
+        if (updateList.isNotEmpty()) update(updateList)
+    }
 }

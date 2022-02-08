@@ -39,7 +39,7 @@ class DeviceRepositoryImpl @Inject constructor(
     }
 
     override fun getDeviceFromDatabase(deviceId: String) =
-        kwiatonomousDb.deviceDao().getDevice(deviceId)
+        kwiatonomousDb.deviceDao().getByDeviceId(deviceId)
             .map { it.toDevice() }
             // When database is empty null will be returned and `toDevice` will throw exception.
             // Let's catch it - this will also emit some kind of empty flow to notify when we call
@@ -49,21 +49,20 @@ class DeviceRepositoryImpl @Inject constructor(
             }
 
     override fun getDevicesFromDatabase(): Flow<List<Device>> {
-        return kwiatonomousDb.deviceDao().getAllDevices().map { devices ->
+        return kwiatonomousDb.deviceDao().getAll().map { devices ->
             devices.map { it.toDevice() }
         }
     }
 
     override suspend fun saveFetchedDevice(device: DeviceEntity) {
         kwiatonomousDb.withTransaction {
-            kwiatonomousDb.deviceDao().updateDevice(device)
+            kwiatonomousDb.deviceDao().insertOrUpdate(device)
         }
     }
 
     override suspend fun saveFetchedDevices(devices: List<DeviceEntity>) {
         kwiatonomousDb.withTransaction {
-            kwiatonomousDb.deviceDao().removeAllDevices()
-            kwiatonomousDb.deviceDao().addDevices(devices)
+            kwiatonomousDb.deviceDao().insertOrUpdate(devices)
         }
     }
 }

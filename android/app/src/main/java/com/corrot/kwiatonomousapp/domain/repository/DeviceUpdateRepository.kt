@@ -21,6 +21,6 @@ interface DeviceUpdateRepository {
 
     fun getDeviceUpdatesByDateFromDatabase(deviceId: String, from: Long, to: Long): Flow<List<DeviceUpdate>>
 
-    suspend fun saveFetchedDeviceUpdates(deviceId: String, deviceUpdates: List<DeviceUpdateEntity>)
+    suspend fun saveFetchedDeviceUpdates(deviceUpdates: List<DeviceUpdateEntity>)
 
 }

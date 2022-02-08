@@ -34,7 +34,7 @@ class DeviceUpdateRepositoryImpl @Inject constructor(
     }
 
     override fun getAllDeviceUpdatesFromDatabase(deviceId: String): Flow<List<DeviceUpdate>> {
-        return kwiatonomousDb.deviceUpdateDao().getAllDeviceUpdates(deviceId).map { deviceUpdates ->
+        return kwiatonomousDb.deviceUpdateDao().getAll(deviceId).map { deviceUpdates ->
             deviceUpdates.map { it.toDeviceUpdate() }
         }
     }
@@ -43,7 +43,7 @@ class DeviceUpdateRepositoryImpl @Inject constructor(
         deviceId: String,
         limit: Int
     ): Flow<List<DeviceUpdate>> {
-        return kwiatonomousDb.deviceUpdateDao().getAllDeviceUpdates(deviceId).map { deviceUpdates ->
+        return kwiatonomousDb.deviceUpdateDao().getAll(deviceId).map { deviceUpdates ->
             deviceUpdates.map { it.toDeviceUpdate() }
         }
     }
@@ -53,19 +53,17 @@ class DeviceUpdateRepositoryImpl @Inject constructor(
         from: Long,
         to: Long
     ): Flow<List<DeviceUpdate>> {
-        return kwiatonomousDb.deviceUpdateDao().getDeviceUpdatesByDate(deviceId, from, to)
+        return kwiatonomousDb.deviceUpdateDao().getAllByDate(deviceId, from, to)
             .map { deviceUpdates ->
                 deviceUpdates.map { it.toDeviceUpdate() }
             }
     }
 
     override suspend fun saveFetchedDeviceUpdates(
-        deviceId: String,
         deviceUpdates: List<DeviceUpdateEntity>
     ) {
         kwiatonomousDb.withTransaction {
-            kwiatonomousDb.deviceUpdateDao().removeAllDeviceUpdates(deviceId)
-            kwiatonomousDb.deviceUpdateDao().addDeviceUpdates(deviceUpdates)
+            kwiatonomousDb.deviceUpdateDao().insertOrUpdate(deviceUpdates)
         }
     }
 }
