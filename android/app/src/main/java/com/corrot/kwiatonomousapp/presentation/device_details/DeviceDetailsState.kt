@@ -5,8 +5,13 @@ import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
+import com.corrot.kwiatonomousapp.domain.model.UserDevice
 
 data class DeviceDetailsState(
+    val userDevice: UserDevice? = null,
+    val isUserDeviceLoading: Boolean = false,
+//    val userDeviceError: String? = null,
+
     val device: Device? = null,
     val isDeviceLoading: Boolean = false,
 //    val deviceError: String? = null,

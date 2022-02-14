@@ -5,11 +5,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
+import com.corrot.kwiatonomousapp.common.DAY_SECONDS
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
@@ -22,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val appPreferencesRepository: PreferencesRepository,
+    appPreferencesRepository: PreferencesRepository,
+    private val userDeviceRepository: UserDeviceRepository,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
@@ -41,7 +44,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private var getDeviceConfigurationJob: Job? = null
 
     val isLoading: Boolean
-        get() = state.value.isDeviceLoading
+        get() = state.value.isUserDeviceLoading
+                || state.value.isDeviceLoading
                 || state.value.isDeviceUpdatesLoading
                 || state.value.isDeviceConfigurationLoading
 
@@ -49,6 +53,7 @@ class DeviceDetailsViewModel @Inject constructor(
         state.value = state.value.copy(
             selectedDateRange = calculateDateRange(LineChartDateType.DAY)
         )
+        deviceId?.let { getUserDevice(it) }
         refreshData()
     }
 
@@ -68,6 +73,26 @@ class DeviceDetailsViewModel @Inject constructor(
         state.value = state.value.copy(error = null)
     }
 
+    private fun getUserDevice(id: String) = viewModelScope.launch(ioDispatcher) {
+        try {
+            userDeviceRepository.getUserDevice(id).collect { ret ->
+                withContext(Dispatchers.Main) {
+                    state.value = state.value.copy(
+                        isUserDeviceLoading = false,
+                        userDevice = ret
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                state.value = state.value.copy(
+                    isUserDeviceLoading = false,
+                    error = e.message ?: "Unknown error"
+                )
+            }
+        }
+    }
+
     private fun getDevice(id: String) {
         viewModelScope.launch(ioDispatcher) {
             getDeviceJob?.cancelAndJoin()
@@ -85,7 +110,7 @@ class DeviceDetailsViewModel @Inject constructor(
                             )
                             is Result.Error -> state.value = state.value.copy(
                                 isDeviceLoading = false,
-                                error = ret.throwable.message
+                                error = ret.throwable.message ?: "Unknown error"
                             )
                         }
                     }
@@ -111,7 +136,7 @@ class DeviceDetailsViewModel @Inject constructor(
                             )
                             is Result.Error -> state.value = state.value.copy(
                                 isDeviceUpdatesLoading = false,
-                                error = ret.throwable.message
+                                error = ret.throwable.message ?: "Unknown error"
                             )
                         }
                     }
@@ -137,7 +162,7 @@ class DeviceDetailsViewModel @Inject constructor(
                             )
                             is Result.Error -> state.value = state.value.copy(
                                 isDeviceConfigurationLoading = false,
-                                error = ret.throwable.message
+                                error = ret.throwable.message ?: "Unknown error"
                             )
                         }
                     }
@@ -197,19 +222,33 @@ class DeviceDetailsViewModel @Inject constructor(
 
         when (dateType) {
             LineChartDateType.DAY -> {
-                from = midnightTomorrow - (24 * 3600)
+                from = midnightTomorrow - DAY_SECONDS
                 to = midnightTomorrow
             }
             LineChartDateType.WEEK -> {
-                from = midnightTomorrow - (6 * 24 * 3600)
+                from = midnightTomorrow - (6 * DAY_SECONDS)
                 to = midnightTomorrow
             }
             LineChartDateType.MONTH -> {
                 val daysInMonth = currentDateTime.month.maxLength()
-                from = midnightTomorrow - (daysInMonth * 24 * 3600)
+                from = midnightTomorrow - (daysInMonth * DAY_SECONDS)
                 to = midnightTomorrow
             }
         }
         return Pair(from, to)
+    }
+
+    fun onUserDeviceAction(action: UserDeviceAction) {
+        when (action) {
+            UserDeviceAction.EDIT -> {
+                // TODO: Not implemented yet
+            }
+            UserDeviceAction.DELETE -> {
+                viewModelScope.launch {
+                    userDeviceRepository.removeUserDevice(state.value.userDevice!!)
+                    // TODO: Trigger navigate back event
+                }
+            }
+        }
     }
 }

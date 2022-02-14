@@ -13,6 +13,7 @@
     <string name="change">Zmień</string>
     <string name="date">Data</string>
     <string name="day">Dzień</string>
+    <string name="delete">Usuń</string>
     <string name="device">Urządzenie</string>
     <string name="device_configuration">Konfiguracja urządzenia</string>
     <string name="device_details">Szczegóły urządzenia</string>
@@ -20,6 +21,7 @@
     <string name="device_name">Nazwa urządzenia</string>
     <string name="device_settings">Ustawienia urządzenia</string>
     <string name="done">Gotowe</string>
+    <string name="edit">Edytuj</string>
     <string name="enter_watering_time">Wprowadź czas podlewania</string>
     <string name="error">Błąd</string>
     <string name="hour">Godzina</string>

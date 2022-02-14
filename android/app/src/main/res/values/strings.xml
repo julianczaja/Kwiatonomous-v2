@@ -13,6 +13,7 @@
     <string name="change">Change</string>
     <string name="date">Date</string>
     <string name="day">Day</string>
+    <string name="delete">Delete</string>
     <string name="device">Device</string>
     <string name="device_configuration">Device configuration</string>
     <string name="device_details">Device details</string>
@@ -20,6 +21,7 @@
     <string name="device_name">Device name</string>
     <string name="device_settings">Device settings</string>
     <string name="done">Done</string>
+    <string name="edit">Edit</string>
     <string name="enter_watering_time">Enter watering time</string>
     <string name="error">Error</string>
     <string name="hour">Hour</string>

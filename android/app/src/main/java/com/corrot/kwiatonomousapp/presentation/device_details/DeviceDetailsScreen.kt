@@ -7,9 +7,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,9 +27,11 @@ import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
+import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
+import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -70,6 +76,17 @@ fun DeviceDetailsScreen(
                 ) {
                     item { Spacer(Modifier.height(16.dp)) }
 
+                    state.userDevice?.let { userDevice ->
+                        item {
+                            UserDeviceSection(
+                                userDevice = userDevice,
+                                onActionClicked = {
+                                    viewModel.onUserDeviceAction(it)
+                                }
+                            )
+                        }
+                    }
+
                     state.device?.let { device ->
                         item {
                             DeviceSection(device)
@@ -91,8 +108,7 @@ fun DeviceDetailsScreen(
                         }
                     }
 
-
-                    if (!state.deviceUpdates.isNullOrEmpty()) {
+                    if (state.deviceUpdates != null) {
                         item {
                             DeviceUpdatesSection(
                                 deviceUpdates = state.deviceUpdates,
@@ -123,12 +139,76 @@ fun DeviceDetailsScreen(
     }
 }
 
+enum class UserDeviceAction {
+    EDIT, DELETE
+}
+
+@Composable
+private fun UserDeviceSection(userDevice: UserDevice, onActionClicked: (UserDeviceAction) -> Unit) {
+    val isExpanded = remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        UserDeviceItem(userDevice)
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd)
+        ) {
+            IconButton(
+                onClick = {
+                    isExpanded.value = true
+                }
+            ) {
+                Icon(Icons.Filled.MoreVert, "")
+            }
+            DropdownMenu(
+                expanded = isExpanded.value,
+                onDismissRequest = { isExpanded.value = false },
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        isExpanded.value = false
+                        onActionClicked(UserDeviceAction.EDIT)
+                    }
+                ) {
+                    Row {
+                        Icon(Icons.Filled.Edit, "")
+                        Text(
+                            stringResource(R.string.edit),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+                DropdownMenuItem(
+                    onClick = {
+                        isExpanded.value = false
+                        onActionClicked(UserDeviceAction.DELETE)
+                    }
+                ) {
+                    Row {
+                        Icon(Icons.Filled.Delete, "")
+                        Text(
+                            stringResource(R.string.delete),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+    Divider(
+        color = MaterialTheme.colors.primaryVariant,
+        thickness = 1.dp,
+        modifier = Modifier.padding(vertical = 16.dp)
+    )
+}
 
 @Composable
 private fun DeviceSection(device: Device) {
     DeviceItem(device)
     Divider(
-        color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+        color = MaterialTheme.colors.primaryVariant,
+        thickness = 1.dp,
         modifier = Modifier.padding(vertical = 16.dp)
     )
 }
@@ -160,7 +240,6 @@ private fun DeviceConfigurationSection(
                 }
             }
         }
-
         Divider(
             color = MaterialTheme.colors.primaryVariant,
             thickness = 1.dp,
