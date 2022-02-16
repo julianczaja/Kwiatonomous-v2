@@ -5,7 +5,7 @@
 
 ### Screen shots
 <p align="center">
-<img src="screenshots/Screenshot_2022-01-19-22.jpg" height="600">
+<img src="screenshots/Animation1.gif" height="600">
 </p>
 
-
+More comming soon...
