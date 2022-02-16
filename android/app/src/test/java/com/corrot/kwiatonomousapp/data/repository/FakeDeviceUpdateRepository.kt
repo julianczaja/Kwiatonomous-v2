@@ -6,6 +6,9 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.toDeviceUpdate
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
 import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import kotlinx.coroutines.flow.flow
+import okhttp3.internal.EMPTY_RESPONSE
+import retrofit2.HttpException
+import retrofit2.Response
 
 class FakeDeviceUpdateRepository : DeviceUpdateRepository {
 
@@ -20,23 +23,17 @@ class FakeDeviceUpdateRepository : DeviceUpdateRepository {
     private val databaseDevicesUpdates = mutableListOf<DeviceUpdateEntity>()
 
     override suspend fun fetchAllDeviceUpdates(id: String): List<DeviceUpdateDto> {
-        backendDeviceUpdates.filter { it.deviceId == id }.let {
-            if (it.isNotEmpty()) {
-                return it
-            } else {
-                throw Exception("Can't find device")
-            }
+        if (id != "id1" && id != "id2") {
+            throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
         }
+        return backendDeviceUpdates.filter { it.deviceId == id }
     }
 
     override suspend fun fetchAllDeviceUpdates(id: String, limit: Int): List<DeviceUpdateDto> {
-        backendDeviceUpdates.filter { it.deviceId == id }.let {
-            if (it.isNotEmpty()) {
-                return it.take(limit)
-            } else {
-                throw Exception("Can't find device")
-            }
+        if (id != "id1" && id != "id2") {
+            throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
         }
+        return backendDeviceUpdates.filter { it.deviceId == id }.take(limit)
     }
 
     override suspend fun fetchDeviceUpdatesByDate(
@@ -44,14 +41,12 @@ class FakeDeviceUpdateRepository : DeviceUpdateRepository {
         from: Long,
         to: Long
     ): List<DeviceUpdateDto> {
-        backendDeviceUpdates.filter { it.deviceId == id && it.timestamp >= from && it.timestamp <= to }
-            .let {
-                if (it.isNotEmpty()) {
-                    return it
-                } else {
-                    throw Exception()
-                }
-            }
+        if (id != "id1" && id != "id2") {
+            throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
+        }
+        return backendDeviceUpdates.filter {
+            it.deviceId == id && it.timestamp >= from && it.timestamp <= to
+        }
     }
 
     override fun getAllDeviceUpdatesFromDatabase(deviceId: String) = flow {
@@ -71,7 +66,6 @@ class FakeDeviceUpdateRepository : DeviceUpdateRepository {
     }
 
     override suspend fun saveFetchedDeviceUpdates(
-        deviceId: String,
         deviceUpdates: List<DeviceUpdateEntity>
     ) {
         deviceUpdates.forEach {

@@ -9,6 +9,9 @@ import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.internal.EMPTY_RESPONSE
+import retrofit2.HttpException
+import retrofit2.Response
 import java.time.LocalDateTime
 
 class FakeDeviceRepository : DeviceRepository {
@@ -29,21 +32,24 @@ class FakeDeviceRepository : DeviceRepository {
         backendDevices.find { it.deviceId == id }?.let {
             return it
         }
-        throw Exception("Can't find device")
+        throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
     }
 
     override suspend fun fetchNextWateringByDeviceId(id: String): LocalDateTime {
         backendDevices.find { it.deviceId == id }?.let {
             return it.nextWatering.toLocalDateTime()
         }
-        throw Exception("Can't find device")
+        throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
     }
 
     override suspend fun updateNextWateringByDeviceId(id: String, nextWatering: LocalDateTime) {
-        backendDevices.find { it.deviceId == id }?.let {
-            it.nextWatering = nextWatering.toLong()
+        backendDevices.find { it.deviceId == id }.let { device ->
+            if (device != null) {
+                device.nextWatering = nextWatering.toLong()
+            } else {
+                throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
+            }
         }
-        throw Exception("Can't find device")
     }
 
     override fun getDeviceFromDatabase(deviceId: String) = flow {

@@ -25,7 +25,7 @@ class GetAllDeviceUpdatesUseCaseTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun execute_success() = runBlockingTest {
+    fun test_found_multiple() = runBlockingTest {
         // GIVEN
         val correctSize = 3
         val correctDeviceUpdate =
@@ -46,7 +46,22 @@ class GetAllDeviceUpdatesUseCaseTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure() = runBlockingTest {
+    fun test_found_empty() = runBlockingTest {
+        // GIVEN
+        val flow = fakeGetAllDeviceUpdatesUseCase.execute("id2", 1)
+        val collected = flow.toList()
+
+        // THEN
+        assertThat(collected.size).isEqualTo(2)
+        assertThat(collected[0]).isInstanceOf(Result.Loading::class.java)
+        assertThat(collected[1]).isInstanceOf(Result.Success::class.java)
+        val data = (collected[1] as Result.Success).data
+        assertThat(data).isEmpty()
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun test_error() = runBlockingTest {
         // GIVEN
         val flow = fakeGetAllDeviceUpdatesUseCase.execute("wrong_id", 5)
         val collected = flow.toList()

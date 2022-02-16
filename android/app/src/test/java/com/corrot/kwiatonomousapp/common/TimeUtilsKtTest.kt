@@ -38,9 +38,9 @@ class TimeUtilsKtTest {
         val result3 = localDateTime3.toFormattedString()
 
         // THEN
-        assertThat(result1).isEqualTo("17.12.2021, 14:27:30")
-        assertThat(result2).isEqualTo("17.02.2021, 14:07:30")
-        assertThat(result3).isEqualTo("01.01.2021, 01:01:01")
+        assertThat(result1).isEqualTo("17.12.2021, 14:27")
+        assertThat(result2).isEqualTo("17.02.2021, 14:07")
+        assertThat(result3).isEqualTo("01.01.2021, 01:01")
     }
 
     @Test

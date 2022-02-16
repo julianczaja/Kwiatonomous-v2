@@ -14,6 +14,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.corrot.kwiatonomousapp.presentation.KwiatonomousNavHost
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -28,6 +29,7 @@ class DashboardScreenTest {
 
     lateinit var navController: NavHostController
 
+    @ExperimentalPagerApi
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
     @Before

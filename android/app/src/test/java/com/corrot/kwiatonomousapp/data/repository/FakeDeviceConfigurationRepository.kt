@@ -5,6 +5,9 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.toDeviceConfigurati
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
 import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
 import kotlinx.coroutines.flow.flow
+import okhttp3.internal.EMPTY_RESPONSE
+import retrofit2.HttpException
+import retrofit2.Response
 
 class FakeDeviceConfigurationRepository : DeviceConfigurationRepository {
 
@@ -19,7 +22,7 @@ class FakeDeviceConfigurationRepository : DeviceConfigurationRepository {
         return when (deviceId) {
             "id1" -> backendDevicesConfigurations[0]
             "id2" -> backendDevicesConfigurations[1]
-            else -> throw Exception("Can't find device")
+            else -> throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
         }
     }
 
@@ -30,7 +33,7 @@ class FakeDeviceConfigurationRepository : DeviceConfigurationRepository {
         when (id) {
             "id1" -> backendDevicesConfigurations[0] = configuration
             "id2" -> backendDevicesConfigurations[1] = configuration
-            else -> throw Exception("Can't find device")
+            else -> throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
         }
     }
 

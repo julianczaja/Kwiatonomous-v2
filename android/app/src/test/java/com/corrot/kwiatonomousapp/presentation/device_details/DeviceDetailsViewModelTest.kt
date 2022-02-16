@@ -4,10 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.corrot.kwiatonomousapp.MainCoroutineRule
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
-import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.*
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
@@ -32,6 +29,7 @@ class DeviceDetailsViewModelTest {
     val coroutineRule = MainCoroutineRule()
 
     private val preferencesRepository: PreferencesRepository = mockk()
+    private val userDeviceRepository: UserDeviceRepository = mockk()
     private val deviceRepository: DeviceRepository = mockk()
     private val deviceConfigurationRepository: DeviceConfigurationRepository = mockk()
     private val deviceUpdateRepository: DeviceUpdateRepository = mockk()
@@ -46,6 +44,9 @@ class DeviceDetailsViewModelTest {
     @Test
     fun test_device_found() = coroutineRule.runBlockingTest {
         val deviceId = "test_id"
+
+        // Mock UserDeviceRepository
+        every { userDeviceRepository.getUserDevice(deviceId) }.returns(flowOf(mockk()))
 
         // Mock GetDeviceUseCase
         every { deviceRepository.getDeviceFromDatabase(deviceId) }.returns(flowOf(mockk()))
@@ -68,12 +69,13 @@ class DeviceDetailsViewModelTest {
             .returns(flowOf(updatesList))
         coEvery { deviceUpdateRepository.fetchDeviceUpdatesByDate(deviceId, any(), any()) }
             .returns(mockk())
-        coEvery { deviceUpdateRepository.saveFetchedDeviceUpdates(any(), any()) }.returns(Unit)
+        coEvery { deviceUpdateRepository.saveFetchedDeviceUpdates(any()) }.returns(Unit)
         val getDeviceUpdatesByDateUseCase = GetDeviceUpdatesByDateUseCase(deviceUpdateRepository)
 
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = preferencesRepository,
+            userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
@@ -81,6 +83,7 @@ class DeviceDetailsViewModelTest {
         )
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
+        assertThat(deviceDetailsViewModel.state.value.userDevice).isNotNull()
         assertThat(deviceDetailsViewModel.state.value.device).isNotNull()
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).isNotNull()
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).hasSize(3)
@@ -93,6 +96,9 @@ class DeviceDetailsViewModelTest {
     fun test_error() = coroutineRule.runBlockingTest {
         val errMsg = "No device found"
         val deviceId = "wrong_id"
+
+        // Mock UserDeviceRepository
+        every { userDeviceRepository.getUserDevice(deviceId) }.returns(emptyFlow())
 
         // Mock GetDeviceUseCase
         every { deviceRepository.getDeviceFromDatabase(deviceId) }.returns(emptyFlow())
@@ -117,6 +123,7 @@ class DeviceDetailsViewModelTest {
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = preferencesRepository,
+            userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
@@ -124,6 +131,7 @@ class DeviceDetailsViewModelTest {
         )
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
+        assertThat(deviceDetailsViewModel.state.value.userDevice).isNull()
         assertThat(deviceDetailsViewModel.state.value.device).isNull()
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).isNull()
         assertThat(deviceDetailsViewModel.state.value.deviceConfiguration).isNull()
