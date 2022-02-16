@@ -22,6 +22,7 @@
     <string name="device_settings">Device settings</string>
     <string name="done">Done</string>
     <string name="edit">Edit</string>
+    <string name="edit_device">Edit device</string>
     <string name="enter_watering_time">Enter watering time</string>
     <string name="error">Error</string>
     <string name="hour">Hour</string>

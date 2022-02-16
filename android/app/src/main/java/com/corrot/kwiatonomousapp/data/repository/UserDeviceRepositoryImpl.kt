@@ -36,6 +36,12 @@ class UserDeviceRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateUserDevice(device: UserDevice) {
+        kwiatonomousDb.withTransaction {
+            kwiatonomousDb.userDeviceDao().updateUserDevice(device.toUserDeviceEntity())
+        }
+    }
+
     override suspend fun removeUserDevice(device: UserDevice) {
         kwiatonomousDb.withTransaction {
             kwiatonomousDb.userDeviceDao().removeUserDevice(device.deviceId)

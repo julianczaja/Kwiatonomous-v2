@@ -1,6 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.add_user_device
 
-data class AddUserDeviceState(
+data class AddEditUserDeviceState(
     val deviceId: String = "",
     val isDeviceIdValid: Boolean = false,
 

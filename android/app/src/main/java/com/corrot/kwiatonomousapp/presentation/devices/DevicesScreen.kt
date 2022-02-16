@@ -44,7 +44,7 @@ fun DevicesScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddDevice.route) }
+                onClick = { navController.navigate(Screen.AddEditUserDevice.route) }
             ) {
                 Icon(Icons.Filled.Add, "")
             }

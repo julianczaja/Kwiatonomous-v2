@@ -11,5 +11,7 @@ interface UserDeviceRepository {
 
     suspend fun addUserDevice(device: UserDevice)
 
+    suspend fun updateUserDevice(device: UserDevice)
+
     suspend fun removeUserDevice(device: UserDevice)
 }

@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
-import com.corrot.kwiatonomousapp.presentation.add_user_device.AddUserDeviceScreen
+import com.corrot.kwiatonomousapp.presentation.add_user_device.AddEditUserDeviceScreen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
 import com.corrot.kwiatonomousapp.presentation.device_details.DeviceDetailsScreen
@@ -69,9 +69,13 @@ fun KwiatonomousNavHost(
         }
 
         composable(
-            route = Screen.AddDevice.route
+            route = Screen.AddEditUserDevice.route + "?$NAV_ARG_DEVICE_ID={$NAV_ARG_DEVICE_ID}",
+            arguments = listOf(navArgument(name = NAV_ARG_DEVICE_ID) {
+                type = NavType.StringType
+                nullable = true
+            })
         ) {
-            AddUserDeviceScreen(navController)
+            AddEditUserDeviceScreen(navController)
         }
     }
 }
@@ -83,7 +87,7 @@ sealed class Screen(val route: String) {
     object AppSettings : Screen("/app_settings")
     object DeviceDetails : Screen("/device_details")
     object DeviceSettings : Screen("/device_settings")
-    object AddDevice : Screen("/add_device")
+    object AddEditUserDevice : Screen("/add_edit_user_device")
 
     fun withArgs(vararg args: String): String {
         return buildString {
@@ -91,4 +95,7 @@ sealed class Screen(val route: String) {
             args.forEach { append("/$it") }
         }
     }
+
+    fun withOptionalArg(argName: String, argValue: String) = "$route?$argName=$argValue"
+
 }

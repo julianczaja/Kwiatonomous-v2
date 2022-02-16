@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.add_user_device
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,16 +29,16 @@ import kotlinx.coroutines.flow.collect
 
 @ExperimentalPagerApi
 @Composable
-fun AddUserDeviceScreen(
+fun AddEditUserDeviceScreen(
     navController: NavController,
-    viewModel: AddUserDeviceViewModel = hiltViewModel()
+    viewModel: AddEditUserDeviceViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                AddUserDeviceViewModel.Event.NAVIGATE_UP -> {
+                AddEditUserDeviceViewModel.Event.NAVIGATE_UP -> {
                     navController.navigateUp()
                 }
             }
@@ -49,7 +50,14 @@ fun AddUserDeviceScreen(
             TopAppBar(
                 modifier = Modifier.height(45.dp),
                 backgroundColor = MaterialTheme.colors.primary,
-                title = { Text(text = stringResource(R.string.add_device)) },
+                title = {
+                    Text(
+                        text = if (viewModel.isEditMode)
+                            stringResource(R.string.edit_device)
+                        else
+                            stringResource(R.string.add_device)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, "")
@@ -69,7 +77,21 @@ fun AddUserDeviceScreen(
                     .padding(top = 16.dp)
             ) {
                 item {
-                    UserDeviceImagePager(onImageIdChanged = { viewModel.onDeviceImageIdChanged(it) })
+                    if (viewModel.isEditMode) {
+                        // Wait until data is loaded to initiate pager with proper page
+                        if (state.deviceImageId != 0) {
+                            UserDeviceImagePager(
+                                initialPage = getNumberOfUserDeviceImageId(state.deviceImageId),
+                                onImageIdChanged = { viewModel.onDeviceImageIdChanged(it) }
+                            )
+                        }
+                    } else {
+                        UserDeviceImagePager(
+                            onImageIdChanged = {
+                                viewModel.onDeviceImageIdChanged(it)
+                            }
+                        )
+                    }
                 }
                 item {
                     Column(
@@ -86,16 +108,19 @@ fun AddUserDeviceScreen(
                             singleLine = true,
                             isError = !state.isDeviceIdValid,
                             textStyle = MaterialTheme.typography.body1,
+                            enabled = !viewModel.isEditMode,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Text(
-                            text = stringResource(R.string.device_id_length_format).format(state.deviceId.length),
-                            textAlign = TextAlign.End,
-                            style = MaterialTheme.typography.body1.copy(fontSize = 11.sp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(2.dp)
-                        )
+                        if (!viewModel.isEditMode) {
+                            Text(
+                                text = stringResource(R.string.device_id_length_format).format(state.deviceId.length),
+                                textAlign = TextAlign.End,
+                                style = MaterialTheme.typography.body1.copy(fontSize = 11.sp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(2.dp)
+                            )
+                        }
                     }
                 }
                 item {
@@ -148,8 +173,8 @@ fun AddUserDeviceScreen(
 
 @ExperimentalPagerApi
 @Composable
-private fun UserDeviceImagePager(onImageIdChanged: (Int) -> Unit) {
-    val pagerState = rememberPagerState()
+private fun UserDeviceImagePager(initialPage: Int? = null, onImageIdChanged: (Int) -> Unit) {
+    val pagerState = rememberPagerState(initialPage ?: 0)
 
     // Observe page state
     LaunchedEffect(pagerState) {
@@ -189,4 +214,16 @@ private fun getUserDeviceImageIdByNumber(number: Int): Int = when (number) {
     6 -> R.drawable.flower_7
     7 -> R.drawable.flower_8
     else -> R.drawable.flower_2
+}
+
+private fun getNumberOfUserDeviceImageId(@DrawableRes id: Int): Int = when (id) {
+    R.drawable.flower_1 -> 0
+    R.drawable.flower_2 -> 1
+    R.drawable.flower_3 -> 2
+    R.drawable.flower_4 -> 3
+    R.drawable.flower_5 -> 4
+    R.drawable.flower_6 -> 5
+    R.drawable.flower_7 -> 6
+    R.drawable.flower_8 -> 7
+    else -> 1
 }

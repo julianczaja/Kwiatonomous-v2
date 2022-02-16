@@ -17,6 +17,7 @@ import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -32,8 +33,14 @@ class DeviceDetailsViewModel @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
+    enum class Event {
+        NAVIGATE_UP,
+        OPEN_EDIT_USER_DEVICE_SCREEN
+    }
+
     private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
     val state = mutableStateOf(DeviceDetailsState())
+    val eventFlow = MutableSharedFlow<Event>()
     val currentAppTheme = appPreferencesRepository.getAppTheme()
 
     // Keep track of jobs to cancel it first when refreshData() is triggered
@@ -71,6 +78,24 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun confirmError() {
         state.value = state.value.copy(error = null)
+    }
+
+    fun onUserDeviceAction(action: UserDeviceAction) = viewModelScope.launch(ioDispatcher) {
+        when (action) {
+            UserDeviceAction.EDIT -> {
+                eventFlow.emit(Event.OPEN_EDIT_USER_DEVICE_SCREEN)
+            }
+            UserDeviceAction.DELETE -> {
+                try {
+                    userDeviceRepository.removeUserDevice(state.value.userDevice!!)
+                    eventFlow.emit(Event.NAVIGATE_UP)
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        state.value = state.value.copy(error = e.message ?: "Unknown error")
+                    }
+                }
+            }
+        }
     }
 
     private fun getUserDevice(id: String) = viewModelScope.launch(ioDispatcher) {
@@ -238,17 +263,4 @@ class DeviceDetailsViewModel @Inject constructor(
         return Pair(from, to)
     }
 
-    fun onUserDeviceAction(action: UserDeviceAction) {
-        when (action) {
-            UserDeviceAction.EDIT -> {
-                // TODO: Not implemented yet
-            }
-            UserDeviceAction.DELETE -> {
-                viewModelScope.launch {
-                    userDeviceRepository.removeUserDevice(state.value.userDevice!!)
-                    // TODO: Trigger navigate back event
-                }
-            }
-        }
-    }
 }

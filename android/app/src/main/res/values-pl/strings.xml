@@ -22,6 +22,7 @@
     <string name="device_settings">Ustawienia urządzenia</string>
     <string name="done">Gotowe</string>
     <string name="edit">Edytuj</string>
+    <string name="edit_device">Edytuj urządzenie</string>
     <string name="enter_watering_time">Wprowadź czas podlewania</string>
     <string name="error">Błąd</string>
     <string name="hour">Godzina</string>

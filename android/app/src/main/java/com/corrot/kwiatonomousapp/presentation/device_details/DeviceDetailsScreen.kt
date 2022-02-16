@@ -10,10 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.components.*
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.Device
@@ -34,6 +32,7 @@ import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceC
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun DeviceDetailsScreen(
@@ -47,6 +46,24 @@ fun DeviceDetailsScreen(
         AppTheme.AUTO -> isSystemInDarkTheme()
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
+    }
+
+    LaunchedEffect(true) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                DeviceDetailsViewModel.Event.NAVIGATE_UP -> {
+                    navController.navigateUp()
+                }
+                DeviceDetailsViewModel.Event.OPEN_EDIT_USER_DEVICE_SCREEN -> {
+                    navController.navigate(
+                        Screen.AddEditUserDevice.withOptionalArg(
+                            argName = Constants.NAV_ARG_DEVICE_ID,
+                            argValue = viewModel.state.value.userDevice!!.deviceId // it can't be null there
+                        )
+                    )
+                }
+            }
+        }
     }
 
     Column(
