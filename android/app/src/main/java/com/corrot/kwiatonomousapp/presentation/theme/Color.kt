@@ -26,7 +26,7 @@ val NightOnSurface = Color(0xFFFFFFFF)
 
 val DeviceActiveColor = Color(0xFF66BB6A)
 val DeviceInActiveColor = Color(0xFFEF5350)
+val WarningColor = Color(0xFFFFCA28)
 
 val Error = Color(0xFFE57373)
 val onError = Color.White
-

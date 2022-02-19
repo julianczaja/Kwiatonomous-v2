@@ -35,6 +35,7 @@ class DeviceDetailsViewModel @Inject constructor(
 
     enum class Event {
         NAVIGATE_UP,
+        SHOW_DELETE_ALERT_DIALOG,
         OPEN_EDIT_USER_DEVICE_SCREEN
     }
 
@@ -86,14 +87,18 @@ class DeviceDetailsViewModel @Inject constructor(
                 eventFlow.emit(Event.OPEN_EDIT_USER_DEVICE_SCREEN)
             }
             UserDeviceAction.DELETE -> {
-                try {
-                    userDeviceRepository.removeUserDevice(state.value.userDevice!!)
-                    eventFlow.emit(Event.NAVIGATE_UP)
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        state.value = state.value.copy(error = e.message ?: "Unknown error")
-                    }
-                }
+                eventFlow.emit(Event.SHOW_DELETE_ALERT_DIALOG)
+            }
+        }
+    }
+
+    fun deleteDevice() = viewModelScope.launch(ioDispatcher) {
+        try {
+            userDeviceRepository.removeUserDevice(state.value.userDevice!!)
+            eventFlow.emit(Event.NAVIGATE_UP)
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                state.value = state.value.copy(error = e.message ?: "Unknown error")
             }
         }
     }

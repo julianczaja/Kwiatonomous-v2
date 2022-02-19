@@ -47,6 +47,7 @@ fun DeviceDetailsScreen(
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
     }
+    var deleteAlertDialogOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
@@ -61,6 +62,9 @@ fun DeviceDetailsScreen(
                             argValue = viewModel.state.value.userDevice!!.deviceId // it can't be null there
                         )
                     )
+                }
+                DeviceDetailsViewModel.Event.SHOW_DELETE_ALERT_DIALOG -> {
+                    deleteAlertDialogOpened = true
                 }
             }
         }
@@ -133,6 +137,18 @@ fun DeviceDetailsScreen(
 
                 item { Spacer(Modifier.height(16.dp)) }
             }
+        }
+        if (deleteAlertDialogOpened) {
+            WarningBox(
+                message = stringResource(R.string.user_device_delete_warning_message),
+                onCancelClicked = {
+                    deleteAlertDialogOpened = false
+                },
+                onConfirmClicked = {
+                    deleteAlertDialogOpened = false
+                    viewModel.deleteDevice()
+                }
+            )
         }
         state.error?.let { error ->
             ErrorBoxCancelRetry(
