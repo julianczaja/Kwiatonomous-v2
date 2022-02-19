@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 
@@ -29,14 +27,12 @@ fun DashboardScreen(
     navController: NavController,
 //    viewModel: DashboardViewModel = hiltViewModel()
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
+
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(title = stringResource(R.string.app_name))
+        }
     ) {
-        TopAppBar(
-            modifier = Modifier.height(45.dp),
-            backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = stringResource(R.string.app_name)) },
-        )
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier

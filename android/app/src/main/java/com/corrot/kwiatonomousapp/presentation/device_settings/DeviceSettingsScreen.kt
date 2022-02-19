@@ -3,8 +3,6 @@ package com.corrot.kwiatonomousapp.presentation.device_settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -13,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.presentation.device_settings.components.DeviceConfigurationEditItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -26,19 +25,14 @@ fun DeviceSettingsScreen(
 ) {
     val state = viewModel.state.value
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.device_settings),
+                onNavigateBackClicked = { navController.popBackStack() }
+            )
+        }
     ) {
-        TopAppBar(
-            modifier = Modifier.height(45.dp),
-            backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = stringResource(R.string.device_settings)) },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Filled.ArrowBack, "")
-                }
-            }
-        )
         SwipeRefresh(
             state = rememberSwipeRefreshState(state.isLoading),
             onRefresh = {

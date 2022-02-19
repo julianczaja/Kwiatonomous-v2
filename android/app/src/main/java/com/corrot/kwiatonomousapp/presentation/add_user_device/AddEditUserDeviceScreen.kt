@@ -5,8 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
@@ -20,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -47,22 +46,12 @@ fun AddEditUserDeviceScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                modifier = Modifier.height(45.dp),
-                backgroundColor = MaterialTheme.colors.primary,
-                title = {
-                    Text(
-                        text = if (viewModel.isEditMode)
-                            stringResource(R.string.edit_device)
-                        else
-                            stringResource(R.string.add_device)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, "")
-                    }
-                }
+            DefaultTopAppBar(
+                title = if (viewModel.isEditMode)
+                    stringResource(R.string.edit_device)
+                else
+                    stringResource(R.string.add_device),
+                onNavigateBackClicked = { navController.popBackStack() }
             )
         }
     ) {

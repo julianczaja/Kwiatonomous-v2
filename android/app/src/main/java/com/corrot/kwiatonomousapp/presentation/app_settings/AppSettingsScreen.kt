@@ -5,8 +5,6 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
@@ -26,49 +25,40 @@ fun AppSettingsScreen(
 ) {
     val state = viewModel.state.value
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.application_settings),
+                onNavigateBackClicked = { navController.popBackStack() }
+            )
+        }
+
     ) {
-        TopAppBar(
-            modifier = Modifier.height(45.dp),
-            backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = stringResource(R.string.application_settings)) },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Filled.ArrowBack, "")
-                }
-            }
-        )
-        Box(
-            modifier = Modifier.fillMaxSize()
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp, horizontal = 12.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp)
-            ) {
-                state.appTheme?.let {
-                    item {
-                        AppThemeSection(
-                            currentAppTheme = state.appTheme,
-                            onAppThemeSelected = { viewModel.setAppTheme(it) }
-                        )
-                    }
+            state.appTheme?.let {
+                item {
+                    AppThemeSection(
+                        currentAppTheme = state.appTheme,
+                        onAppThemeSelected = { viewModel.setAppTheme(it) }
+                    )
                 }
-            }
-            if (state.isLoading) {
-                CircularProgressIndicator()
-            }
-            state.error?.let { error ->
-                ErrorBoxCancelRetry(
-                    message = error,
-                    onCancel = { /* TODO */ },
-                    onRetry = { /* TODO */ }
-                )
             }
         }
+        if (state.isLoading) {
+            CircularProgressIndicator()
+        }
+        state.error?.let { error ->
+            ErrorBoxCancelRetry(
+                message = error,
+                onCancel = { /* TODO */ },
+                onRetry = { /* TODO */ }
+            )
+        }
     }
-
 }
 
 enum class AppTheme {

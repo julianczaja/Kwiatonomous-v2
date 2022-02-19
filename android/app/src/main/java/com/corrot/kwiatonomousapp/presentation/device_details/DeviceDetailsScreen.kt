@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -66,92 +65,83 @@ fun DeviceDetailsScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Scaffold(
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.device_details),
+                onNavigateBackClicked = { navController.popBackStack() }
+            )
+        }
     ) {
-        TopAppBar(
-            modifier = Modifier.height(45.dp),
-            backgroundColor = MaterialTheme.colors.primary,
-            title = { Text(text = stringResource(R.string.device_details)) },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Filled.ArrowBack, "")
-                }
-            }
-        )
-        Box(
-            modifier = Modifier.fillMaxSize()
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isLoading),
+            onRefresh = { viewModel.refreshData() }
         ) {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isLoading),
-                onRefresh = { viewModel.refreshData() }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp)
-                ) {
-                    item { Spacer(Modifier.height(16.dp)) }
+                item { Spacer(Modifier.height(16.dp)) }
 
-                    state.userDevice?.let { userDevice ->
-                        item {
-                            UserDeviceSection(
-                                userDevice = userDevice,
-                                onActionClicked = {
-                                    viewModel.onUserDeviceAction(it)
-                                }
-                            )
-                        }
+                state.userDevice?.let { userDevice ->
+                    item {
+                        UserDeviceSection(
+                            userDevice = userDevice,
+                            onActionClicked = {
+                                viewModel.onUserDeviceAction(it)
+                            }
+                        )
                     }
-
-                    state.device?.let { device ->
-                        item {
-                            DeviceSection(device)
-                        }
-                    }
-
-                    state.deviceConfiguration?.let { deviceConfiguration ->
-                        item {
-                            DeviceConfigurationSection(
-                                deviceConfiguration,
-                                onEditClicked = {
-                                    navController.navigate(
-                                        Screen.DeviceSettings.withArgs(
-                                            deviceConfiguration.deviceId
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                    if (state.deviceUpdates != null) {
-                        item {
-                            DeviceUpdatesSection(
-                                deviceUpdates = state.deviceUpdates,
-                                selectedChartDateType = viewModel.state.value.selectedChartDateType,
-                                selectedDateRange = viewModel.state.value.selectedDateRange,
-                                selectedChartDataType = viewModel.state.value.selectedChartDataType,
-                                isDarkMode = isDarkMode,
-                                onChartDateTypeSelected = { viewModel.onChartDateTypeSelected(it) },
-                                onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) }
-                            )
-                        }
-                    }
-
-                    item { Spacer(Modifier.height(16.dp)) }
                 }
-            }
-            state.error?.let { error ->
-                ErrorBoxCancelRetry(
-                    message = error,
-                    onCancel = { viewModel.confirmError() },
-                    onRetry = {
-                        viewModel.confirmError()
-                        viewModel.refreshData()
+
+                state.device?.let { device ->
+                    item {
+                        DeviceSection(device)
                     }
-                )
+                }
+
+                state.deviceConfiguration?.let { deviceConfiguration ->
+                    item {
+                        DeviceConfigurationSection(
+                            deviceConfiguration,
+                            onEditClicked = {
+                                navController.navigate(
+                                    Screen.DeviceSettings.withArgs(
+                                        deviceConfiguration.deviceId
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+
+                if (state.deviceUpdates != null) {
+                    item {
+                        DeviceUpdatesSection(
+                            deviceUpdates = state.deviceUpdates,
+                            selectedChartDateType = viewModel.state.value.selectedChartDateType,
+                            selectedDateRange = viewModel.state.value.selectedDateRange,
+                            selectedChartDataType = viewModel.state.value.selectedChartDataType,
+                            isDarkMode = isDarkMode,
+                            onChartDateTypeSelected = { viewModel.onChartDateTypeSelected(it) },
+                            onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) }
+                        )
+                    }
+                }
+
+                item { Spacer(Modifier.height(16.dp)) }
             }
+        }
+        state.error?.let { error ->
+            ErrorBoxCancelRetry(
+                message = error,
+                onCancel = { viewModel.confirmError() },
+                onRetry = {
+                    viewModel.confirmError()
+                    viewModel.refreshData()
+                }
+            )
         }
     }
 }
