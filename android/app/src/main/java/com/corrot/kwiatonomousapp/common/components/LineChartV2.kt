@@ -11,6 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -166,24 +167,56 @@ fun DateLineChartPreviewDark() {
     }
 }
 
+@Preview(
+    "DateLineChartPreviewDark_empty",
+    widthDp = 400,
+    heightDp = 200,
+    uiMode = UI_MODE_NIGHT_YES
+)
+@Composable
+fun DateLineChartPreviewDarkEmpty() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .height(250.dp)
+            ) {
+                DateLineChart(
+                    xData = listOf(),
+                    yData = listOf(),
+                    fromDate = 1639663002L,
+                    toDate = 1639749402L,
+                    dateType = LineChartDateType.DAY,
+                    yAxisUnit = "°C",
+                    renderDropLines = true,
+                    marginX = 0f,
+                    marginY = 0f
+                )
+            }
+        }
+    }
+}
+
 enum class LineChartDateType {
     DAY,
     WEEK,
     MONTH
 }
 
-fun LineChartDateType.mapToString(context: Context): String = when(this) {
+fun LineChartDateType.mapToString(context: Context): String = when (this) {
     LineChartDateType.DAY -> context.getString(R.string.day)
     LineChartDateType.WEEK -> context.getString(R.string.week)
     LineChartDateType.MONTH -> context.getString(R.string.month)
 }
+
 enum class LineChartDataType {
     TEMPERATURE,
     HUMIDITY,
     BATTERY
 }
 
-fun LineChartDataType.mapToString(context: Context): String = when(this) {
+fun LineChartDataType.mapToString(context: Context): String = when (this) {
     LineChartDataType.BATTERY -> context.getString(R.string.battery)
     LineChartDataType.HUMIDITY -> context.getString(R.string.humidity_abbr)
     LineChartDataType.TEMPERATURE -> context.getString(R.string.temperature_abbr)
@@ -206,7 +239,16 @@ fun DateLineChart(
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
     if (xData.isEmpty() || yData.isEmpty()) {
-        Text("No data", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = "No data",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h5
+            )
+        }
         return
     }
 

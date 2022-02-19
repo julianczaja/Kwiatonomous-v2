@@ -24,9 +24,168 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalTime
 
 
+@Composable
+fun WateringTimePicker(
+    initialValue: LocalTime?,
+    onDismiss: () -> Unit,
+    onConfirmClick: (Pair<Int, Int>) -> Unit
+) {
+    var hours: Int? by rememberSaveable { mutableStateOf(initialValue?.hour ?: 0) }
+    var minutes: Int? by rememberSaveable { mutableStateOf(initialValue?.minute ?: 0) }
+
+    fun isHourValid(hours: Int?) = (hours != null) && (hours in 0..23)
+    fun isMinuteValid(minutes: Int?) = (minutes != null) && (minutes in 0..59)
+
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Card(
+            shape = RoundedCornerShape(4.dp),
+            backgroundColor = MaterialTheme.colors.surface,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .fillMaxSize()
+            ) {
+
+                // Title
+                Row(
+                    Modifier.padding(bottom = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.enter_watering_time) + ":",
+                        style = MaterialTheme.typography.h6
+                    )
+                }
+
+                // Hour/minute picking
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column {
+                        NumberInputField(
+                            value = if (hours != null) hours.toString() else "",
+                            onValueChange = {
+                                hours = try {
+                                    it.toInt().coerceIn(0, 23)
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            },
+                            isError = !isHourValid(hours)
+                        )
+                        Text(
+                            text = stringResource(R.string.hour),
+                            style = MaterialTheme.typography.overline,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.height(75.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = ":",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.h4,
+                            modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                        )
+                    }
+                    Column {
+                        NumberInputField(
+                            value = if (minutes != null) minutes.toString() else "",
+                            onValueChange = {
+                                minutes = try {
+                                    it.toInt().coerceIn(0, 59)
+                                } catch (e: Exception) {
+                                    null
+                                }
+                            },
+                            isError = !isMinuteValid(minutes)
+                        )
+                        Text(
+                            text = stringResource(R.string.minute),
+                            style = MaterialTheme.typography.overline,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+
+                CancelOkButtons(
+                    isOkEnabled = isHourValid(hours) && isMinuteValid(minutes),
+                    onCancelClicked = onDismiss,
+                    onOkClicked = {
+                        if (isHourValid(hours) && isMinuteValid(minutes)) {
+                            onConfirmClick(Pair(hours!!, minutes!!))
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NumberInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+) {
+    OutlinedTextField(
+        value = value,
+        isError = isError,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        textStyle = MaterialTheme.typography.h4.copy(textAlign = TextAlign.Center),
+        onValueChange = onValueChange,
+        modifier = Modifier.width(100.dp)
+    )
+}
+
+@Composable
+private fun CancelOkButtons(
+    isOkEnabled: Boolean = true,
+    onCancelClicked: () -> Unit,
+    onOkClicked: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(
+            onClick = onCancelClicked
+        ) {
+            Text(
+                text = stringResource(R.string.cancel).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.button.copy(fontSize = 12.sp)
+            )
+        }
+        TextButton(
+            enabled = isOkEnabled,
+            onClick = onOkClicked
+        ) {
+            Text(
+                text = stringResource(R.string.ok).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.button.copy(fontSize = 12.sp)
+            )
+        }
+    }
+}
+
 @Preview(
     "WateringTimePickerPreviewLight",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    heightDp = 300
 )
 @Composable
 fun WateringTimePickerPreviewLight() {
@@ -37,149 +196,17 @@ fun WateringTimePickerPreviewLight() {
     }
 }
 
-private fun isHourValid(hours: Int?) = (hours != null) && (hours in 0..23)
-
-private fun isMinuteValid(minutes: Int?) = (minutes != null) && (minutes in 0..59)
-
+@Preview(
+    "WateringTimePickerPreviewDark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    heightDp = 300
+)
 @Composable
-fun WateringTimePicker(
-    initialValue: LocalTime?,
-    onDismiss: () -> Unit,
-    onConfirmClick: (Pair<Int, Int>) -> Unit
-) {
-    var hours: Int? by rememberSaveable { mutableStateOf(initialValue?.hour ?: 0) }
-    var minutes: Int? by rememberSaveable { mutableStateOf(initialValue?.minute ?: 0) }
-
-
-    Dialog(
-        onDismissRequest = onDismiss
-    ) {
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            backgroundColor = MaterialTheme.colors.surface,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-                    .fillMaxSize()
-            ) {
-
-                // Title
-                Row(
-                    Modifier.padding(bottom = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.enter_watering_time).uppercase(),
-                        style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                    )
-                }
-
-                // Hour/minute picking
-                Row(
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .width(100.dp)
-                    ) {
-                        // TODO: separate from this composable
-                        OutlinedTextField(
-                            value = if (hours != null) hours.toString() else "",
-                            isError = !isHourValid(hours),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            textStyle = MaterialTheme.typography.h1.copy(textAlign = TextAlign.Center),
-                            onValueChange = {
-                                hours = try {
-                                    it.toInt().coerceIn(0, 23)
-                                } catch (e: Exception) {
-                                    null
-                                }
-                            },
-                            modifier = Modifier.height(75.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.hour),
-                            style = MaterialTheme.typography.overline,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
-                    }
-                    Column(
-                        modifier = Modifier.height(75.dp),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = ":",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.h1,
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp)
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .width(100.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = if (minutes != null) minutes.toString() else "",
-                            isError = !isMinuteValid(minutes),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            textStyle = MaterialTheme.typography.h1.copy(textAlign = TextAlign.Center),
-                            onValueChange = {
-                                minutes = try {
-                                    it.toInt().coerceIn(0, 59)
-                                } catch (e: Exception) {
-                                    null
-                                }
-                            },
-                            modifier = Modifier.height(75.dp)
-                        )
-                        Text(
-                            text = stringResource(R.string.minute),
-                            style = MaterialTheme.typography.overline,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
-                    }
-                }
-
-                // 'Cancel' and 'Ok' Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(
-                        onClick = onDismiss
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cancel).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
-                    }
-                    TextButton(
-                        enabled = isHourValid(hours) && isMinuteValid(minutes),
-                        onClick = {
-                            // Validation
-                            if (isHourValid(hours) && isMinuteValid(minutes)) {
-                                onConfirmClick(Pair(hours!!, minutes!!))
-                            }
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.ok).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
-                    }
-                }
-            }
+fun WateringTimePickerPreviewDark() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            WateringTimePicker(initialValue = null, onDismiss = {}, onConfirmClick = {})
         }
     }
 }
+

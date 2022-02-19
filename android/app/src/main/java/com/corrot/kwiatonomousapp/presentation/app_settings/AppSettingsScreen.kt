@@ -107,7 +107,7 @@ private fun AppThemeSection(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(stringResource(R.string.application_theme), style = MaterialTheme.typography.h2)
+            Text(stringResource(R.string.application_theme), style = MaterialTheme.typography.h5)
             Divider(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -116,8 +116,7 @@ private fun AppThemeSection(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.theme_sync_with_device))
                 RadioButton(
@@ -129,8 +128,7 @@ private fun AppThemeSection(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.theme_light))
                 RadioButton(

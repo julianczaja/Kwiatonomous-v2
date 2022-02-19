@@ -13,10 +13,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 
@@ -72,8 +70,8 @@ fun CustomRadioGroup(
             ) {
                 Row {
                     Text(
-                        text = options[index],
-                        style = typography.body2.copy(fontSize = 9.sp, fontWeight = FontWeight.Normal),
+                        text = options[index].uppercase(),
+                        style = typography.overline,
                         modifier = Modifier
                             .padding(8.dp)
                             .clickable { onOptionSelected(index) }

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -176,12 +177,17 @@ private fun UserDeviceSection(userDevice: UserDevice, onActionClicked: (UserDevi
                     onClick = {
                         isExpanded.value = false
                         onActionClicked(UserDeviceAction.EDIT)
-                    }
+                    },
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.width(100.dp)
+                    ) {
                         Icon(Icons.Filled.Edit, "")
                         Text(
                             stringResource(R.string.edit),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -192,10 +198,15 @@ private fun UserDeviceSection(userDevice: UserDevice, onActionClicked: (UserDevi
                         onActionClicked(UserDeviceAction.DELETE)
                     }
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.width(100.dp)
+                    ) {
                         Icon(Icons.Filled.Delete, "")
                         Text(
                             stringResource(R.string.delete),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -230,7 +241,7 @@ private fun DeviceConfigurationSection(
     ) {
         Text(
             text = stringResource(R.string.device_configuration),
-            style = MaterialTheme.typography.h2,
+            style = MaterialTheme.typography.h5,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Box(
@@ -270,7 +281,7 @@ private fun DeviceUpdatesSection(
     ) {
         Text(
             text = stringResource(R.string.last_updates),
-            style = MaterialTheme.typography.h2,
+            style = MaterialTheme.typography.h5,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Card(

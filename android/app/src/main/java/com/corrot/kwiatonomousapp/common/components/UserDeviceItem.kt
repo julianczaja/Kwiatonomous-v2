@@ -94,7 +94,7 @@ fun UserDeviceItem(
             Text(
                 text = userDevice.deviceName,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h3,
+                style = MaterialTheme.typography.h6,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(8.dp)
             )

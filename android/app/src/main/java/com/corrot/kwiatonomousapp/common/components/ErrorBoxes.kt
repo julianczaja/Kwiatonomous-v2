@@ -18,39 +18,6 @@ import androidx.compose.ui.window.Dialog
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
-
-@Preview(
-    "ErrorBoxCancelRetryPreviewLight",
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-fun ErrorBoxCancelRetryPreviewLight() {
-    KwiatonomousAppTheme(darkTheme = false) {
-        Surface {
-            Box(Modifier.fillMaxSize()) {
-                ErrorBoxCancelRetry("Error box message", {}, {})
-            }
-        }
-    }
-}
-
-@Preview(
-    "ErrorBoxCancelRetryPreviewDark",
-    showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-fun ErrorBoxCancelRetryPreviewDark() {
-    KwiatonomousAppTheme(darkTheme = false) {
-        Surface {
-            Box(Modifier.fillMaxSize()) {
-                ErrorBoxCancelRetry("Error box message", {}, {})
-            }
-        }
-    }
-}
-
 // TODO: Unify content of error boxes
 //       (https://stackoverflow.com/questions/65258997/how-to-pass-children-in-jetpack-compose-to-a-custom-composable)
 
@@ -81,8 +48,7 @@ fun ErrorBoxCancel(
                     Text(
                         text = stringResource(R.string.error).uppercase(),
                         textAlign = TextAlign.Center,
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.h6,
                         color = MaterialTheme.colors.onError,
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -97,6 +63,7 @@ fun ErrorBoxCancel(
                     Text(
                         text = message,
                         textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -134,7 +101,7 @@ fun ErrorBoxCancelRetry(
                     Text(
                         text = stringResource(R.string.error).uppercase(),
                         textAlign = TextAlign.Center,
-                        fontSize = 19.sp,
+                        style = MaterialTheme.typography.h6,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colors.onError,
                         modifier = Modifier
@@ -150,6 +117,7 @@ fun ErrorBoxCancelRetry(
                     Text(
                         text = message,
                         textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.body2,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -174,7 +142,7 @@ private fun CancelRetryButtons(
             Text(
                 text = stringResource(R.string.cancel).uppercase(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+                style = MaterialTheme.typography.button.copy(fontSize = 12.sp)
             )
         }
         TextButton(
@@ -183,7 +151,7 @@ private fun CancelRetryButtons(
             Text(
                 text = stringResource(R.string.retry).uppercase(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+                style = MaterialTheme.typography.button.copy(fontSize = 12.sp)
             )
         }
     }
@@ -203,8 +171,65 @@ private fun CancelButton(
             Text(
                 text = stringResource(R.string.cancel).uppercase(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+                style = MaterialTheme.typography.button.copy(fontSize = 12.sp)
             )
+        }
+    }
+}
+
+@Preview(
+    "ErrorBoxCancelRetryPreviewLight",
+    showSystemUi = false,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    heightDp = 150
+)
+@Composable
+fun ErrorBoxCancelRetryPreviewLight() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            Box(Modifier.fillMaxSize()) {
+                ErrorBoxCancelRetry(
+                    "Error box message, error box message, error box message.",
+                    {},
+                    {})
+            }
+        }
+    }
+}
+
+@Preview(
+    "ErrorBoxCancelRetryPreviewDark",
+    showSystemUi = false,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    heightDp = 150
+)
+@Composable
+fun ErrorBoxCancelRetryPreviewDark() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            Box(Modifier.fillMaxSize()) {
+                ErrorBoxCancelRetry(
+                    "Error box message, error box message, error box message.",
+                    {},
+                    {})
+            }
+        }
+    }
+}
+
+@Preview(
+    "ErrorBoxCancelPreviewDark",
+    showSystemUi = false,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    heightDp = 150
+)
+@Composable
+fun ErrorBoxCancelPreviewDark() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            Box(Modifier.fillMaxSize()) {
+                ErrorBoxCancel("Error box message, error box message, error box message.", {})
+            }
         }
     }
 }

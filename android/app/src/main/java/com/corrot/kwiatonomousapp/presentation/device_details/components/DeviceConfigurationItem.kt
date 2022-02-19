@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,8 @@ fun DeviceConfigurationItem(
                     Text(
                         text = "${deviceConfiguration.sleepTimeMinutes}m",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
                 Row(
@@ -85,7 +87,8 @@ fun DeviceConfigurationItem(
                     Text(
                         text = "UTC${deviceConfiguration.timeZoneOffset}",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
                 Row(
@@ -103,7 +106,8 @@ fun DeviceConfigurationItem(
                         else
                             stringResource(R.string.off_abbr),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
                 Row(
@@ -118,7 +122,8 @@ fun DeviceConfigurationItem(
                     Text(
                         text = "${deviceConfiguration.wateringIntervalDays} days",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
                 Row(
@@ -133,7 +138,8 @@ fun DeviceConfigurationItem(
                     Text(
                         text = "${deviceConfiguration.wateringAmount} ml",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
                 Row(
@@ -148,7 +154,8 @@ fun DeviceConfigurationItem(
                     Text(
                         text = "${deviceConfiguration.wateringTime}",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Thin,
                     )
                 }
             }

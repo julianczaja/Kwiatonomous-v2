@@ -61,7 +61,7 @@ fun SplashScreen(navController: NavController) {
         )
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.h1,
+            style = MaterialTheme.typography.h4,
             modifier = Modifier.padding(top = 64.dp)
         )
     }

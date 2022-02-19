@@ -57,34 +57,39 @@ fun WateringDatePicker(
                         initialValue?.let { views.date = it.toEpochSecond(ZoneOffset.UTC) * 1000 }
                     }
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(), horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(
-                        onClick = {
-                            onDismiss()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cancel).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
+                CancelOkButtons(
+                    onCancelClicked = onDismiss,
+                    onOkClicked = {
+                        onConfirmClick(LocalDateTime.of(year, month, dayOfMonth, 0, 0))
                     }
-                    TextButton(
-                        onClick = {
-                            onConfirmClick(LocalDateTime.of(year, month, dayOfMonth, 0, 0))
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.ok).uppercase(),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
-                        )
-                    }
-                }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun CancelOkButtons(
+    onCancelClicked: () -> Unit,
+    onOkClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(), horizontalArrangement = Arrangement.End
+    ) {
+        TextButton(onClick = onCancelClicked) {
+            Text(
+                text = stringResource(R.string.cancel).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+            )
+        }
+        TextButton(onClick = onOkClicked) {
+            Text(
+                text = stringResource(R.string.ok).uppercase(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.overline.copy(fontSize = 12.sp)
+            )
         }
     }
 }

@@ -104,7 +104,7 @@ fun AddEditUserDeviceScreen(
                             Text(
                                 text = stringResource(R.string.device_id_length_format).format(state.deviceId.length),
                                 textAlign = TextAlign.End,
-                                style = MaterialTheme.typography.body1.copy(fontSize = 11.sp),
+                                style = MaterialTheme.typography.overline,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(2.dp)
