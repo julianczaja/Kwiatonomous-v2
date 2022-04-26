@@ -28,7 +28,7 @@ class DeviceDetailsViewModelTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    private val preferencesRepository: PreferencesRepository = mockk()
+    private val appPreferencesRepository: AppPreferencesRepository = mockk()
     private val userDeviceRepository: UserDeviceRepository = mockk()
     private val deviceRepository: DeviceRepository = mockk()
     private val deviceConfigurationRepository: DeviceConfigurationRepository = mockk()
@@ -37,7 +37,7 @@ class DeviceDetailsViewModelTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        every { preferencesRepository.getAppTheme() }.returns(flowOf(AppTheme.DARK))
+        every { appPreferencesRepository.getAppTheme() }.returns(flowOf(AppTheme.DARK))
     }
 
     @ExperimentalCoroutinesApi
@@ -74,7 +74,7 @@ class DeviceDetailsViewModelTest {
 
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
-            appPreferencesRepository = preferencesRepository,
+            appPreferencesRepository = appPreferencesRepository,
             userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,
@@ -122,7 +122,7 @@ class DeviceDetailsViewModelTest {
 
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
-            appPreferencesRepository = preferencesRepository,
+            appPreferencesRepository = appPreferencesRepository,
             userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,

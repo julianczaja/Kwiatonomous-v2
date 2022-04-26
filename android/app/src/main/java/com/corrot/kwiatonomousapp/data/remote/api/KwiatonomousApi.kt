@@ -3,9 +3,15 @@ package com.corrot.kwiatonomousapp.data.remote.api
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
+import retrofit2.Response
 import retrofit2.http.*
 
+data class CheckAccessResponse(val principal: String)
+
 interface KwiatonomousApi {
+
+    @GET("/")
+    suspend fun checkAccess(): Response<CheckAccessResponse>
 
     // Device
     @GET("/kwiatonomous/all")

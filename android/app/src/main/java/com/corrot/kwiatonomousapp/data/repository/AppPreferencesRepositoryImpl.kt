@@ -4,19 +4,19 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.data.local.datastore.PreferencesDataStoreKeys.APP_THEME_KEY
-import com.corrot.kwiatonomousapp.data.local.datastore.PreferencesDataStoreKeys.FIRST_TIME_USER_KEY
+import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.APP_THEME_KEY
+import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.FIRST_TIME_USER_KEY
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class PreferencesRepositoryImpl @Inject constructor(
+class AppPreferencesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
-) : PreferencesRepository {
+) : AppPreferencesRepository {
 
     override fun getAppPreferences(): Flow<Result<AppPreferences>> = dataStore.data
         .catch { error ->

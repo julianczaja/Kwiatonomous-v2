@@ -10,7 +10,7 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    appPreferencesRepository: PreferencesRepository,
+    appPreferencesRepository: AppPreferencesRepository,
     private val userDeviceRepository: UserDeviceRepository,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,

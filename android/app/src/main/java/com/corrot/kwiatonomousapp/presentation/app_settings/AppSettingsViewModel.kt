@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppSettingsViewModel @Inject constructor(
-    private val appPreferencesRepository: PreferencesRepository
+    private val appPreferencesRepository: AppPreferencesRepository
 ) : ViewModel() {
 
     val state = mutableStateOf(AppSettingsState())

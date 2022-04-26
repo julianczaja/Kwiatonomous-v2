@@ -11,6 +11,7 @@ import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
 import com.corrot.kwiatonomousapp.common.Constants.PREFERENCES_DATA_STORE_NAME
 import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
+import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
@@ -33,26 +34,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideKwiatonomousApi(): KwiatonomousApi {
+    fun provideKwiatonomousApi(digestAuthInterceptor: DigestAuthInterceptor): KwiatonomousApi {
         return Retrofit.Builder()
-            .baseUrl(
-                if (DEBUG_MODE) {
-                    BASE_URL_DEBUG
-                } else {
-                    BASE_URL
+            .baseUrl(if (DEBUG_MODE) BASE_URL_DEBUG else BASE_URL)
+            .client(OkHttpClient().newBuilder()
+                .addInterceptor(digestAuthInterceptor)
+                .apply {
+                    if (DEBUG_MODE) {
+                        addInterceptor(
+                            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+                        )
+                    }
                 }
-            )
-            .apply {
-                if (DEBUG_MODE) {
-                    client(
-                        OkHttpClient().newBuilder()
-                            .addInterceptor(
-                                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
-                            )
-                            .build()
-                    )
-                }
-            }
+                .build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(KwiatonomousApi::class.java)
@@ -115,8 +109,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferencesRepository(preferencesDataStore: DataStore<Preferences>): PreferencesRepository {
-        return PreferencesRepositoryImpl(preferencesDataStore)
+    fun provideAppPreferencesRepository(preferencesDataStore: DataStore<Preferences>): AppPreferencesRepository {
+        return AppPreferencesRepositoryImpl(preferencesDataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkPreferencesRepository(preferencesDataStore: DataStore<Preferences>): NetworkPreferencesRepository {
+        return NetworkPreferencesRepositoryImpl(preferencesDataStore)
     }
 
     @Provides
