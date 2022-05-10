@@ -7,5 +7,5 @@ object Constants {
     const val NAV_ARG_DEVICE_ID = "deviceId"
     const val PREFERENCES_DATA_STORE_NAME = "preferences_data_store"
 
-    const val DEVICE_INACTIVE_TIME_SECONDS = 12L * 3600L
+    const val DEVICE_INACTIVE_TIME_SECONDS = 1L * 3600L
 }

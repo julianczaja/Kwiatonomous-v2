@@ -8,14 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,6 +24,8 @@ import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
 import com.corrot.kwiatonomousapp.common.components.UserDeviceItem
 import com.corrot.kwiatonomousapp.presentation.Screen
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @ExperimentalFoundationApi
 @Composable
@@ -50,46 +50,47 @@ fun DevicesScreen(
             }
         }
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(state.isLoading),
+            onRefresh = {
+                viewModel.refreshData()
+            }
         ) {
-            LazyVerticalGrid(
-                cells = GridCells.Adaptive(minSize = 150.dp),
-                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 6.dp),
+            Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                state.userDevices?.let {
-                    items(it) { userDevice ->
-                        Box(
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 6.dp)
-                        ) {
-                            UserDeviceItem(
-                                userDevice = userDevice,
-                                onItemClick = {
-                                    navController.navigate(
-                                        Screen.DeviceDetails.withArgs(
-                                            userDevice.deviceId
+                LazyVerticalGrid(
+                    cells = GridCells.Adaptive(minSize = 150.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 6.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    state.userDevicesWithLastUpdates?.let {
+                        items(it) { userDeviceAndLastUpdate ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(vertical = 8.dp, horizontal = 6.dp)
+                            ) {
+                                UserDeviceItem(
+                                    userDevice = userDeviceAndLastUpdate.first,
+                                    lastDeviceUpdate = userDeviceAndLastUpdate.second,
+                                    onItemClick = {
+                                        navController.navigate(
+                                            Screen.DeviceDetails.withArgs(
+                                                userDeviceAndLastUpdate.first.deviceId
+                                            )
                                         )
-                                    )
-                                }
-                            )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
-            if (state.isLoading) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    CircularProgressIndicator()
+                if (!state.error.isNullOrBlank()) {
+                    ErrorBoxCancel(
+                        message = state.error,
+                        onCancel = { viewModel.confirmError() }
+                    )
                 }
-            }
-            if (!state.error.isNullOrBlank()) {
-                ErrorBoxCancel(
-                    message = state.error,
-                    onCancel = { viewModel.confirmError() }
-                )
             }
         }
     }

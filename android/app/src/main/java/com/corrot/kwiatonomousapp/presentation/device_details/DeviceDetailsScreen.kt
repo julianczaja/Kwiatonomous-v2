@@ -93,6 +93,7 @@ fun DeviceDetailsScreen(
                     item {
                         UserDeviceSection(
                             userDevice = userDevice,
+                            lastUpdate = state.deviceUpdates?.firstOrNull(),
                             onActionClicked = {
                                 viewModel.onUserDeviceAction(it)
                             }
@@ -168,13 +169,17 @@ enum class UserDeviceAction {
 }
 
 @Composable
-private fun UserDeviceSection(userDevice: UserDevice, onActionClicked: (UserDeviceAction) -> Unit) {
+private fun UserDeviceSection(
+    userDevice: UserDevice,
+    lastUpdate: DeviceUpdate?,
+    onActionClicked: (UserDeviceAction) -> Unit
+) {
     val isExpanded = remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        UserDeviceItem(userDevice)
+        UserDeviceItem(userDevice, lastUpdate)
         Box(
             modifier = Modifier.align(Alignment.TopEnd)
         ) {
