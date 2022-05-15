@@ -9,10 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -126,44 +123,6 @@ fun UserDeviceItem(
 fun LastDeviceUpdate(
     lastDeviceUpdate: DeviceUpdate
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .padding(start = 8.dp)
-            .fillMaxWidth()
-    ) {
-        Image(
-            bitmap = ImageBitmap.imageResource(id = R.drawable.temperature),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.temperature_format).format(lastDeviceUpdate.temperature),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.body2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 8.dp)
-        )
-    }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .padding(start = 8.dp, top = 6.dp, bottom = 4.dp)
-            .fillMaxWidth()
-    ) {
-        Image(
-            bitmap = ImageBitmap.imageResource(id = R.drawable.humidity),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.humidity_format).format(lastDeviceUpdate.humidity),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.body2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 8.dp)
-        )
-    }
+    Temperature(temperature = lastDeviceUpdate.temperature)
+    Humidity(humidity = lastDeviceUpdate.humidity)
 }
