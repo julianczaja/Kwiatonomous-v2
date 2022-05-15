@@ -7,6 +7,7 @@ import com.corrot.kwiatonomousapp.domain.usecase.GetUserDevicesWithLastUpdatesUs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -29,15 +30,22 @@ class DevicesViewModel @Inject constructor(
 
     fun refreshData() {
         state.value = state.value.copy(isLoading = true)
-
         viewModelScope.launch(ioDispatcher) {
             getUserDevicesWithLastUpdatesUseCase
                 .execute()
-                .collect { userDevicesAndLastUpdates ->
+                .catch { e ->
                     withContext(Dispatchers.Main) {
                         state.value = state.value.copy(
                             isLoading = false,
-                            userDevicesWithLastUpdates = userDevicesAndLastUpdates,
+                            error = e.message ?: "Unknown error"
+                        )
+                    }
+                }
+                .collect {
+                    withContext(Dispatchers.Main) {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            userDevicesWithLastUpdates = it,
                             error = null
                         )
                     }
