@@ -9,4 +9,5 @@ object Constants {
     const val REALM = "MyRealm"//"KwiatonomousRealm"
 
     const val DEVICE_INACTIVE_TIME_SECONDS = 12L * 3600L
+    const val SPLASH_SCREEN_TIME_MILLIS = 1000L
 }

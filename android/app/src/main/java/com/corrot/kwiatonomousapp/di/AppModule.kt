@@ -15,6 +15,7 @@ import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
+import com.corrot.kwiatonomousapp.LoginManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -121,4 +122,13 @@ object AppModule {
 
     @Provides
     fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @Singleton
+    fun provideLoginManager(
+        kwiatonomousApi: KwiatonomousApi,
+        networkPreferencesRepository: NetworkPreferencesRepository
+    ): LoginManager {
+        return LoginManager(kwiatonomousApi, networkPreferencesRepository)
+    }
 }

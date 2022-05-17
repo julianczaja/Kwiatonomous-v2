@@ -15,6 +15,7 @@ import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
 import com.corrot.kwiatonomousapp.presentation.device_details.DeviceDetailsScreen
 import com.corrot.kwiatonomousapp.presentation.device_settings.DeviceSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.devices.DevicesScreen
+import com.corrot.kwiatonomousapp.presentation.login.LoginScreen
 import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -30,6 +31,10 @@ fun KwiatonomousNavHost(
 
         composable(route = Screen.Splash.route) {
             SplashScreen(navController)
+        }
+
+        composable(route = Screen.Login.route) {
+            LoginScreen(navController)
         }
 
         composable(route = Screen.Devices.route) {
@@ -82,6 +87,7 @@ fun KwiatonomousNavHost(
 
 sealed class Screen(val route: String) {
     object Splash : Screen("/splash")
+    object Login : Screen("/login")
     object Dashboard : Screen("/dashboard")
     object Devices : Screen("/devices")
     object AppSettings : Screen("/app_settings")

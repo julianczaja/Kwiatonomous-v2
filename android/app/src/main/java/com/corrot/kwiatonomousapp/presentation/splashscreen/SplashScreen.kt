@@ -4,30 +4,32 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.presentation.Screen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
 
 
 @Composable
-fun SplashScreen(navController: NavController) {
-    var isClicked by remember { mutableStateOf(false) }
+fun SplashScreen(
+    navController: NavController,
+    viewModel: SplashScreenViewModel = hiltViewModel()
+) {
     val scale = remember { Animatable(0f) }
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(true) {
         scale.animateTo(
             targetValue = 2f,
             animationSpec = spring(
@@ -35,22 +37,28 @@ fun SplashScreen(navController: NavController) {
                 stiffness = Spring.StiffnessLow
             )
         )
+    }
 
-        // Display splash screen for 1.5s or until screen tapped
-        try {
-            withTimeout(1500L) { while (!isClicked) delay(50) }
-        } finally {
-            navController.popBackStack()
-            navController.navigate(Screen.Dashboard.route)
+    LaunchedEffect(true) {
+        viewModel.checkIfLoggedIn()
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                SplashScreenViewModel.Event.NOT_LOGGED_IN -> {
+                    navController.popBackStack()
+                    navController.navigate(Screen.Login.route)
+                }
+                SplashScreenViewModel.Event.LOGGED_IN -> {
+                    navController.popBackStack()
+                    navController.navigate(Screen.Devices.route)
+                }
+            }
         }
     }
 
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { isClicked = true }
+        modifier = Modifier.fillMaxSize()
     ) {
         Image(
             painter = painterResource(id = R.drawable.flower_2),
