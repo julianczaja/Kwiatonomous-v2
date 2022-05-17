@@ -9,10 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,8 +22,7 @@ import java.time.LocalDateTime
 
 @Preview(
     "UserDeviceItemPreviewLight",
-    widthDp = 200,
-    heightDp = 300,
+    widthDp = 500,
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
@@ -55,7 +51,6 @@ fun UserDeviceItemPreviewLight() {
 @Preview(
     "UserDeviceItemPreviewDark",
     widthDp = 200,
-    heightDp = 250,
     uiMode = Configuration.UI_MODE_NIGHT_YES, locale = "pl"
 )
 @Composable
@@ -80,43 +75,46 @@ fun UserDeviceItem(
     lastDeviceUpdate: DeviceUpdate?,
     onItemClick: ((UserDevice) -> Unit)? = null
 ) {
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        elevation = 8.dp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .clickable(enabled = onItemClick != null) { onItemClick?.let { it(userDevice) } }
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+    BoxWithConstraints {
+        val maxWidth = maxWidth
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            elevation = 8.dp,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .clickable(enabled = onItemClick != null) { onItemClick?.let { it(userDevice) } }
         ) {
-            Text(
-                text = userDevice.deviceName,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h6,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(8.dp)
-            )
-            Image(
-                alignment = Alignment.Center,
-                painter = painterResource(userDevice.deviceImageId),
-                contentDescription = "",
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .size(150.dp)
-                    .padding(horizontal = 8.dp)
-            )
-            if (lastDeviceUpdate != null) {
-                Divider(
-                    color = MaterialTheme.colors.primaryVariant,
-                    thickness = 1.dp,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = userDevice.deviceName,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.h6,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(8.dp)
                 )
-                LastDeviceUpdate(lastDeviceUpdate)
+                Image(
+                    alignment = Alignment.Center,
+                    painter = painterResource(userDevice.deviceImageId),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(horizontal = 8.dp)
+                )
+                if (lastDeviceUpdate != null) {
+                    Divider(
+                        color = MaterialTheme.colors.primaryVariant,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    LastDeviceUpdate(lastDeviceUpdate, maxWidth > 300.dp)
+                }
             }
         }
     }
@@ -124,46 +122,26 @@ fun UserDeviceItem(
 
 @Composable
 fun LastDeviceUpdate(
-    lastDeviceUpdate: DeviceUpdate
+    lastDeviceUpdate: DeviceUpdate,
+    isHorizontal: Boolean
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .padding(start = 8.dp)
-            .fillMaxWidth()
-    ) {
-        Image(
-            bitmap = ImageBitmap.imageResource(id = R.drawable.temperature),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.temperature_format).format(lastDeviceUpdate.temperature),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.body2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 8.dp)
-        )
-    }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .padding(start = 8.dp, top = 6.dp, bottom = 4.dp)
-            .fillMaxWidth()
-    ) {
-        Image(
-            bitmap = ImageBitmap.imageResource(id = R.drawable.humidity),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.humidity_format).format(lastDeviceUpdate.humidity),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.body2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(start = 8.dp)
-        )
+    if (isHorizontal) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Temperature(temperature = lastDeviceUpdate.temperature)
+            Humidity(humidity = lastDeviceUpdate.humidity)
+            BatteryLevel(batteryLevel = lastDeviceUpdate.batteryLevel)
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Temperature(temperature = lastDeviceUpdate.temperature)
+            Humidity(humidity = lastDeviceUpdate.humidity)
+            BatteryLevel(batteryLevel = lastDeviceUpdate.batteryLevel)
+        }
     }
 }
