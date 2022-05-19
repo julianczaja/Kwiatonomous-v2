@@ -8,10 +8,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
+import com.corrot.kwiatonomousapp.LoginManager
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
-import com.corrot.kwiatonomousapp.LoginManager
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,9 +58,12 @@ class MainActivity : ComponentActivity() {
 
                     KwiatonomousAppTheme(darkTheme = isDarkTheme) {
                         Surface(color = MaterialTheme.colors.background) {
-                            val navController = rememberNavController()
                             KwiatonomousNavHost(
-                                navController = navController,
+                                KwiatonomousAppState(
+                                    navController = rememberNavController(),
+                                    scaffoldState = rememberScaffoldState(),
+                                    snackbarScope = rememberCoroutineScope()
+                                ),
                                 startDestination = Screen.Splash.route
                             )
                         }

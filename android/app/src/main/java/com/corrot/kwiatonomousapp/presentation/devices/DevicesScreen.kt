@@ -20,17 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
 import com.corrot.kwiatonomousapp.common.components.UserDeviceItem
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 
 @ExperimentalFoundationApi
 @Composable
 fun DevicesScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
     viewModel: DevicesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -39,12 +39,12 @@ fun DevicesScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.all_devices),
-                onNavigateBackClicked = { navController.popBackStack() }
+                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddEditUserDevice.route) }
+                onClick = { kwiatonomousAppState.navController.navigate(Screen.AddEditUserDevice.route) }
             ) {
                 Icon(Icons.Filled.Add, "")
             }
@@ -66,7 +66,7 @@ fun DevicesScreen(
                             UserDeviceItem(
                                 userDevice = userDevice,
                                 onItemClick = {
-                                    navController.navigate(
+                                    kwiatonomousAppState.navController.navigate(
                                         Screen.DeviceDetails.withArgs(
                                             userDevice.deviceId
                                         )

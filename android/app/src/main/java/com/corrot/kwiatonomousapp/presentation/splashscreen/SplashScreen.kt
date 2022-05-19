@@ -17,14 +17,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 
 
 @Composable
 fun SplashScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
     viewModel: SplashScreenViewModel = hiltViewModel()
 ) {
     val scale = remember { Animatable(0f) }
@@ -44,12 +44,13 @@ fun SplashScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 SplashScreenViewModel.Event.NOT_LOGGED_IN -> {
-                    navController.popBackStack()
-                    navController.navigate(Screen.Login.route)
+                    kwiatonomousAppState.navController.popBackStack()
+                    kwiatonomousAppState.navController.navigate(Screen.Login.route)
                 }
                 SplashScreenViewModel.Event.LOGGED_IN -> {
-                    navController.popBackStack()
-                    navController.navigate(Screen.Devices.route)
+                    kwiatonomousAppState.showSnackbar("Logged in")
+                    kwiatonomousAppState.navController.popBackStack()
+                    kwiatonomousAppState.navController.navigate(Screen.Dashboard.route)
                 }
             }
         }

@@ -7,16 +7,18 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 
@@ -24,11 +26,12 @@ import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCard
 @ExperimentalFoundationApi
 @Composable
 fun DashboardScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
 //    viewModel: DashboardViewModel = hiltViewModel()
 ) {
 
     Scaffold(
+        scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = {
             DefaultTopAppBar(title = stringResource(R.string.app_name))
         }
@@ -65,28 +68,28 @@ fun DashboardScreen(
                 item {
                     DashboardCardItem(
                         text = stringResource(R.string.all_devices),
-                        onClicked = { navController.navigate(Screen.Devices.route) },
+                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.Devices.route) },
                         testTag = "allDevicesButton"
                     )
                 }
                 item {
                     DashboardCardItem(
                         stringResource(R.string.application_settings),
-                        onClicked = { navController.navigate(Screen.AppSettings.route) },
+                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.AppSettings.route) },
                         testTag = "settingsButton"
                     )
                 }
                 item {
                     DashboardCardItem(
                         "Placeholder",
-                        onClicked = { navController.navigate(Screen.Splash.route) },
+                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.Splash.route) },
                         testTag = ""
                     )
                 }
                 item {
                     DashboardCardItem(
                         "Placeholder",
-                        onClicked = { navController.navigate(Screen.Splash.route) },
+                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.Splash.route) },
                         testTag = ""
                     )
                 }
