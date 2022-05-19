@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp.presentation.login
+package com.corrot.kwiatonomousapp.presentation.register
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -9,39 +9,34 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
-import com.corrot.kwiatonomousapp.presentation.Screen
-import com.corrot.kwiatonomousapp.presentation.login.LoginScreenViewModel.Event.LOGGED_IN
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
+import com.corrot.kwiatonomousapp.presentation.register.RegisterScreenViewModel.Event.REGISTERED
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import kotlinx.coroutines.runBlocking
 
 
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: LoginScreenViewModel = hiltViewModel()
+    viewModel: RegisterScreenViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                LOGGED_IN -> {
-                    kwiatonomousAppState.showSnackbar("Logged in") // FIXME
+                REGISTERED -> {
+                    // FIXME: Make sure that previous screen is LoginScreen
                     kwiatonomousAppState.navController.popBackStack()
-                    kwiatonomousAppState.navController.navigate(Screen.Dashboard.route)
                 }
             }
         }
@@ -49,7 +44,14 @@ fun LoginScreen(
 
     Scaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
-        topBar = { DefaultTopAppBar(title = stringResource(R.string.login_verb)) },
+        topBar = {
+            DefaultTopAppBar(
+                title = stringResource(R.string.register),
+                onNavigateBackClicked = {
+                    kwiatonomousAppState.navController.popBackStack()
+                }
+            )
+        }
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -60,7 +62,8 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = R.drawable.flower_1),
                 contentDescription = "",
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier
+                    .size(150.dp)
             )
             Text(
                 text = stringResource(R.string.app_name),
@@ -86,59 +89,48 @@ fun LoginScreen(
             Button(
                 onClick = {
                     runBlocking {
-                        viewModel.loginClicked()
+                        viewModel.registerClicked()
                     }
                 },
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(text = stringResource(R.string.log_in))
+                Text(text = stringResource(R.string.register))
             }
-            TextButton(
-                onClick = {
-                    kwiatonomousAppState.navController.navigate(Screen.Register.route)
-                },
-            ) {
-                Text(
-                    text = stringResource(id = R.string.register_prompt),
-                    color = Color.Gray,
-                    fontStyle = FontStyle.Italic,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
 
-        if (state.isLoading) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                CircularProgressIndicator()
-            }
         }
-        state.error?.let {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                ErrorBoxCancel(
-                    message = state.error,
-                    onCancel = { viewModel.confirmError() }
-                )
-            }
+    }
+
+    if (state.isLoading) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+    state.error?.let {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            ErrorBoxCancel(
+                message = state.error,
+                onCancel = { viewModel.confirmError() }
+            )
         }
     }
 }
 
 
 @Preview(
-    "LoginScreenPreviewLight",
+    "RegisterScreenPreviewLight",
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
-private fun LoginScreenPreviewLight() {
+private fun RegisterScreenPreviewLight() {
     KwiatonomousAppTheme(darkTheme = false) {
         Surface {
-            LoginScreen(
+            RegisterScreen(
                 KwiatonomousAppState(
                     navController = rememberNavController(),
                     scaffoldState = rememberScaffoldState(),

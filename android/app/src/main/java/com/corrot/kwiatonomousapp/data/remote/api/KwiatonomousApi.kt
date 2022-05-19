@@ -3,15 +3,23 @@ package com.corrot.kwiatonomousapp.data.remote.api
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
 import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
+import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
 import retrofit2.Response
 import retrofit2.http.*
 
-data class CheckAccessResponse(val principal: String)
 
 interface KwiatonomousApi {
 
-    @GET("/")
-    suspend fun checkAccess(): Response<CheckAccessResponse>
+    @GET("/{username}")
+    suspend fun checkAccess(
+        @Path("username") username: String
+    ): Response<String>
+
+
+    @POST("/register")
+    suspend fun registerNewAccount(
+        @Body registerCredentials: RegisterCredentials
+    ): Response<String>
 
     // Device
     @GET("/kwiatonomous/all")

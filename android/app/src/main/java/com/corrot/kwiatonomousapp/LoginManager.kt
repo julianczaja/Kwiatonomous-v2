@@ -29,7 +29,7 @@ class LoginManager @Inject constructor(
         DigestAuthInterceptor.username = login
         DigestAuthInterceptor.password = password
 
-        return kwiatonomousApi.checkAccess().code() != 401
+        return kwiatonomousApi.checkAccess(login).code() != 401
     }
 
     @Throws(Exception::class)
@@ -38,7 +38,7 @@ class LoginManager @Inject constructor(
         DigestAuthInterceptor.username = login
         DigestAuthInterceptor.password = password
 
-        val response = kwiatonomousApi.checkAccess()
+        val response = kwiatonomousApi.checkAccess(login)
 
         when (response.code()) {
             401 -> {

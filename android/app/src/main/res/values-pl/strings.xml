@@ -32,6 +32,10 @@
     <string name="inactive">Nieaktywny</string>
     <string name="last_update">Ostatnia aktualizacja</string>
     <string name="last_updates">Ostatnie aktualizacje</string>
+    <string name="logged_in">Zalogowano</string>
+    <string name="log_in">Zaloguj</string>
+    <string name="login_verb">Logowanie</string>
+    <string name="login_noun">Login</string>
     <string name="minute">Minuta</string>
     <string name="month">Miesiąc</string>
     <string name="next_watering">Następne podlewanie</string>
@@ -39,6 +43,9 @@
     <string name="off_abbr">Wył.</string>
     <string name="ok">OK</string>
     <string name="on_abbr">Wł.</string>
+    <string name="password">Hasło</string>
+    <string name="register">Rejestracja</string>
+    <string name="register_prompt">Psst…\nNie masz konta?\nKliknij tutaj aby stworzyć nowe</string>
     <string name="reset">Resetuj</string>
     <string name="retry">Ponów</string>
     <string name="save">Zapisz</string>
