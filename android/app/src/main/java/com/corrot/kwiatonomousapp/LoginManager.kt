@@ -11,7 +11,6 @@ class LoginManager @Inject constructor(
     private val kwiatonomousApi: KwiatonomousApi,
     private val networkPreferencesRepository: NetworkPreferencesRepository
 ) {
-
     suspend fun checkIfLoggedIn(): Boolean {
         // TODO: load login/password from memory
         val login = "test2"
@@ -68,6 +67,12 @@ class LoginManager @Inject constructor(
         }
 
         return false
+    }
+
+    fun logOut() {
+        // TODO: Remove saved credentials
+        DigestAuthInterceptor.username = ""
+        DigestAuthInterceptor.password = ""
     }
 
     private fun parseAuthHeader(header: String): AuthHeader? {

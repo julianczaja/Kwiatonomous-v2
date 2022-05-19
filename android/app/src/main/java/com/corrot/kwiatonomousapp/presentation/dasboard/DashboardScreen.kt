@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
+import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -7,28 +8,46 @@ import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
+import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
 fun DashboardScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-//    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val state = viewModel.state
+
+    LaunchedEffect(true) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                DashboardViewModel.Event.LOGGED_OUT -> {
+                    kwiatonomousAppState.showSnackbar("Logged out") // FIXME
+                    kwiatonomousAppState.navController.popBackStack()
+                    kwiatonomousAppState.navController.navigate(Screen.Login.route)
+                }
+            }
+        }
+    }
 
     Scaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
@@ -44,8 +63,22 @@ fun DashboardScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
                     .padding(12.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.hello_user_format).format(state.value.user?.login),
+                    style = MaterialTheme.typography.caption,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -57,7 +90,7 @@ fun DashboardScreen(
                             RoundedCornerShape(CornerSize(8.dp))
                         )
                 ) {
-                    Text(text = "Placeholder")
+                    Text(text = "")
                 }
             }
 
@@ -81,19 +114,42 @@ fun DashboardScreen(
                 }
                 item {
                     DashboardCardItem(
-                        "Placeholder",
-                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.Splash.route) },
+                        text = "",
+                        onClicked = { kwiatonomousAppState.showSnackbar("Not implemented yet") },
                         testTag = ""
                     )
                 }
                 item {
                     DashboardCardItem(
-                        "Placeholder",
-                        onClicked = { kwiatonomousAppState.navController.navigate(Screen.Splash.route) },
-                        testTag = ""
+                        stringResource(R.string.log_out),
+                        onClicked = {
+                            viewModel.logOut()
+                        },
+                        testTag = "logOutButton"
                     )
                 }
             }
+        }
+    }
+}
+
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@Preview(
+    "DashboardPreviewLight",
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+private fun DashboardPreviewPreviewLight() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            DashboardScreen(
+                KwiatonomousAppState(
+                    navController = rememberNavController(),
+                    scaffoldState = rememberScaffoldState(),
+                    snackbarScope = rememberCoroutineScope()
+                )
+            )
         }
     }
 }
