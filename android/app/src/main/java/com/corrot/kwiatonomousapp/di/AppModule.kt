@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.corrot.kwiatonomousapp.LoginManager
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
@@ -15,7 +16,6 @@ import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
-import com.corrot.kwiatonomousapp.LoginManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,14 +24,34 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Type
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    // https://github.com/square/retrofit/issues/1554
+    private val nullOnEmptyConverterFactory = object : Converter.Factory() {
+        fun converterFactory() = this
+        override fun responseBodyConverter(
+            type: Type,
+            annotations: Array<out Annotation>,
+            retrofit: Retrofit
+        ) = object : Converter<ResponseBody, Any?> {
+            val nextResponseBodyConverter =
+                retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
+
+            override fun convert(value: ResponseBody) =
+                if (value.contentLength() != 0L) nextResponseBodyConverter.convert(value) else null
+        }
+    }
 
     @Provides
     @Singleton
@@ -48,6 +68,7 @@ object AppModule {
                     }
                 }
                 .build())
+            .addConverterFactory(nullOnEmptyConverterFactory)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(KwiatonomousApi::class.java)
