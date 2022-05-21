@@ -3,7 +3,7 @@ package com.corrot.kwiatonomousapp.presentation.login
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.LoginManager
+import com.corrot.kwiatonomousapp.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val loginManager: LoginManager
+    private val authManager: AuthManager
 ) : ViewModel() {
 
     val state = mutableStateOf(LoginScreenState())
@@ -38,10 +38,10 @@ class LoginScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                if (loginManager.checkIfLoggedIn(state.value.login, state.value.password)) {
+                if (authManager.checkIfLoggedIn(state.value.login, state.value.password)) {
                     onLoggedIn()
                 } else {
-                    if (loginManager.tryToLogin(state.value.login, state.value.password)) {
+                    if (authManager.tryToLogin(state.value.login, state.value.password)) {
                         onLoggedIn()
                     }
                 }
@@ -69,14 +69,4 @@ class LoginScreenViewModel @Inject constructor(
             eventFlow.emit(Event.LOGGED_IN)
         }
     }
-
-    // ------------------------------------------------------------------------------------------ //
-
-
 }
-
-data class AuthHeader(
-    val realm: String,
-    val nonce: String,
-    val algorithm: String
-)

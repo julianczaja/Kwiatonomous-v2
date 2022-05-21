@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.corrot.kwiatonomousapp.LoginManager
+import com.corrot.kwiatonomousapp.AuthManager
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
@@ -96,6 +96,15 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideUserRepository(
+        kwiatonomousApi: KwiatonomousApi,
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): UserRepository {
+        return UserRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
+    }
+
+    @Provides
+    @Singleton
     fun provideDeviceRepository(
         kwiatonomousApi: KwiatonomousApi,
         kwiatonomousDatabase: KwiatonomousDatabase
@@ -149,7 +158,7 @@ object AppModule {
     fun provideLoginManager(
         kwiatonomousApi: KwiatonomousApi,
         networkPreferencesRepository: NetworkPreferencesRepository
-    ): LoginManager {
-        return LoginManager(kwiatonomousApi, networkPreferencesRepository)
+    ): AuthManager {
+        return AuthManager(kwiatonomousApi, networkPreferencesRepository)
     }
 }

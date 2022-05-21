@@ -12,7 +12,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
-import com.corrot.kwiatonomousapp.LoginManager
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -28,9 +27,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var appPreferencesRepository: AppPreferencesRepository
-
-    @Inject
-    lateinit var loginManager: LoginManager
 
     @ExperimentalPagerApi
     @ExperimentalMaterialApi

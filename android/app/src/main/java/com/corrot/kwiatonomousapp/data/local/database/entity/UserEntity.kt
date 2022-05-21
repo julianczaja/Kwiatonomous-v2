@@ -1,11 +1,18 @@
-package com.corrot.kwiatonomousapp.domain.model
+package com.corrot.kwiatonomousapp.data.local.database.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.corrot.kwiatonomousapp.domain.model.User
 import java.time.LocalDateTime
 
-data class User(
+@Entity(tableName = "user")
+data class UserEntity(
+
+    @PrimaryKey
     val userId: String,
+
     val ha1: ByteArray,
-    val addedDevicesIds: List<String>,
+    val addedDevicesIds: String, // JSON list of deviceId
     val registrationTimestamp: LocalDateTime,
     var lastActivityTimestamp: LocalDateTime,
 ) {
@@ -13,7 +20,7 @@ data class User(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as User
+        other as UserEntity
 
         if (userId != other.userId) return false
         if (!ha1.contentEquals(other.ha1)) return false
@@ -33,3 +40,11 @@ data class User(
         return result
     }
 }
+
+fun UserEntity.toUser() = User(
+    userId = userId,
+    ha1 = ha1,
+    addedDevicesIds = addedDevicesIds.split(','),
+    registrationTimestamp = registrationTimestamp,
+    lastActivityTimestamp = lastActivityTimestamp
+)

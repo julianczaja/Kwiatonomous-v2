@@ -3,11 +3,17 @@ package com.corrot.kwiatonomousapp
 import android.util.Log
 import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
+import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
 import com.corrot.kwiatonomousapp.domain.repository.NetworkPreferencesRepository
-import com.corrot.kwiatonomousapp.presentation.login.AuthHeader
 import javax.inject.Inject
 
-class LoginManager @Inject constructor(
+data class AuthHeader(
+    val realm: String,
+    val nonce: String,
+    val algorithm: String
+)
+
+class AuthManager @Inject constructor(
     private val kwiatonomousApi: KwiatonomousApi,
     private val networkPreferencesRepository: NetworkPreferencesRepository
 ) {
@@ -29,6 +35,17 @@ class LoginManager @Inject constructor(
         DigestAuthInterceptor.password = password
 
         return kwiatonomousApi.checkAccess(login).code() != 401
+    }
+
+    // FIXME: Sending credentials in plain text using HTTP is stupid idea,
+    //        but for now it has to stay like that
+    @Throws(Exception::class)
+    suspend fun tryToRegister(login: String, password: String) {
+        kwiatonomousApi.registerNewAccount(RegisterCredentials(login, password)).run {
+            if (code() != 200) {
+                throw Exception(errorBody()?.string() ?: "Unknown error")
+            }
+        }
     }
 
     @Throws(Exception::class)

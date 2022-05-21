@@ -3,7 +3,7 @@ package com.corrot.kwiatonomousapp.presentation.dasboard
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.LoginManager
+import com.corrot.kwiatonomousapp.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    val loginManager: LoginManager
+    val authManager: AuthManager
 ) : ViewModel() {
 
     val state = mutableStateOf(DashboardState())
@@ -22,7 +22,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun logOut() {
-        loginManager.logOut()
+        authManager.logOut()
         viewModelScope.launch {
             eventFlow.emit(Event.LOGGED_OUT)
         }

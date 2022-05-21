@@ -1,11 +1,9 @@
 package com.corrot.kwiatonomousapp.presentation.register
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
-import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
+import com.corrot.kwiatonomousapp.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterScreenViewModel @Inject constructor(
-    val kwiatonomousApi: KwiatonomousApi
+    val authManager: AuthManager
 ) : ViewModel() {
 
     val state = mutableStateOf(RegisterScreenState())
@@ -40,22 +38,8 @@ class RegisterScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // FIXME: Sending credentials in plain text using HTTP is stupid idea
-                val response = kwiatonomousApi.registerNewAccount(
-                    RegisterCredentials(
-                        state.value.login, state.value.password
-                    )
-                )
-                if (response.code() == 200) {
-                    onRegistered()
-                } else {
-                    withContext(Dispatchers.Main) {
-                        state.value = state.value.copy(
-                            error = response.errorBody()?.string() ?: "Unknown error",
-                            isLoading = false
-                        )
-                    }
-                }
+                authManager.tryToRegister(state.value.login, state.value.password)
+                onRegistered()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     state.value = state.value.copy(
