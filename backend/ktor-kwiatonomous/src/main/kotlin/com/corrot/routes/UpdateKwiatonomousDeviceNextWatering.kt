@@ -1,11 +1,11 @@
 package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceDao
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 
 fun Route.updateKwiatonomousDeviceNextWatering(deviceDao: DeviceDao) {

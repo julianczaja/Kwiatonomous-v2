@@ -1,10 +1,10 @@
 package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceUpdateDao
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Route.getAllKwiatonomousDeviceUpdates(deviceUpdateDao: DeviceUpdateDao) {
     get("/kwiatonomous/{id}/updates") {

@@ -1,7 +1,8 @@
 package com.corrot.plugins
 
-import io.ktor.application.*
-import io.ktor.features.*
+import io.ktor.server.application.*
+import io.ktor.server.logging.*
+import io.ktor.server.plugins.callloging.*
 import org.slf4j.event.Level
 
 fun Application.configureMonitoring() {
