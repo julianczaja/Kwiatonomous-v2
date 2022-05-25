@@ -1,5 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.splashscreen
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.AuthManager
@@ -8,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,6 +18,7 @@ class SplashScreenViewModel @Inject constructor(
     private val authManager: AuthManager
 ) : ViewModel() {
 
+    val error: MutableState<String?> = mutableStateOf(null)
     val eventFlow = MutableSharedFlow<Event>()
 
     enum class Event {
@@ -34,8 +38,12 @@ class SplashScreenViewModel @Inject constructor(
                     eventFlow.emit(Event.NOT_LOGGED_IN)
                 }
             } catch (e: Exception) {
-                waitSplash(startTime)
-                eventFlow.emit(Event.NOT_LOGGED_IN)
+                if (e is HttpException && e.code() == 401) {
+                    waitSplash(startTime)
+                    eventFlow.emit(Event.NOT_LOGGED_IN)
+                } else {
+                    error.value = e.message ?: "Unknown error"
+                }
             }
         }
     }
