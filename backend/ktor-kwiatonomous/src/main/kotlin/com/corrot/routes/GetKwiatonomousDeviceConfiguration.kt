@@ -1,35 +1,56 @@
 package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceConfigurationDao
+import com.corrot.db.data.dao.UserDao
 import com.corrot.db.data.dto.DeviceConfigurationDto
 import com.corrot.utils.toInt
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.getKwiatonomousDeviceConfiguration(deviceConfigurationDao: DeviceConfigurationDao) {
-    get("/kwiatonomous/{id}/configuration") {
-        val id = call.parameters["id"]
+fun Route.getKwiatonomousDeviceConfiguration(
+    path: String,
+    userDao: UserDao,
+    deviceConfigurationDao: DeviceConfigurationDao
+) {
+    get(path) {
+        val userId = call.principal<UserIdPrincipal>()?.name
+        if (userId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Not authenticated")
+            return@get
+        }
 
-        if (id == null) {
+        val deviceId = call.parameters["deviceId"]
+        if (deviceId == null) {
             call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
             return@get
         }
 
-        val deviceConfiguration = deviceConfigurationDao.getDeviceConfiguration(id)
+        val user = userDao.getUser(userId)
+        if (user == null) {
+            call.respond(HttpStatusCode.BadRequest, "User doesn't exist")
+            return@get
+        }
 
+        if (user.devices.find { it.deviceId == deviceId } == null) {
+            call.respond(HttpStatusCode.BadRequest, "User doesn't have this device added")
+            return@get
+        }
+
+        val deviceConfiguration = deviceConfigurationDao.getDeviceConfiguration(deviceId)
         if (deviceConfiguration == null) {
-            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous configuration for device of id: $id")
+            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous configuration for device of id: $deviceId")
         } else {
             call.respond(
                 HttpStatusCode.OK, DeviceConfigurationDto(
-                    deviceConfiguration.sleepTimeMinutes,
-                    deviceConfiguration.timeZoneOffset,
-                    deviceConfiguration.wateringOn.toInt(),
-                    deviceConfiguration.wateringIntervalDays,
-                    deviceConfiguration.wateringAmount,
-                    deviceConfiguration.wateringTime
+                    sleepTimeMinutes = deviceConfiguration.sleepTimeMinutes,
+                    timeZoneOffset = deviceConfiguration.timeZoneOffset,
+                    wateringOn = deviceConfiguration.wateringOn.toInt(),
+                    wateringIntervalDays = deviceConfiguration.wateringIntervalDays,
+                    wateringAmount = deviceConfiguration.wateringAmount,
+                    wateringTime = deviceConfiguration.wateringTime
                 )
             )
         }

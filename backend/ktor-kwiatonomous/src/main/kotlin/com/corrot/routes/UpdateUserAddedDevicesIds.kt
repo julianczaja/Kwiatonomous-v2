@@ -2,6 +2,9 @@ package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.UserDao
+import com.corrot.db.data.model.UserDevice
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,22 +13,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 
-fun Route.updateKwiatonomousDeviceNextWatering(path: String, userDao: UserDao, deviceDao: DeviceDao) {
+fun Route.updateUserAddedDevicesIds(path: String, userDao: UserDao, deviceDao: DeviceDao) {
     post(path) {
         val userId = call.principal<UserIdPrincipal>()?.name
         if (userId == null) {
             call.respond(HttpStatusCode.BadRequest, "Not authenticated")
-            return@post
-        }
-
-        val deviceId = call.parameters["deviceId"]
-        if (deviceId == null) {
-            call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
-            return@post
-        }
-
-        if (deviceDao.getDevice(deviceId) == null) {
-            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous device of id: $deviceId")
             return@post
         }
 
@@ -35,15 +27,21 @@ fun Route.updateKwiatonomousDeviceNextWatering(path: String, userDao: UserDao, d
             return@post
         }
 
-        if (user.devices.find { it.deviceId == deviceId } == null) {
-            call.respond(HttpStatusCode.BadRequest, "User doesn't have this device added")
-            return@post
-        }
-
         try {
-            call.receive<Long>().let { newNextWateringTime ->
-                deviceDao.updateNextWatering(deviceId, newNextWateringTime)
+            val newUserDevicesString = call.receive<String>().trim().removeSurrounding("\"")
+            val newUserDevices: List<UserDevice> = Gson().fromJson(
+                newUserDevicesString,
+                object : TypeToken<List<UserDevice>>() {}.type
+            )
+
+            newUserDevices.forEach {
+                if (deviceDao.getDevice(it.deviceId) == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Device ${it.deviceId} doesn't exist")
+                    return@post
+                }
             }
+
+            userDao.updateUserDevices(userId, newUserDevices)
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
             e.printStack()

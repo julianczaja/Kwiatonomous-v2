@@ -5,6 +5,7 @@ import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.dao.DeviceConfigurationDao
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
+import com.corrot.db.data.dao.UserDao
 import com.corrot.db.populateDatabase
 import com.corrot.plugins.configureKoin
 import com.corrot.plugins.configureMonitoring
@@ -26,19 +27,22 @@ fun main() {
         configureMonitoring()
 
         val database by inject<KwiatonomousDatabase>()
+        val userDao by inject<UserDao>()
         val deviceDao by inject<DeviceDao>()
         val deviceUpdatesDao by inject<DeviceUpdateDao>()
         val deviceConfigurationDao by inject<DeviceConfigurationDao>()
-//
+
+        println("\n-------------------\nStarting DATABASE: ${database.db.url}\n-------------------\n")
+
         if (!database.isConnected()) {
             throw RuntimeException("Error during DB connection!")
         }
-        configureRouting(deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+
+        configureSecurity(userDao)
+        configureRouting(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao)
 
         if (DEBUG_MODE) {
-            populateDatabase("test_id_1", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
-            populateDatabase("test_id_2", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
-            populateDatabase("test_id_3", deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+            populateDatabase(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao)
         }
 
     }.start(wait = true)
