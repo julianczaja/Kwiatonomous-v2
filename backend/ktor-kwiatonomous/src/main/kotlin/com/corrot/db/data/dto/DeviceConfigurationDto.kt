@@ -1,8 +1,5 @@
 package com.corrot.db.data.dto
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class DeviceConfigurationDto(
         val sleepTimeMinutes: Int,
         val timeZoneOffset: Int,

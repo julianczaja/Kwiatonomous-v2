@@ -36,7 +36,10 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-jetty:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("io.ktor:ktor-serialization-gson:$ktor_version")
+
+    // GSON
+    implementation("com.google.code.gson:gson:2.9.0")
 
     // Logging
     implementation("io.ktor:ktor-server-call-logging:$ktor_version")

@@ -1,8 +1,5 @@
 package com.corrot.db.data.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class DeviceUpdate(
     val updateId: Int,
     val deviceId: String,
