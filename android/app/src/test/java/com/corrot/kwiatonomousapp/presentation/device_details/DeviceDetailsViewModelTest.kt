@@ -3,11 +3,13 @@ package com.corrot.kwiatonomousapp.presentation.device_details
 import androidx.lifecycle.SavedStateHandle
 import com.corrot.kwiatonomousapp.MainCoroutineRule
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
+import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
-import com.corrot.kwiatonomousapp.domain.repository.*
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
+import com.corrot.kwiatonomousapp.domain.usecase.*
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
@@ -29,10 +31,11 @@ class DeviceDetailsViewModelTest {
     val coroutineRule = MainCoroutineRule()
 
     private val appPreferencesRepository: AppPreferencesRepository = mockk()
-    private val userDeviceRepository: UserDeviceRepository = mockk()
     private val deviceRepository: DeviceRepository = mockk()
     private val deviceConfigurationRepository: DeviceConfigurationRepository = mockk()
     private val deviceUpdateRepository: DeviceUpdateRepository = mockk()
+    private val getUserDeviceUseCase: GetUserDeviceUseCase = mockk()
+    private val deleteUserDeviceUseCase: DeleteUserDeviceUseCase = mockk()
 
     @Before
     fun setup() {
@@ -44,9 +47,6 @@ class DeviceDetailsViewModelTest {
     @Test
     fun test_device_found() = coroutineRule.runBlockingTest {
         val deviceId = "test_id"
-
-        // Mock UserDeviceRepository
-        every { userDeviceRepository.getUserDevice(deviceId) }.returns(flowOf(mockk()))
 
         // Mock GetDeviceUseCase
         every { deviceRepository.getDeviceFromDatabase(deviceId) }.returns(flowOf(mockk()))
@@ -72,13 +72,18 @@ class DeviceDetailsViewModelTest {
         coEvery { deviceUpdateRepository.saveFetchedDeviceUpdates(any()) }.returns(Unit)
         val getDeviceUpdatesByDateUseCase = GetDeviceUpdatesByDateUseCase(deviceUpdateRepository)
 
+        // Mock GetUserDeviceUseCase
+        coEvery { getUserDeviceUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(mockk())))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
-            userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
+            getUserDeviceUseCase = getUserDeviceUseCase,
+            deleteUserDeviceUseCase = deleteUserDeviceUseCase,
             ioDispatcher = coroutineRule.dispatcher
         )
 
@@ -96,9 +101,6 @@ class DeviceDetailsViewModelTest {
     fun test_error() = coroutineRule.runBlockingTest {
         val errMsg = "No device found"
         val deviceId = "wrong_id"
-
-        // Mock UserDeviceRepository
-        every { userDeviceRepository.getUserDevice(deviceId) }.returns(emptyFlow())
 
         // Mock GetDeviceUseCase
         every { deviceRepository.getDeviceFromDatabase(deviceId) }.returns(emptyFlow())
@@ -120,13 +122,18 @@ class DeviceDetailsViewModelTest {
             .throws(Exception(errMsg))
         val getDeviceUpdatesByDateUseCase = GetDeviceUpdatesByDateUseCase(deviceUpdateRepository)
 
+        // Mock GetUserDeviceUseCase
+        coEvery { getUserDeviceUseCase.execute(any()) }
+            .returns(flowOf(Result.Error(Throwable(errMsg))))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
-            userDeviceRepository = userDeviceRepository,
             getDeviceUseCase = getDeviceUseCase,
             getDeviceUpdatesByDateUseCase = getDeviceUpdatesByDateUseCase,
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
+            getUserDeviceUseCase = getUserDeviceUseCase,
+            deleteUserDeviceUseCase = deleteUserDeviceUseCase,
             ioDispatcher = coroutineRule.dispatcher
         )
 
