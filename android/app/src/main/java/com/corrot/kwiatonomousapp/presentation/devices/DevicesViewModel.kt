@@ -3,18 +3,17 @@ package com.corrot.kwiatonomousapp.presentation.devices
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
+import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class DevicesViewModel @Inject constructor(
-    private val userDeviceRepository: UserDeviceRepository,
+    private val userRepository: UserRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -29,11 +28,11 @@ class DevicesViewModel @Inject constructor(
     }
 
     private fun getDevices() = viewModelScope.launch(ioDispatcher) {
-        userDeviceRepository.getUserDevices().collect { userDevices ->
+        userRepository.getCurrentUserFromDatabase().collect { user ->
             withContext(Dispatchers.Main) {
                 state.value = state.value.copy(
                     isLoading = false,
-                    userDevices = userDevices,
+                    userDevices = user!!.devices,
                     error = null
                 )
             }

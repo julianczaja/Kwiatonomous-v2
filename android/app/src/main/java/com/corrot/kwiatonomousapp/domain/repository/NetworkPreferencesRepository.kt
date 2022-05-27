@@ -10,7 +10,17 @@ interface NetworkPreferencesRepository {
 
     suspend fun updateNetworkPreferences(newNetworkPreferences: NetworkPreferences)
 
-    fun lastNonce(): Flow<String>
+    suspend fun clearCredentials()
+
+    fun getLogin(): Flow<String>
+
+    suspend fun updateLogin(login: String)
+
+    fun getHa1(): Flow<String>
+
+    suspend fun updateHa1(ha1: String)
+
+    fun getLastNonce(): Flow<String>
 
     suspend fun updateLastNonce(lastNonce: String)
 }

@@ -55,7 +55,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideKwiatonomousApi(digestAuthInterceptor: DigestAuthInterceptor): KwiatonomousApi {
+    fun provideDigestAuthInterceptor(
+        networkPreferencesRepository: NetworkPreferencesRepository
+    ): DigestAuthInterceptor {
+        return DigestAuthInterceptor(networkPreferencesRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKwiatonomousApi(
+        digestAuthInterceptor: DigestAuthInterceptor
+    ): KwiatonomousApi {
         return Retrofit.Builder()
             .baseUrl(if (DEBUG_MODE) BASE_URL_DEBUG else BASE_URL)
             .client(OkHttpClient().newBuilder()
@@ -132,21 +142,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserDeviceRepository(
-        kwiatonomousDatabase: KwiatonomousDatabase
-    ): UserDeviceRepository {
-        return UserDeviceRepositoryImpl(kwiatonomousDatabase)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAppPreferencesRepository(preferencesDataStore: DataStore<Preferences>): AppPreferencesRepository {
+    fun provideAppPreferencesRepository(
+        preferencesDataStore: DataStore<Preferences>
+    ): AppPreferencesRepository {
         return AppPreferencesRepositoryImpl(preferencesDataStore)
     }
 
     @Provides
     @Singleton
-    fun provideNetworkPreferencesRepository(preferencesDataStore: DataStore<Preferences>): NetworkPreferencesRepository {
+    fun provideNetworkPreferencesRepository(
+        preferencesDataStore: DataStore<Preferences>
+    ): NetworkPreferencesRepository {
         return NetworkPreferencesRepositoryImpl(preferencesDataStore)
     }
 
@@ -156,9 +162,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLoginManager(
-        kwiatonomousApi: KwiatonomousApi,
+        userRepository: UserRepository,
         networkPreferencesRepository: NetworkPreferencesRepository
     ): AuthManager {
-        return AuthManager(kwiatonomousApi, networkPreferencesRepository)
+        return AuthManager(userRepository, networkPreferencesRepository)
     }
 }

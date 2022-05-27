@@ -7,7 +7,10 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
 import com.corrot.kwiatonomousapp.data.local.database.entity.toUser
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.remote.dto.UserDto
+import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
 import com.corrot.kwiatonomousapp.domain.model.User
+import com.corrot.kwiatonomousapp.domain.model.UserDevice
+import com.corrot.kwiatonomousapp.domain.model.toUserEntity
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -19,19 +22,21 @@ class UserRepositoryImpl @Inject constructor(
     private val kwiatonomousDb: KwiatonomousDatabase
 ) : UserRepository {
 
-    override suspend fun fetchUserById(userId: String): UserDto {
-        return kwiatonomousApi.getUserById(userId)
+    override suspend fun fetchCurrentUser(): UserDto {
+        return kwiatonomousApi.getCurrentUser()
     }
 
-    override suspend fun fetchAddedDevicesIdsByUserId(userId: String): List<String> {
-        return kwiatonomousApi.getAddedDevicesIdsByUserId(userId)
+    override suspend fun updateCurrentUserAddedDevices(userDevices: List<UserDevice>) {
+        kwiatonomousApi.updateCurrentUserDevices(userDevices)
     }
 
-    override suspend fun updateAddedDevicesIdsByDeviceId(
-        userId: String,
-        addedDevicesIds: List<String>
-    ) {
-        kwiatonomousApi.updateAddedDevicesIdsByUserId(userId, addedDevicesIds.joinToString(","))
+    @Throws(Exception::class)
+    override suspend fun registerNewAccount(registerCredentials: RegisterCredentials) {
+        kwiatonomousApi.registerNewAccount(registerCredentials).run {
+            if (code() != 200) {
+                throw Exception(errorBody()?.string() ?: "Unknown error")
+            }
+        }
     }
 
     override fun getUserFromDatabase(userId: String): Flow<User> =
@@ -44,9 +49,15 @@ class UserRepositoryImpl @Inject constructor(
                 Log.e("UserRepositoryImpl", "getUserFromDatabase: $t")
             }
 
-    override fun getUsersFromDatabase(): Flow<List<User>> {
-        return kwiatonomousDb.userDao().getAll().map { users ->
-            users.map { it.toUser() }
+    override fun getCurrentUserFromDatabase(): Flow<User?> =
+        kwiatonomousDb.userDao().getAll()
+            .map { users ->
+                users.firstOrNull { it.isLoggedIn }?.toUser()
+            }
+
+    override suspend fun updateUser(user: User) {
+        kwiatonomousDb.withTransaction {
+            kwiatonomousDb.userDao().insertOrUpdate(user.toUserEntity())
         }
     }
 

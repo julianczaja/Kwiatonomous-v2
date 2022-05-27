@@ -145,7 +145,7 @@ fun DeviceDetailsScreen(
                 },
                 onConfirmClicked = {
                     deleteAlertDialogOpened = false
-                    viewModel.deleteDevice()
+                    viewModel.deleteUserDevice()
                 }
             )
         }

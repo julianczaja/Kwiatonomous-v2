@@ -1,10 +1,13 @@
 package com.corrot.kwiatonomousapp
 
-import android.util.Log
-import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
-import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
+import com.corrot.kwiatonomousapp.common.Constants
+import com.corrot.kwiatonomousapp.common.toMD5
+import com.corrot.kwiatonomousapp.data.remote.dto.toUserEntity
 import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
 import com.corrot.kwiatonomousapp.domain.repository.NetworkPreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.UserRepository
+import kotlinx.coroutines.flow.firstOrNull
+import retrofit2.HttpException
 import javax.inject.Inject
 
 data class AuthHeader(
@@ -14,82 +17,73 @@ data class AuthHeader(
 )
 
 class AuthManager @Inject constructor(
-    private val kwiatonomousApi: KwiatonomousApi,
+    private val userRepository: UserRepository,
     private val networkPreferencesRepository: NetworkPreferencesRepository
 ) {
-    suspend fun checkIfLoggedIn(): Boolean {
-        // TODO: load login/password from memory
-        val login = "test2"
-        val password = "test"
-
-        if (login.isNullOrEmpty() || password.isNullOrEmpty()) {
-            return false
-        }
-
-        return checkIfLoggedIn(login, password)
+    private companion object {
+        const val TAG = "AuthManager"
     }
 
-    suspend fun checkIfLoggedIn(login: String, password: String): Boolean {
-        // FIXME
-        DigestAuthInterceptor.username = login
-        DigestAuthInterceptor.password = password
+    @Throws(Exception::class)
+    suspend fun checkIfLoggedIn(): Boolean {
+        return try {
+            userRepository.fetchCurrentUser().let {
+                userRepository.saveFetchedUser(it.toUserEntity(true))
+            }
+            true
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                return false
+            } else {
+                throw Exception(e.message() ?: "Error code: ${e.code()}")
+            }
+        }
+    }
 
-        return kwiatonomousApi.checkAccess(login).code() != 401
+    @Throws(Exception::class)
+    suspend fun tryToLogin(login: String, password: String) {
+        try {
+            userRepository.fetchCurrentUser().let {
+                userRepository.saveFetchedUser(it.toUserEntity(true))
+            }
+        } catch (e: HttpException) {
+            if (e.code() == 401) {
+                val response =
+                    e.response() ?: throw Exception("Error while parsing authentication header")
+
+                val authHeader = response.headers()["WWW-Authenticate"]
+                val authHeaderObj = parseAuthHeader(authHeader!!)
+                    ?: throw Exception("Error while parsing authentication header")
+
+                val ha1 = "$login:${Constants.API_REALM}:$password".toMD5()
+                networkPreferencesRepository.run {
+                    updateLogin(login)
+                    updateHa1(ha1)
+                    updateLastNonce(authHeaderObj.nonce)
+                }
+
+                userRepository.fetchCurrentUser().let {
+                    userRepository.saveFetchedUser(it.toUserEntity(true))
+                }
+            } else {
+                throw Exception(e.message() ?: "Error code: ${e.code()}")
+            }
+        }
+    }
+
+    suspend fun logOut() {
+        val user = userRepository.getCurrentUserFromDatabase().firstOrNull()
+            ?: throw Exception("User null before logOut")
+        userRepository.updateUser(user.copy(isLoggedIn = false))
+        networkPreferencesRepository.clearCredentials()
     }
 
     // FIXME: Sending credentials in plain text using HTTP is stupid idea,
-    //        but for now it has to stay like that
+    //  but for now it has to stay like that
     @Throws(Exception::class)
     suspend fun tryToRegister(login: String, password: String) {
-        kwiatonomousApi.registerNewAccount(RegisterCredentials(login, password)).run {
-            if (code() != 200) {
-                throw Exception(errorBody()?.string() ?: "Unknown error")
-            }
-        }
-    }
-
-    @Throws(Exception::class)
-    suspend fun tryToLogin(login: String, password: String): Boolean {
-        // FIXME
-        DigestAuthInterceptor.username = login
-        DigestAuthInterceptor.password = password
-
-        val response = kwiatonomousApi.checkAccess(login)
-
-        when (response.code()) {
-            401 -> {
-                val authHeader = response.headers()["WWW-Authenticate"]
-                if (authHeader?.startsWith("Digest") == true) {
-
-                    val authHeaderObj = parseAuthHeader(authHeader)
-                        ?: throw Exception("Error while parsing authentication header")
-
-                    networkPreferencesRepository.updateLastNonce(authHeaderObj.nonce)
-
-                    if (checkIfLoggedIn(login, password)) {
-                        return true
-                    } else {
-                        throw Exception("Wrong credentials")
-                    }
-                }
-            }
-            200 -> {
-                Log.e("TAG", "200 while not logged in???")
-                // ???
-                return true
-            }
-            else -> {
-                throw Exception(response.errorBody()?.string() ?: "Error code: ${response.code()}")
-            }
-        }
-
-        return false
-    }
-
-    fun logOut() {
-        // TODO: Remove saved credentials
-        DigestAuthInterceptor.username = ""
-        DigestAuthInterceptor.password = ""
+        val credentials = RegisterCredentials(login, password)
+        userRepository.registerNewAccount(credentials)
     }
 
     private fun parseAuthHeader(header: String): AuthHeader? {

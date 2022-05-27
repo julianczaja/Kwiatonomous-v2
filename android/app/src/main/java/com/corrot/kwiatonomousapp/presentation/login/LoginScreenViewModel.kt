@@ -38,13 +38,8 @@ class LoginScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                if (authManager.checkIfLoggedIn(state.value.login, state.value.password)) {
-                    onLoggedIn()
-                } else {
-                    if (authManager.tryToLogin(state.value.login, state.value.password)) {
-                        onLoggedIn()
-                    }
-                }
+                authManager.tryToLogin(state.value.login, state.value.password)
+                onLoggedIn()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     state.value = state.value.copy(
