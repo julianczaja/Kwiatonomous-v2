@@ -1,8 +1,9 @@
 package com.corrot.kwiatonomousapp.presentation.devices
 
 import com.corrot.kwiatonomousapp.MainCoroutineRule
+import com.corrot.kwiatonomousapp.domain.model.User
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
-import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
+import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -21,7 +22,7 @@ class DevicesViewModelTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    private var userDeviceRepository: UserDeviceRepository = mockk()
+    private var userRepository: UserRepository = mockk()
 
     @Before
     fun setUp() {
@@ -33,8 +34,9 @@ class DevicesViewModelTest {
     fun test_some_devices_found() = coroutineRule.runBlockingTest {
         // GIVEN
         val userDevicesList = listOf<UserDevice>(mockk(), mockk(), mockk())
-        every { userDeviceRepository.getUserDevices() }.returns(flowOf(userDevicesList))
-        val devicesViewModel = DevicesViewModel(userDeviceRepository, coroutineRule.dispatcher)
+        val user = User("testid", userDevicesList, mockk(), mockk(), true)
+        every { userRepository.getCurrentUserFromDatabase() }.returns(flowOf(user))
+        val devicesViewModel = DevicesViewModel(userRepository, coroutineRule.dispatcher)
 
         // THEN
         val state = devicesViewModel.state.value
@@ -47,8 +49,9 @@ class DevicesViewModelTest {
     @Test
     fun test_no_devices_found() = coroutineRule.runBlockingTest {
         // GIVEN
-        every { userDeviceRepository.getUserDevices() }.returns(flowOf(emptyList()))
-        val devicesViewModel = DevicesViewModel(userDeviceRepository, coroutineRule.dispatcher)
+        val user = User("testid", emptyList(), mockk(), mockk(), true)
+        every { userRepository.getCurrentUserFromDatabase() }.returns(flowOf(user))
+        val devicesViewModel = DevicesViewModel(userRepository, coroutineRule.dispatcher)
 
         // THEN
         val state = devicesViewModel.state.value

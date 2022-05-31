@@ -25,6 +25,7 @@
     <string name="edit_device">Edytuj urządzenie</string>
     <string name="enter_watering_time">Wprowadź czas podlewania</string>
     <string name="error">Błąd</string>
+    <string name="hello_user_format">Witaj %s!</string>
     <string name="hour">Godzina</string>
     <string name="humidity">Wilgotność</string>
     <string name="humidity_abbr">Wilg.</string>
@@ -32,6 +33,11 @@
     <string name="inactive">Nieaktywny</string>
     <string name="last_update">Ostatnia aktualizacja</string>
     <string name="last_updates">Ostatnie aktualizacje</string>
+    <string name="logged_in">Zalogowano</string>
+    <string name="log_in">Zaloguj</string>
+    <string name="log_out">Wyloguj</string>
+    <string name="login_verb">Logowanie</string>
+    <string name="login_noun">Login</string>
     <string name="minute">Minuta</string>
     <string name="month">Miesiąc</string>
     <string name="next_watering">Następne podlewanie</string>
@@ -39,6 +45,9 @@
     <string name="off_abbr">Wył.</string>
     <string name="ok">OK</string>
     <string name="on_abbr">Wł.</string>
+    <string name="password">Hasło</string>
+    <string name="register">Rejestracja</string>
+    <string name="register_prompt">Psst…\nNie masz konta?\nKliknij tutaj aby stworzyć nowe</string>
     <string name="reset">Resetuj</string>
     <string name="retry">Ponów</string>
     <string name="save">Zapisz</string>

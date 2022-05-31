@@ -1,16 +1,17 @@
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
+val koin_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "com.corrot"
-version = "0.0.6"
+version = "0.0.7"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -34,8 +35,14 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-jetty:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-serialization-gson:$ktor_version")
+
+    // GSON
+    implementation("com.google.code.gson:gson:2.9.0")
 
     // Logging
+    implementation("io.ktor:ktor-server-call-logging:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     // Test
@@ -44,7 +51,11 @@ dependencies {
 
     // Database
     implementation("org.jetbrains.exposed:exposed:0.17.14")
-    implementation("org.xerial:sqlite-jdbc:3.36.0.2")
+    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+
     // DI
-    implementation("io.insert-koin:koin-ktor:3.1.4")
+    implementation("io.insert-koin:koin-ktor:$koin_version")
+
+    // Auth
+    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
 }

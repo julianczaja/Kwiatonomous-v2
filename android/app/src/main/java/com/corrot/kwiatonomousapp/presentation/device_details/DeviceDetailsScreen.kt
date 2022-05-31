@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.components.*
@@ -26,17 +25,17 @@ import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun DeviceDetailsScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -53,10 +52,10 @@ fun DeviceDetailsScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 DeviceDetailsViewModel.Event.NAVIGATE_UP -> {
-                    navController.navigateUp()
+                    kwiatonomousAppState.navController.navigateUp()
                 }
                 DeviceDetailsViewModel.Event.OPEN_EDIT_USER_DEVICE_SCREEN -> {
-                    navController.navigate(
+                    kwiatonomousAppState.navController.navigate(
                         Screen.AddEditUserDevice.withOptionalArg(
                             argName = Constants.NAV_ARG_DEVICE_ID,
                             argValue = viewModel.state.value.userDevice!!.deviceId // it can't be null there
@@ -74,7 +73,7 @@ fun DeviceDetailsScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.device_details),
-                onNavigateBackClicked = { navController.popBackStack() }
+                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
     ) {
@@ -112,7 +111,7 @@ fun DeviceDetailsScreen(
                         DeviceConfigurationSection(
                             deviceConfiguration,
                             onEditClicked = {
-                                navController.navigate(
+                                kwiatonomousAppState.navController.navigate(
                                     Screen.DeviceSettings.withArgs(
                                         deviceConfiguration.deviceId
                                     )
@@ -147,7 +146,7 @@ fun DeviceDetailsScreen(
                 },
                 onConfirmClicked = {
                     deleteAlertDialogOpened = false
-                    viewModel.deleteDevice()
+                    viewModel.deleteUserDevice()
                 }
             )
         }

@@ -3,16 +3,15 @@ package com.corrot.routes
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
 import com.corrot.db.data.dto.DeviceUpdateDto
-import com.corrot.utils.TimeUtils
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 
-fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: DeviceUpdateDao) {
-    post("/kwiatonomous/{id}/updates") {
+fun Route.addKwiatonomousDeviceUpdate(path: String, deviceDao: DeviceDao, deviceUpdateDao: DeviceUpdateDao) {
+    post(path) {
         val id = call.parameters["id"]
 
         if (id == null) {
@@ -28,12 +27,12 @@ fun Route.addKwiatonomousDeviceUpdate(deviceDao: DeviceDao, deviceUpdateDao: Dev
             call.receive<DeviceUpdateDto>().let { deviceUpdate ->
                 println(deviceUpdate)
                 deviceUpdateDao.createDeviceUpdate(
-                    id,
-                    deviceUpdate.timestamp,
-                    deviceUpdate.batteryLevel,
-                    deviceUpdate.batteryVoltage,
-                    deviceUpdate.temperature,
-                    deviceUpdate.humidity
+                    deviceId = id,
+                    timestamp = deviceUpdate.timestamp,
+                    batteryLevel = deviceUpdate.batteryLevel,
+                    batteryVoltage = deviceUpdate.batteryVoltage,
+                    temperature = deviceUpdate.temperature,
+                    humidity = deviceUpdate.humidity
                 )
 
                 deviceDao.updateDevice(id, deviceUpdate.timestamp)

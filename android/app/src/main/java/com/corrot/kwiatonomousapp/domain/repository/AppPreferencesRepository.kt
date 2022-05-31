@@ -5,7 +5,7 @@ import com.corrot.kwiatonomousapp.domain.model.AppPreferences
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import kotlinx.coroutines.flow.Flow
 
-interface PreferencesRepository {
+interface AppPreferencesRepository {
 
     fun getAppPreferences(): Flow<Result<AppPreferences>>
 

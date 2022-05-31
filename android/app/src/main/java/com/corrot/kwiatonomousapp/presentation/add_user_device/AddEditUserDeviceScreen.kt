@@ -14,22 +14,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.flow.collect
 
 @ExperimentalPagerApi
 @Composable
 fun AddEditUserDeviceScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
     viewModel: AddEditUserDeviceViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -38,7 +36,7 @@ fun AddEditUserDeviceScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 AddEditUserDeviceViewModel.Event.NAVIGATE_UP -> {
-                    navController.navigateUp()
+                    kwiatonomousAppState.navController.navigateUp()
                 }
             }
         }
@@ -51,7 +49,7 @@ fun AddEditUserDeviceScreen(
                     stringResource(R.string.edit_device)
                 else
                     stringResource(R.string.add_device),
-                onNavigateBackClicked = { navController.popBackStack() }
+                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
     ) {

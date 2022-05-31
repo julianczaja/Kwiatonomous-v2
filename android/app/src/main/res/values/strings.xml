@@ -25,6 +25,7 @@
     <string name="edit_device">Edit device</string>
     <string name="enter_watering_time">Enter watering time</string>
     <string name="error">Error</string>
+    <string name="hello_user_format">Hello %s!</string>
     <string name="hour">Hour</string>
     <string name="humidity">Humidity</string>
     <string name="humidity_abbr">Hum.</string>
@@ -32,6 +33,11 @@
     <string name="inactive">Inactive</string>
     <string name="last_update">Last update</string>
     <string name="last_updates">Last updates</string>
+    <string name="logged_in">Logged in</string>
+    <string name="log_in">Log in</string>
+    <string name="log_out">Log out</string>
+    <string name="login_verb">Login</string>
+    <string name="login_noun">Login</string>
     <string name="minute">Minute</string>
     <string name="month">Month</string>
     <string name="next_watering">Next watering</string>
@@ -39,6 +45,9 @@
     <string name="off_abbr">Off</string>
     <string name="ok">OK</string>
     <string name="on_abbr">On</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="register_prompt">Psst…\nDon\'t have account?\nClick here to register</string>
     <string name="reset">Reset</string>
     <string name="retry">Retry</string>
     <string name="save">Save</string>

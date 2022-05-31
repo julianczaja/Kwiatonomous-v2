@@ -9,4 +9,7 @@ object Constants {
     const val DEFAULT_WATERING_INTERVAL_DAYS = 2
     const val DEFAULT_WATERING_AMOUNT = 50
     const val DEFAULT_WATERING_TIME = "12:00"
+
+    const val KWIATONOMOUS_DIGEST_AUTH = "KwiatonomousDigestAuth"
+    const val KWIATONOMOUS_REALM = "KwiatonomousRealm"
 }

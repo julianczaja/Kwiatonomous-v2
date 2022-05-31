@@ -7,20 +7,22 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
-import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
-import com.corrot.kwiatonomousapp.domain.usecase.CheckIfDeviceExistsUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.AddUserDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetUserDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.UpdateUserDeviceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditUserDeviceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val checkIfDeviceExistsUseCase: CheckIfDeviceExistsUseCase,
-    private val userDeviceRepository: UserDeviceRepository
+    private val addUserDeviceUseCase: AddUserDeviceUseCase,
+    private val updateUserDeviceUseCase: UpdateUserDeviceUseCase,
+    private val getUserDeviceUseCase: GetUserDeviceUseCase
 ) : ViewModel() {
 
     enum class Event {
@@ -34,26 +36,35 @@ class AddEditUserDeviceViewModel @Inject constructor(
     init {
         if (isEditMode) {
             val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)!!
-            viewModelScope.launch {
-                state.value = state.value.copy(isLoading = true)
-                try {
-                    val userDevice = userDeviceRepository.getUserDevice(deviceId).firstOrNull()
-                    if (userDevice == null) {
-                        throw Exception("Can't find device")
-                    } else {
-                        state.value = state.value.copy(
-                            isLoading = false,
-                            deviceId = deviceId,
-                            isDeviceIdValid = true,
-                            deviceName = userDevice.deviceName,
-                            isDeviceNameValid = true,
-                            deviceImageId = userDevice.deviceImageId
-                        )
+
+            state.value = state.value.copy(isLoading = true)
+
+            viewModelScope.launch(Dispatchers.IO) {
+                getUserDeviceUseCase.execute(deviceId).collect { ret ->
+                    withContext(Dispatchers.Main) {
+                        when (ret) {
+                            is Result.Loading -> {
+                                state.value = state.value.copy(isLoading = true)
+                            }
+                            is Result.Success -> {
+                                state.value = state.value.copy(
+                                    isLoading = false,
+                                    deviceId = ret.data.deviceId,
+                                    isDeviceIdValid = true,
+                                    deviceName = ret.data.deviceName,
+                                    isDeviceNameValid = true,
+                                    deviceImageId = ret.data.deviceImageId
+
+                                )
+                            }
+                            is Result.Error -> {
+                                state.value = state.value.copy(
+                                    isLoading = false,
+                                    error = ret.throwable.message ?: "Unknown error"
+                                )
+                            }
+                        }
                     }
-                } catch (e: Exception) {
-                    state.value = state.value.copy(
-                        isLoading = false, error = e.message ?: "Unknown error"
-                    )
                 }
             }
         }
@@ -96,55 +107,55 @@ class AddEditUserDeviceViewModel @Inject constructor(
     }
 
     private suspend fun updateUserDevice() {
-        try {
-            userDeviceRepository.addUserDevice(
-                UserDevice(
-                    deviceId = state.value.deviceId,
-                    deviceName = state.value.deviceName,
-                    deviceImageId = state.value.deviceImageId
-                )
-            )
-            eventFlow.emit(Event.NAVIGATE_UP)
-        } catch (e: Exception) {
-            state.value = state.value.copy(error = e.message ?: "Unknown error")
+        val newUserDevice = UserDevice(
+            deviceId = state.value.deviceId,
+            deviceName = state.value.deviceName,
+            deviceImageId = state.value.deviceImageId
+        )
+        updateUserDeviceUseCase.execute(newUserDevice).collect { ret ->
+            withContext(Dispatchers.Main) {
+                when (ret) {
+                    is Result.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
+                    is Result.Success -> {
+                        state.value = state.value.copy(isLoading = false)
+                        eventFlow.emit(Event.NAVIGATE_UP)
+                    }
+                    is Result.Error -> {
+                        state.value = state.value.copy(
+                            isLoading = false,
+                            error = ret.throwable.message ?: "Unknown error"
+                        )
+                    }
+                }
+            }
         }
     }
 
     private suspend fun addNewUserDevice() {
-        checkIfDeviceExistsUseCase.execute(state.value.deviceId).collect { ret ->
-            when (ret) {
-                is Result.Loading -> state.value = state.value.copy(
-                    isLoading = true, error = null
-                )
-                is Result.Success -> {
-                    val deviceExists = ret.data
-                    if (deviceExists) {
-                        try {
-                            userDeviceRepository.addUserDevice(
-                                UserDevice(
-                                    deviceId = state.value.deviceId,
-                                    deviceName = state.value.deviceName,
-                                    deviceImageId = state.value.deviceImageId
-                                )
-                            )
-                            eventFlow.emit(Event.NAVIGATE_UP)
-                        } catch (e: Exception) {
-                            state.value = state.value.copy(
-                                isLoading = false,
-                                error = e.message ?: "Unknown error"
-                            )
-                        }
-                    } else {
+        val newUserDevice = UserDevice(
+            deviceId = state.value.deviceId,
+            deviceName = state.value.deviceName,
+            deviceImageId = state.value.deviceImageId
+        )
+        addUserDeviceUseCase.execute(newUserDevice).collect { ret ->
+            withContext(Dispatchers.Main) {
+                when (ret) {
+                    is Result.Loading -> {
+                        state.value = state.value.copy(isLoading = true)
+                    }
+                    is Result.Success -> {
+                        state.value = state.value.copy(isLoading = false)
+                        eventFlow.emit(Event.NAVIGATE_UP)
+                    }
+                    is Result.Error -> {
                         state.value = state.value.copy(
                             isLoading = false,
-                            error = "Device with ID \"${state.value.deviceId}\" doesn't exist"
+                            error = ret.throwable.message ?: "Unknown error"
                         )
                     }
                 }
-                is Result.Error -> state.value = state.value.copy(
-                    isLoading = false,
-                    error = ret.throwable.message ?: "Unknown error"
-                )
             }
         }
     }

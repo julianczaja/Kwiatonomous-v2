@@ -1,8 +1,5 @@
 package com.corrot.db.data.dto
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class DeviceUpdateDto(
     val timestamp: Long,
     val batteryLevel: Int,

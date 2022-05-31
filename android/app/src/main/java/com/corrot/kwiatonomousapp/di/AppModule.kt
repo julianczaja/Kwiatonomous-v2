@@ -6,11 +6,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.corrot.kwiatonomousapp.AuthManager
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
 import com.corrot.kwiatonomousapp.common.Constants.PREFERENCES_DATA_STORE_NAME
 import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
+import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
@@ -22,37 +24,61 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Type
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    // https://github.com/square/retrofit/issues/1554
+    private val nullOnEmptyConverterFactory = object : Converter.Factory() {
+        fun converterFactory() = this
+        override fun responseBodyConverter(
+            type: Type,
+            annotations: Array<out Annotation>,
+            retrofit: Retrofit
+        ) = object : Converter<ResponseBody, Any?> {
+            val nextResponseBodyConverter =
+                retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
+
+            override fun convert(value: ResponseBody) =
+                if (value.contentLength() != 0L) nextResponseBodyConverter.convert(value) else null
+        }
+    }
+
     @Provides
     @Singleton
-    fun provideKwiatonomousApi(): KwiatonomousApi {
+    fun provideDigestAuthInterceptor(
+        networkPreferencesRepository: NetworkPreferencesRepository
+    ): DigestAuthInterceptor {
+        return DigestAuthInterceptor(networkPreferencesRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKwiatonomousApi(
+        digestAuthInterceptor: DigestAuthInterceptor
+    ): KwiatonomousApi {
         return Retrofit.Builder()
-            .baseUrl(
-                if (DEBUG_MODE) {
-                    BASE_URL_DEBUG
-                } else {
-                    BASE_URL
+            .baseUrl(if (DEBUG_MODE) BASE_URL_DEBUG else BASE_URL)
+            .client(OkHttpClient().newBuilder()
+                .addInterceptor(digestAuthInterceptor)
+                .apply {
+                    if (DEBUG_MODE) {
+                        addInterceptor(
+                            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+                        )
+                    }
                 }
-            )
-            .apply {
-                if (DEBUG_MODE) {
-                    client(
-                        OkHttpClient().newBuilder()
-                            .addInterceptor(
-                                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC)
-                            )
-                            .build()
-                    )
-                }
-            }
+                .build())
+            .addConverterFactory(nullOnEmptyConverterFactory)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(KwiatonomousApi::class.java)
@@ -76,6 +102,15 @@ object AppModule {
                 applicationContext.preferencesDataStoreFile(PREFERENCES_DATA_STORE_NAME)
             }
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        kwiatonomousApi: KwiatonomousApi,
+        kwiatonomousDatabase: KwiatonomousDatabase
+    ): UserRepository {
+        return UserRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
 
     @Provides
@@ -107,18 +142,29 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserDeviceRepository(
-        kwiatonomousDatabase: KwiatonomousDatabase
-    ): UserDeviceRepository {
-        return UserDeviceRepositoryImpl(kwiatonomousDatabase)
+    fun provideAppPreferencesRepository(
+        preferencesDataStore: DataStore<Preferences>
+    ): AppPreferencesRepository {
+        return AppPreferencesRepositoryImpl(preferencesDataStore)
     }
 
     @Provides
     @Singleton
-    fun providePreferencesRepository(preferencesDataStore: DataStore<Preferences>): PreferencesRepository {
-        return PreferencesRepositoryImpl(preferencesDataStore)
+    fun provideNetworkPreferencesRepository(
+        preferencesDataStore: DataStore<Preferences>
+    ): NetworkPreferencesRepository {
+        return NetworkPreferencesRepositoryImpl(preferencesDataStore)
     }
 
     @Provides
     fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Provides
+    @Singleton
+    fun provideLoginManager(
+        userRepository: UserRepository,
+        networkPreferencesRepository: NetworkPreferencesRepository
+    ): AuthManager {
+        return AuthManager(userRepository, networkPreferencesRepository)
+    }
 }

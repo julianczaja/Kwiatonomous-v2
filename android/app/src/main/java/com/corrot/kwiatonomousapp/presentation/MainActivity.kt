@@ -8,15 +8,17 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +26,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var appPreferencesRepository: PreferencesRepository
+    lateinit var appPreferencesRepository: AppPreferencesRepository
 
     @ExperimentalPagerApi
     @ExperimentalMaterialApi
@@ -32,7 +34,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // val locale = Locale("pl")
+        // Locale.setDefault(locale)
+        // resources.apply {
+        //     configuration.setLocale(locale)
+        //     updateConfiguration(configuration, displayMetrics)
+        //     //  applicationContext.createConfigurationContext(configuration)
+        // }
+
         CoroutineScope(Dispatchers.Main).launch {
+
             appPreferencesRepository.getAppTheme().collect { currentAppTheme ->
                 setContent {
                     val isDarkTheme = when (currentAppTheme) {
@@ -43,8 +54,14 @@ class MainActivity : ComponentActivity() {
 
                     KwiatonomousAppTheme(darkTheme = isDarkTheme) {
                         Surface(color = MaterialTheme.colors.background) {
-                            val navController = rememberNavController()
-                            KwiatonomousNavHost(navController = navController)
+                            KwiatonomousNavHost(
+                                KwiatonomousAppState(
+                                    navController = rememberNavController(),
+                                    scaffoldState = rememberScaffoldState(),
+                                    snackbarScope = rememberCoroutineScope()
+                                ),
+                                startDestination = Screen.Splash.route
+                            )
                         }
                     }
                 }

@@ -10,8 +10,7 @@
 
 #define SERVER_NAME "---"
 #define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
-#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
-
+#define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"timeZoneOffset\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
 class KwiatonomousApi
 {
 public:

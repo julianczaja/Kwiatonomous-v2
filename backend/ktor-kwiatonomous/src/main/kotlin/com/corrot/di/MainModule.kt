@@ -8,6 +8,8 @@ val MainModule = module {
 
     single { KwiatonomousDatabase() }
 
+    single { UserDaoImpl(get() as KwiatonomousDatabase) as UserDao }
+
     single { DeviceDaoImpl(get() as KwiatonomousDatabase) as DeviceDao }
 
     single { DeviceUpdateDaoImpl(get() as KwiatonomousDatabase) as DeviceUpdateDao }

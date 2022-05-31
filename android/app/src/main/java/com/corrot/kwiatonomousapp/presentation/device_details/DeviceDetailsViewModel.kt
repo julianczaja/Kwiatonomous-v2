@@ -10,26 +10,23 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.common.components.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
-import com.corrot.kwiatonomousapp.domain.repository.PreferencesRepository
-import com.corrot.kwiatonomousapp.domain.repository.UserDeviceRepository
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
+import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class DeviceDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    appPreferencesRepository: PreferencesRepository,
-    private val userDeviceRepository: UserDeviceRepository,
+    appPreferencesRepository: AppPreferencesRepository,
     private val getDeviceUseCase: GetDeviceUseCase,
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
+    private val getUserDeviceUseCase: GetUserDeviceUseCase,
+    private val deleteUserDeviceUseCase: DeleteUserDeviceUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -92,33 +89,45 @@ class DeviceDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteDevice() = viewModelScope.launch(ioDispatcher) {
-        try {
-            userDeviceRepository.removeUserDevice(state.value.userDevice!!)
-            eventFlow.emit(Event.NAVIGATE_UP)
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                state.value = state.value.copy(error = e.message ?: "Unknown error")
+    fun deleteUserDevice() = viewModelScope.launch(ioDispatcher) {
+        deleteUserDeviceUseCase.execute(state.value.userDevice!!).collect { ret ->
+            when (ret) {
+                is Result.Loading -> {
+                    state.value = state.value.copy(isUserDeviceLoading = true)
+                }
+                is Result.Success -> {
+                    eventFlow.emit(Event.NAVIGATE_UP)
+                }
+                is Result.Error -> {
+                    state.value = state.value.copy(
+                        isUserDeviceLoading = false,
+                        error = ret.throwable.message ?: "Unknown error"
+                    )
+                }
             }
         }
     }
 
-    private fun getUserDevice(id: String) = viewModelScope.launch(ioDispatcher) {
-        try {
-            userDeviceRepository.getUserDevice(id).collect { ret ->
-                withContext(Dispatchers.Main) {
-                    state.value = state.value.copy(
-                        isUserDeviceLoading = false,
-                        userDevice = ret
-                    )
-                }
-            }
-        } catch (e: Exception) {
+    private fun getUserDevice(deviceId: String) = viewModelScope.launch(ioDispatcher) {
+        getUserDeviceUseCase.execute(deviceId).collect { ret ->
             withContext(Dispatchers.Main) {
-                state.value = state.value.copy(
-                    isUserDeviceLoading = false,
-                    error = e.message ?: "Unknown error"
-                )
+                when (ret) {
+                    is Result.Loading -> {
+                        state.value = state.value.copy(isUserDeviceLoading = true)
+                    }
+                    is Result.Success -> {
+                        state.value = state.value.copy(
+                            isUserDeviceLoading = false,
+                            userDevice = ret.data
+                        )
+                    }
+                    is Result.Error -> {
+                        state.value = state.value.copy(
+                            isUserDeviceLoading = false,
+                            error = ret.throwable.message ?: "Unknown error"
+                        )
+                    }
+                }
             }
         }
     }

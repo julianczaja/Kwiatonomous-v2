@@ -12,15 +12,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @Composable
 fun AppSettingsScreen(
-    navController: NavController,
+    kwiatonomousAppState: KwiatonomousAppState,
     viewModel: AppSettingsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -29,7 +29,7 @@ fun AppSettingsScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.application_settings),
-                onNavigateBackClicked = { navController.popBackStack() }
+                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
 

@@ -1,31 +1,48 @@
 package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceDao
-import io.ktor.application.*
+import com.corrot.db.data.dao.UserDao
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 
-fun Route.updateKwiatonomousDeviceNextWatering(deviceDao: DeviceDao) {
-    post("/kwiatonomous/{id}/nextwatering") {
-        val id = call.parameters["id"]
+fun Route.updateKwiatonomousDeviceNextWatering(path: String, userDao: UserDao, deviceDao: DeviceDao) {
+    post(path) {
+        val userId = call.principal<UserIdPrincipal>()?.name
+        if (userId == null) {
+            call.respond(HttpStatusCode.BadRequest, "Not authenticated")
+            return@post
+        }
 
-        if (id == null) {
+        val deviceId = call.parameters["deviceId"]
+        if (deviceId == null) {
             call.respond(HttpStatusCode.BadRequest, "Kwiatonomous device id can't be null!")
             return@post
         }
 
-        if (deviceDao.getDevice(id) == null) {
-            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous device of id: $id")
+        if (deviceDao.getDevice(deviceId) == null) {
+            call.respond(HttpStatusCode.NotFound, "Can't find Kwiatonomous device of id: $deviceId")
+            return@post
+        }
+
+        val user = userDao.getUser(userId)
+        if (user == null) {
+            call.respond(HttpStatusCode.BadRequest, "User doesn't exist")
+            return@post
+        }
+
+        if (user.devices.find { it.deviceId == deviceId } == null) {
+            call.respond(HttpStatusCode.BadRequest, "User doesn't have this device added")
             return@post
         }
 
         try {
             call.receive<Long>().let { newNextWateringTime ->
-                println("New next watering time: $newNextWateringTime")
-                deviceDao.updateNextWatering(id, newNextWateringTime)
+                deviceDao.updateNextWatering(deviceId, newNextWateringTime)
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {

@@ -1,8 +1,5 @@
 package com.corrot.db.data.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class DeviceConfiguration(
     val deviceId: String,
     val sleepTimeMinutes: Int,
