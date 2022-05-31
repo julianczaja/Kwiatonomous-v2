@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.components.*
@@ -25,7 +26,6 @@ import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
@@ -39,7 +39,6 @@ fun DeviceDetailsScreen(
     viewModel: DeviceDetailsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val isLoading = viewModel.isLoading
     val currentAppTheme = viewModel.currentAppTheme.collectAsState(initial = AppTheme.AUTO)
     val isDarkMode = when (currentAppTheme.value) {
         AppTheme.AUTO -> isSystemInDarkTheme()
@@ -78,7 +77,7 @@ fun DeviceDetailsScreen(
         }
     ) {
         SwipeRefresh(
-            state = rememberSwipeRefreshState(isLoading),
+            state = rememberSwipeRefreshState(viewModel.isLoading),
             onRefresh = { viewModel.refreshData() }
         ) {
             LazyColumn(
@@ -259,22 +258,22 @@ private fun DeviceConfigurationSection(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(R.string.device_configuration),
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Box(
-            modifier = Modifier.fillMaxSize()
+        ExpandableCardWithLabel(
+            title = stringResource(R.string.device_configuration),
+            initialExpandedState = false
         ) {
-            DeviceConfigurationItem(
-                deviceConfiguration = deviceConfiguration
-            )
             Box(
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(onClick = { onEditClicked() }) {
-                    Icon(Icons.Filled.Edit, "")
+                DeviceConfigurationItem(
+                    deviceConfiguration = deviceConfiguration
+                )
+                Box(
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    IconButton(onClick = { onEditClicked() }) {
+                        Icon(Icons.Filled.Edit, "")
+                    }
                 }
             }
         }
@@ -296,66 +295,66 @@ private fun DeviceUpdatesSection(
     onChartDateTypeSelected: (LineChartDateType) -> Unit,
     onChartDataTypeSelected: (LineChartDataType) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    ExpandableCardWithLabel(
+        title = stringResource(R.string.last_updates),
+        initialExpandedState = true
     ) {
-        Text(
-            text = stringResource(R.string.last_updates),
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            elevation = 8.dp,
+        Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                elevation = 8.dp,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
+                        .fillMaxSize()
+                        .padding(8.dp)
                 ) {
-                    DateLineChart(
-                        xData = deviceUpdates.map { it.updateTime.toLong() },
-                        yData = when (selectedChartDataType) {
-                            LineChartDataType.TEMPERATURE -> deviceUpdates.map { it.temperature }
-                            LineChartDataType.HUMIDITY -> deviceUpdates.map { it.humidity }
-                            LineChartDataType.BATTERY -> deviceUpdates.map { it.batteryVoltage }
-                        },
-                        isLoading = false, // TODO
-                        fromDate = selectedDateRange.first,
-                        toDate = selectedDateRange.second,
-                        dateType = selectedChartDateType,
-                        yAxisUnit = when (selectedChartDataType) {
-                            LineChartDataType.TEMPERATURE -> "°C"
-                            LineChartDataType.HUMIDITY -> "%"
-                            LineChartDataType.BATTERY -> "V"
-                        },
-                        isDarkTheme = isDarkMode
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    CustomRadioGroup(
-                        options = LineChartDateType.values()
-                            .map { it.mapToString(LocalContext.current) },
-                        selectedIndex = selectedChartDateType.ordinal,
-                        onOptionSelected = { onChartDateTypeSelected(LineChartDateType.values()[it]) }
-                    )
-                    CustomRadioGroup(
-                        options = LineChartDataType.values()
-                            .map { it.mapToString(LocalContext.current) },
-                        selectedIndex = selectedChartDataType.ordinal,
-                        onOptionSelected = { onChartDataTypeSelected(LineChartDataType.values()[it]) }
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    ) {
+                        DateLineChart(
+                            xData = deviceUpdates.map { it.updateTime.toLong() },
+                            yData = when (selectedChartDataType) {
+                                LineChartDataType.TEMPERATURE -> deviceUpdates.map { it.temperature }
+                                LineChartDataType.HUMIDITY -> deviceUpdates.map { it.humidity }
+                                LineChartDataType.BATTERY -> deviceUpdates.map { it.batteryVoltage }
+                            },
+                            isLoading = false, // TODO
+                            fromDate = selectedDateRange.first,
+                            toDate = selectedDateRange.second,
+                            dateType = selectedChartDateType,
+                            yAxisUnit = when (selectedChartDataType) {
+                                LineChartDataType.TEMPERATURE -> "°C"
+                                LineChartDataType.HUMIDITY -> "%"
+                                LineChartDataType.BATTERY -> "V"
+                            },
+                            isDarkTheme = isDarkMode
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        CustomRadioGroup(
+                            options = LineChartDateType.values()
+                                .map { it.mapToString(LocalContext.current) },
+                            selectedIndex = selectedChartDateType.ordinal,
+                            onOptionSelected = { onChartDateTypeSelected(LineChartDateType.values()[it]) }
+                        )
+                        CustomRadioGroup(
+                            options = LineChartDataType.values()
+                                .map { it.mapToString(LocalContext.current) },
+                            selectedIndex = selectedChartDataType.ordinal,
+                            onOptionSelected = { onChartDataTypeSelected(LineChartDataType.values()[it]) }
+                        )
+                    }
                 }
             }
         }
