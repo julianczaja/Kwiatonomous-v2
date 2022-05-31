@@ -1,6 +1,9 @@
 package com.corrot.kwiatonomousapp.common.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,54 +23,6 @@ import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalDateTime
 
-@Preview(
-    "UserDeviceItemPreviewLight",
-    widthDp = 500,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-fun UserDeviceItemPreviewLight() {
-    KwiatonomousAppTheme(darkTheme = false) {
-        Surface {
-            UserDeviceItem(
-                userDevice = UserDevice(
-                    "testID",
-                    "My pot flower",
-                    R.drawable.flower_2,
-                ),
-                lastDeviceUpdate = DeviceUpdate(
-                    "testID",
-                    LocalDateTime.now(),
-                    68,
-                    3.92f,
-                    23.2f,
-                    57.4f
-                ),
-                onItemClick = {})
-        }
-    }
-}
-
-@Preview(
-    "UserDeviceItemPreviewDark",
-    widthDp = 200,
-    uiMode = Configuration.UI_MODE_NIGHT_YES, locale = "pl"
-)
-@Composable
-fun UserDeviceItemPreviewDark() {
-    KwiatonomousAppTheme(darkTheme = true) {
-        Surface {
-            UserDeviceItem(
-                userDevice = UserDevice(
-                    "testID",
-                    "My flower with long name", // max 24 characters
-                    R.drawable.flower_1,
-                ),
-                lastDeviceUpdate = null,
-                onItemClick = {})
-        }
-    }
-}
 
 @Composable
 fun UserDeviceItem(
@@ -82,7 +37,12 @@ fun UserDeviceItem(
             elevation = 8.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = FastOutSlowInEasing
+                    )
+                )
                 .clickable(enabled = onItemClick != null) { onItemClick?.let { it(userDevice) } }
         ) {
             Column(
@@ -142,6 +102,57 @@ fun LastDeviceUpdate(
             Temperature(temperature = lastDeviceUpdate.temperature)
             Humidity(humidity = lastDeviceUpdate.humidity)
             BatteryLevel(batteryLevel = lastDeviceUpdate.batteryLevel)
+        }
+    }
+}
+
+@Preview(
+    "UserDeviceItemPreviewLight",
+    widthDp = 400,
+    heightDp = 300,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun UserDeviceItemPreviewLight() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            UserDeviceItem(
+                userDevice = UserDevice(
+                    "testID",
+                    "My pot flower",
+                    R.drawable.flower_2,
+                ),
+                lastDeviceUpdate = DeviceUpdate(
+                    "testID",
+                    LocalDateTime.now(),
+                    68,
+                    3.92f,
+                    23.2f,
+                    57.4f
+                ),
+                onItemClick = {})
+        }
+    }
+}
+
+@Preview(
+    "UserDeviceItemPreviewDark",
+    widthDp = 200,
+    heightDp = 300,
+    uiMode = Configuration.UI_MODE_NIGHT_YES, locale = "pl"
+)
+@Composable
+fun UserDeviceItemPreviewDark() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            UserDeviceItem(
+                userDevice = UserDevice(
+                    "testID",
+                    "My flower with long name", // max 24 characters
+                    R.drawable.flower_1,
+                ),
+                lastDeviceUpdate = null,
+                onItemClick = {})
         }
     }
 }
