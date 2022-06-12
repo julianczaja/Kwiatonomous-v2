@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.data.repository
 
-import android.util.Log
 import androidx.room.withTransaction
 import com.corrot.kwiatonomousapp.common.toLocalDateTime
 import com.corrot.kwiatonomousapp.common.toLong
@@ -14,6 +13,7 @@ import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -45,7 +45,7 @@ class DeviceRepositoryImpl @Inject constructor(
             // Let's catch it - this will also emit some kind of empty flow to notify when we call
             // `query().firstOrNull()` in networkBoundResource
             .catch { t ->
-                Log.e("DeviceRepositoryImpl", "getDeviceFromDatabase: $t")
+                Timber.e("getDeviceFromDatabase: $t")
             }
 
     override fun getDevicesFromDatabase(): Flow<List<Device>> {

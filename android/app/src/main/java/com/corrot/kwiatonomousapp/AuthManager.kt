@@ -20,10 +20,6 @@ class AuthManager @Inject constructor(
     private val userRepository: UserRepository,
     private val networkPreferencesRepository: NetworkPreferencesRepository
 ) {
-    private companion object {
-        const val TAG = "AuthManager"
-    }
-
     @Throws(Exception::class)
     suspend fun checkIfLoggedIn(): Boolean {
         return try {

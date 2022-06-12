@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.data.repository
 
-import android.util.Log
 import androidx.room.withTransaction
 import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
 import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
@@ -15,6 +14,7 @@ import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -46,7 +46,7 @@ class UserRepositoryImpl @Inject constructor(
             // Let's catch it - this will also emit some kind of empty flow to notify when we call
             // `query().firstOrNull()` in networkBoundResource
             .catch { t ->
-                Log.e("UserRepositoryImpl", "getUserFromDatabase: $t")
+                Timber.e("getUserFromDatabase: $t")
             }
 
     override fun getCurrentUserFromDatabase(): Flow<User?> =

@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.data.remote
 
-import android.util.Log
 import com.corrot.kwiatonomousapp.common.Constants.API_REALM
 import com.corrot.kwiatonomousapp.common.toMD5
 import com.corrot.kwiatonomousapp.domain.repository.NetworkPreferencesRepository
@@ -8,16 +7,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
+import timber.log.Timber
 import javax.inject.Inject
 
 
 class DigestAuthInterceptor @Inject constructor(
     private val networkPreferencesRepository: NetworkPreferencesRepository
 ) : Interceptor {
-
-    private companion object {
-        const val TAG = "DigestAuthInterceptor"
-    }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -29,21 +25,21 @@ class DigestAuthInterceptor @Inject constructor(
 
         val login = runBlocking { networkPreferencesRepository.getLogin().first() }
         if (login.isEmpty()) {
-            Log.e(TAG, "There is no login set")
+            Timber.e("There is no login set")
 //            throw Exception("There is no login set")
             return chain.proceed(builder.build())
         }
 
         val nonce = runBlocking { networkPreferencesRepository.getLastNonce().first() }
         if (nonce.isEmpty()) {
-            Log.e(TAG, "There is no nonce set")
+            Timber.e("There is no nonce set")
             return chain.proceed(builder.build())
         }
 
         // HA1 -> MD5(username:realm:password)
         val ha1 = runBlocking { networkPreferencesRepository.getHa1().first() }
         if (ha1.isEmpty()) {
-            Log.e(TAG, "There is no HA1 set")
+            Timber.e("There is no HA1 set")
 //            throw Exception("There is no HA1 set")
             return chain.proceed(builder.build())
         }
@@ -56,9 +52,9 @@ class DigestAuthInterceptor @Inject constructor(
         // response -> MD5(HA1:nonce:HA2)
         val response = "$ha1:$nonce:$ha2".toMD5()
 
-        Log.d(TAG, "login =\t$login")
-        Log.d(TAG, "HA1 =\t$ha1")
-        Log.d(TAG, "nonce =\t$nonce")
+        Timber.e("login =\t$login")
+        Timber.e("HA1 =\t$ha1")
+        Timber.e("nonce =\t$nonce")
 
         getDigestAuthHeader(
             username = login,

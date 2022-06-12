@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.presentation.device_settings
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -9,11 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
-import com.corrot.kwiatonomousapp.domain.usecase.*
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceConfigurationUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceNextWateringUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
@@ -26,10 +28,6 @@ class DeviceSettingsViewModel @Inject constructor(
     private val getDeviceUseCase: GetDeviceUseCase,
     private val updateDeviceNextWateringUseCase: UpdateDeviceNextWateringUseCase
 ) : ViewModel() {
-
-    private companion object {
-        const val TAG = "DeviceSettingsViewModel"
-    }
 
     private val _state = mutableStateOf(DeviceSettingsState())
     val state: State<DeviceSettingsState> = _state
@@ -104,8 +102,8 @@ class DeviceSettingsViewModel @Inject constructor(
             _state.value = _state.value.copy(nextWatering = newWateringDateTime)
         } else {
             // TODO: Handle exception
-            Log.e(
-                TAG, "onDeviceWateringTimeChanged: " +
+            Timber.e(
+                "onDeviceWateringTimeChanged: " +
                         "Can't update watering time, because the current zone offset is unknown (null)"
             )
         }
@@ -125,8 +123,8 @@ class DeviceSettingsViewModel @Inject constructor(
             _state.value = _state.value.copy(nextWatering = newWateringDateTime)
         } else {
             // TODO: Handle exception
-            Log.e(
-                TAG, "onDeviceWateringDateChanged: " +
+            Timber.e(
+                "onDeviceWateringDateChanged: " +
                         "Can't update watering time, because the current zone offset is unknown (null)"
             )
         }
@@ -156,7 +154,7 @@ class DeviceSettingsViewModel @Inject constructor(
 
     private fun getDeviceNextWatering(id: String) {
         viewModelScope.launch {
-            getDeviceUseCase.execute(id).collect {ret ->
+            getDeviceUseCase.execute(id).collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.value =
                         _state.value.copy(isLoading = true, error = null)
