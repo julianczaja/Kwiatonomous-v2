@@ -5,10 +5,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.APP_THEME_KEY
+import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.CHART_SETTINGS_KEY
 import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.FIRST_TIME_USER_KEY
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
-import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -26,7 +29,11 @@ class AppPreferencesRepositoryImpl @Inject constructor(
             Result.Success(
                 AppPreferences(
                     isFirstTimeUser = preferences[FIRST_TIME_USER_KEY] ?: false,
-                    appTheme = AppTheme.values()[preferences[APP_THEME_KEY] ?: 0]
+                    appTheme = AppTheme.values()[preferences[APP_THEME_KEY] ?: 0],
+                    chartSettings = Gson().fromJson(
+                        preferences[CHART_SETTINGS_KEY],
+                        ChartSettings::class.java
+                    ) ?: ChartSettings()
                 )
             )
         }
@@ -35,6 +42,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         dataStore.edit { preferences ->
             preferences[FIRST_TIME_USER_KEY] = newAppPreferences.isFirstTimeUser
             preferences[APP_THEME_KEY] = newAppPreferences.appTheme.ordinal
+            preferences[CHART_SETTINGS_KEY] = Gson().toJson(newAppPreferences.chartSettings)
         }
     }
 
@@ -57,6 +65,18 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override suspend fun updateAppTheme(appTheme: AppTheme) {
         dataStore.edit { preferences ->
             preferences[APP_THEME_KEY] = appTheme.ordinal
+        }
+    }
+
+    override fun getChartSettings(): Flow<ChartSettings> = dataStore.data
+        .map { preferences ->
+            Gson().fromJson(preferences[CHART_SETTINGS_KEY], ChartSettings::class.java)
+                ?: ChartSettings()
+        }
+
+    override suspend fun updateChartSettings(chartSettings: ChartSettings) {
+        dataStore.edit { preferences ->
+            preferences[CHART_SETTINGS_KEY] = Gson().toJson(chartSettings)
         }
     }
 }

@@ -2,7 +2,8 @@ package com.corrot.kwiatonomousapp.domain.repository
 
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
-import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import kotlinx.coroutines.flow.Flow
 
 interface AppPreferencesRepository {
@@ -18,4 +19,8 @@ interface AppPreferencesRepository {
     fun getAppTheme(): Flow<AppTheme>
 
     suspend fun updateAppTheme(appTheme: AppTheme)
+
+    fun getChartSettings(): Flow<ChartSettings>
+
+    suspend fun updateChartSettings(chartSettings: ChartSettings)
 }

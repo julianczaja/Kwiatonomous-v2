@@ -26,12 +26,8 @@ import com.corrot.kwiatonomousapp.common.components.chart.LineChartDataType
 import com.corrot.kwiatonomousapp.common.components.chart.LineChartDateType
 import com.corrot.kwiatonomousapp.common.components.chart.mapToString
 import com.corrot.kwiatonomousapp.common.toLong
-import com.corrot.kwiatonomousapp.domain.model.Device
-import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
-import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
-import com.corrot.kwiatonomousapp.domain.model.UserDevice
+import com.corrot.kwiatonomousapp.domain.model.*
 import com.corrot.kwiatonomousapp.presentation.Screen
-import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -44,6 +40,8 @@ fun DeviceDetailsScreen(
 ) {
     val state = viewModel.state.value
     val currentAppTheme = viewModel.currentAppTheme.collectAsState(initial = AppTheme.AUTO)
+    val currentChartSettings = viewModel.currentChartSettings
+        .collectAsState(initial = ChartSettings())
     val isDarkMode = when (currentAppTheme.value) {
         AppTheme.AUTO -> isSystemInDarkTheme()
         AppTheme.LIGHT -> false
@@ -131,6 +129,7 @@ fun DeviceDetailsScreen(
                             selectedChartDateType = viewModel.state.value.selectedChartDateType,
                             selectedDateRange = viewModel.state.value.selectedDateRange,
                             selectedChartDataType = viewModel.state.value.selectedChartDataType,
+                            chartSettings = currentChartSettings.value,
                             isDarkMode = isDarkMode,
                             onChartDateTypeSelected = { viewModel.onChartDateTypeSelected(it) },
                             onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) }
@@ -296,6 +295,7 @@ private fun DeviceUpdatesSection(
     selectedChartDataType: LineChartDataType,
     selectedDateRange: Pair<Long, Long>,
     isDarkMode: Boolean,
+    chartSettings: ChartSettings,
     onChartDateTypeSelected: (LineChartDateType) -> Unit,
     onChartDataTypeSelected: (LineChartDataType) -> Unit
 ) {
@@ -332,6 +332,8 @@ private fun DeviceUpdatesSection(
                             toDate = selectedDateRange.second,
                             dateType = selectedChartDateType,
                             dataType = selectedChartDataType,
+                            renderDropLines = chartSettings.renderDropLines,
+                            renderGridLines = chartSettings.renderGridLines,
                             isDarkTheme = isDarkMode
                         )
                     }

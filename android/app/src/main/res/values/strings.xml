@@ -10,6 +10,7 @@
     <string name="battery_voltage">Battery voltage</string>
     <string name="birthday">Birthday</string>
     <string name="cancel">Cancel</string>
+    <string name="chart_settings">Chart settings</string>
     <string name="change">Change</string>
     <string name="date">Date</string>
     <string name="day">Day</string>
@@ -48,6 +49,8 @@
     <string name="password">Password</string>
     <string name="register">Register</string>
     <string name="register_prompt">Psst…\nDon\'t have account?\nClick here to register</string>
+    <string name="render_drop_lines">Render drop lines</string>
+    <string name="render_grid_lines">Render grid lines</string>
     <string name="reset">Reset</string>
     <string name="retry">Retry</string>
     <string name="save">Save</string>

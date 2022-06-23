@@ -4,9 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Result
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +32,7 @@ class AppSettingsViewModel @Inject constructor(
                     is Result.Success -> {
                         state.value = state.value.copy(
                             appTheme = appPreferences.data.appTheme,
+                            chartSettings = appPreferences.data.chartSettings,
                             isLoading = false,
                             error = null
                         )
@@ -46,9 +48,12 @@ class AppSettingsViewModel @Inject constructor(
         }
     }
 
-    fun setAppTheme(appTheme: AppTheme) {
-        viewModelScope.launch {
-            appPreferencesRepository.updateAppTheme(appTheme)
-        }
+    fun setAppTheme(appTheme: AppTheme) = viewModelScope.launch {
+        appPreferencesRepository.updateAppTheme(appTheme)
+    }
+
+
+    fun setChartSettings(chartSettings: ChartSettings) = viewModelScope.launch {
+        appPreferencesRepository.updateChartSettings(chartSettings)
     }
 }

@@ -10,6 +10,7 @@
     <string name="battery_voltage">Napięcie baterii</string>
     <string name="birthday">Urodziny</string>
     <string name="cancel">Anuluj</string>
+    <string name="chart_settings">Ustawienia wykresu</string>
     <string name="change">Zmień</string>
     <string name="date">Data</string>
     <string name="day">Dzień</string>
@@ -48,6 +49,8 @@
     <string name="password">Hasło</string>
     <string name="register">Rejestracja</string>
     <string name="register_prompt">Psst…\nNie masz konta?\nKliknij tutaj aby stworzyć nowe</string>
+    <string name="render_drop_lines">Rysuj linie pionowe</string>
+    <string name="render_grid_lines">Rysuj linie poziome</string>
     <string name="reset">Resetuj</string>
     <string name="retry">Ponów</string>
     <string name="save">Zapisz</string>

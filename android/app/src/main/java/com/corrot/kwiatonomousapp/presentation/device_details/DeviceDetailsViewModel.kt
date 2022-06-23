@@ -40,6 +40,7 @@ class DeviceDetailsViewModel @Inject constructor(
     val state = mutableStateOf(DeviceDetailsState())
     val eventFlow = MutableSharedFlow<Event>()
     val currentAppTheme = appPreferencesRepository.getAppTheme()
+    val currentChartSettings = appPreferencesRepository.getChartSettings()
 
     // Keep track of jobs to cancel it first when refreshData() is triggered
     // otherwise there will be multiple coroutines in background

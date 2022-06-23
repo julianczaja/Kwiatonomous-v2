@@ -12,10 +12,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @Composable
@@ -32,9 +34,9 @@ fun AppSettingsScreen(
                 onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
-
     ) {
         LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(vertical = 16.dp, horizontal = 12.dp)
@@ -47,6 +49,14 @@ fun AppSettingsScreen(
                     )
                 }
             }
+            state.chartSettings?.let {
+                item {
+                    ChartSettingsSection(
+                        currentChartSettings = state.chartSettings,
+                        onChartSettingsChanged = { viewModel.setChartSettings(it) }
+                    )
+                }
+            }
         }
         if (state.isLoading) {
             CircularProgressIndicator()
@@ -56,39 +66,6 @@ fun AppSettingsScreen(
                 message = error,
                 onCancel = { /* TODO */ },
                 onRetry = { /* TODO */ }
-            )
-        }
-    }
-}
-
-enum class AppTheme {
-    AUTO,
-    LIGHT,
-    DARK
-}
-
-
-@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
-@Composable
-private fun AppThemeSectionLightPreview() {
-    KwiatonomousAppTheme {
-        Surface {
-            AppThemeSection(
-                currentAppTheme = AppTheme.AUTO,
-                onAppThemeSelected = {}
-            )
-        }
-    }
-}
-
-@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 300)
-@Composable
-private fun AppThemeSectionDarkPreview() {
-    KwiatonomousAppTheme {
-        Surface {
-            AppThemeSection(
-                currentAppTheme = AppTheme.AUTO,
-                onAppThemeSelected = {}
             )
         }
     }
@@ -154,35 +131,108 @@ private fun AppThemeSection(
 }
 
 @Composable
-private fun AppSettingsToggleItem(
-    title: String,
-    isChecked: Boolean,
-    onToggleClicked: (Boolean) -> Unit
+private fun ChartSettingsSection(
+    currentChartSettings: ChartSettings,
+    onChartSettingsChanged: (ChartSettings) -> Unit
 ) {
     Card(
-        elevation = 8.dp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+        elevation = 8.dp
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
         ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = title,
-                style = MaterialTheme.typography.body1
+            Text(stringResource(R.string.chart_settings), style = MaterialTheme.typography.h5)
+            Divider(
+                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 16.dp)
             )
-
-            Switch(
-                colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary),
-                checked = isChecked,
-                onCheckedChange = onToggleClicked,
-                modifier = Modifier.padding(8.dp)
+            AppSettingsToggleItem(
+                title = stringResource(R.string.render_drop_lines),
+                isChecked = currentChartSettings.renderDropLines,
+                onToggleClicked = {
+                    onChartSettingsChanged(
+                        currentChartSettings.copy(
+                            renderDropLines = !currentChartSettings.renderDropLines
+                        )
+                    )
+                }
+            )
+            AppSettingsToggleItem(
+                title = stringResource(R.string.render_grid_lines),
+                isChecked = currentChartSettings.renderGridLines,
+                onToggleClicked = {
+                    onChartSettingsChanged(
+                        currentChartSettings.copy(
+                            renderGridLines = !currentChartSettings.renderGridLines
+                        )
+                    )
+                }
             )
         }
     }
 }
 
+@Composable
+private fun AppSettingsToggleItem(
+    title: String,
+    isChecked: Boolean,
+    onToggleClicked: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body1
+        )
+
+        Switch(
+            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary),
+            checked = isChecked,
+            onCheckedChange = onToggleClicked
+        )
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
+@Composable
+private fun AppThemeSectionLightPreview() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            AppThemeSection(
+                currentAppTheme = AppTheme.AUTO,
+                onAppThemeSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
+@Composable
+private fun ChartSettingsSectionLightPreview() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            ChartSettingsSection(
+                currentChartSettings = ChartSettings(),
+                onChartSettingsChanged = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 300)
+@Composable
+private fun AppThemeSectionDarkPreview() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            AppThemeSection(
+                currentAppTheme = AppTheme.AUTO,
+                onAppThemeSelected = {}
+            )
+        }
+    }
+}
