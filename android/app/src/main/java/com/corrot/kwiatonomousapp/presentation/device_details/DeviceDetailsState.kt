@@ -1,7 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.device_details
 
-import com.corrot.kwiatonomousapp.common.components.LineChartDataType
-import com.corrot.kwiatonomousapp.common.components.LineChartDateType
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDataType
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDateType
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate

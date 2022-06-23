@@ -21,6 +21,10 @@ import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.components.*
+import com.corrot.kwiatonomousapp.common.components.chart.DateLineChart
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDataType
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDateType
+import com.corrot.kwiatonomousapp.common.components.chart.mapToString
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
@@ -324,15 +328,10 @@ private fun DeviceUpdatesSection(
                                 LineChartDataType.HUMIDITY -> deviceUpdates.map { it.humidity }
                                 LineChartDataType.BATTERY -> deviceUpdates.map { it.batteryVoltage }
                             },
-                            isLoading = false, // TODO
                             fromDate = selectedDateRange.first,
                             toDate = selectedDateRange.second,
                             dateType = selectedChartDateType,
-                            yAxisUnit = when (selectedChartDataType) {
-                                LineChartDataType.TEMPERATURE -> "°C"
-                                LineChartDataType.HUMIDITY -> "%"
-                                LineChartDataType.BATTERY -> "V"
-                            },
+                            dataType = selectedChartDataType,
                             isDarkTheme = isDarkMode
                         )
                     }

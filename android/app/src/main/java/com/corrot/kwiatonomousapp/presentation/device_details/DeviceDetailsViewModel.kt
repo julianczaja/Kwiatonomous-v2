@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.DAY_SECONDS
 import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.common.components.LineChartDataType
-import com.corrot.kwiatonomousapp.common.components.LineChartDateType
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDataType
+import com.corrot.kwiatonomousapp.common.components.chart.LineChartDateType
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.domain.usecase.*
