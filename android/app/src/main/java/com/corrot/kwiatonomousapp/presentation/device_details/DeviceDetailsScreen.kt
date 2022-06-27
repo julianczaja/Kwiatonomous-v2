@@ -6,9 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +28,7 @@ import com.corrot.kwiatonomousapp.domain.model.*
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
 import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
+import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceUpdatesTable
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -40,8 +39,8 @@ fun DeviceDetailsScreen(
 ) {
     val state = viewModel.state.value
     val currentAppTheme = viewModel.currentAppTheme.collectAsState(initial = AppTheme.AUTO)
-    val currentChartSettings = viewModel.currentChartSettings
-        .collectAsState(initial = ChartSettings())
+    val currentChartSettings =
+        viewModel.currentChartSettings.collectAsState(initial = ChartSettings())
     val isDarkMode = when (currentAppTheme.value) {
         AppTheme.AUTO -> isSystemInDarkTheme()
         AppTheme.LIGHT -> false
@@ -132,7 +131,10 @@ fun DeviceDetailsScreen(
                             chartSettings = currentChartSettings.value,
                             isDarkMode = isDarkMode,
                             onChartDateTypeSelected = { viewModel.onChartDateTypeSelected(it) },
-                            onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) }
+                            onChartDataTypeSelected = { viewModel.onChartDataTypeSelected(it) },
+                            onChartSettingsClicked = {
+                                kwiatonomousAppState.navController.navigate(Screen.AppSettings.route)
+                            }
                         )
                     }
                 }
@@ -163,10 +165,6 @@ fun DeviceDetailsScreen(
             )
         }
     }
-}
-
-enum class UserDeviceAction {
-    EDIT, DELETE
 }
 
 @Composable
@@ -263,7 +261,7 @@ private fun DeviceConfigurationSection(
     ) {
         ExpandableCardWithLabel(
             title = stringResource(R.string.device_configuration),
-            initialExpandedState = false
+            initialExpandedState = true
         ) {
             Box(
                 modifier = Modifier.fillMaxSize()
@@ -297,8 +295,11 @@ private fun DeviceUpdatesSection(
     isDarkMode: Boolean,
     chartSettings: ChartSettings,
     onChartDateTypeSelected: (LineChartDateType) -> Unit,
-    onChartDataTypeSelected: (LineChartDataType) -> Unit
+    onChartDataTypeSelected: (LineChartDataType) -> Unit,
+    onChartSettingsClicked: () -> Unit
 ) {
+    var updatesTableDialogOpened by remember { mutableStateOf(false) }
+
     ExpandableCardWithLabel(
         title = stringResource(R.string.last_updates),
         initialExpandedState = true
@@ -316,6 +317,29 @@ private fun DeviceUpdatesSection(
                         .fillMaxSize()
                         .padding(8.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(
+                            onClick = {
+                                updatesTableDialogOpened = true
+                            },
+                            modifier = Modifier
+                                .padding(top = 4.dp, end = 8.dp)
+                                .then(Modifier.size(24.dp))
+                        ) {
+                            Icon(Icons.Filled.List, "")
+                        }
+                        IconButton(
+                            onClick = onChartSettingsClicked,
+                            modifier = Modifier
+                                .padding(top = 4.dp, end = 4.dp)
+                                .then(Modifier.size(24.dp))
+                        ) {
+                            Icon(Icons.Filled.Settings, "")
+                        }
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -359,5 +383,10 @@ private fun DeviceUpdatesSection(
                 }
             }
         }
+    }
+    if (updatesTableDialogOpened) {
+        DeviceUpdatesTable(
+            deviceUpdates = deviceUpdates,
+            onDismiss = { updatesTableDialogOpened = false })
     }
 }

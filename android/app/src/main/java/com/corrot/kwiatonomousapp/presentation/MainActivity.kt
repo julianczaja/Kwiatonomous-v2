@@ -13,7 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
-import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
