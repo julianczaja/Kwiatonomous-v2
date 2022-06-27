@@ -8,16 +8,12 @@ import java.time.LocalDateTime
 @Entity(tableName = "device_update")
 data class DeviceUpdateEntity(
     val deviceId: String,
-    val updateTime: LocalDateTime,
+    @PrimaryKey val updateTime: LocalDateTime,
     val batteryLevel: Int,
     val batteryVoltage: Float,
     val temperature: Float,
-    val humidity: Float,
-    val lastUpdated: Long = System.currentTimeMillis()
-) {
-    @PrimaryKey(autoGenerate = true)
-    var deviceUpdateId: Int = 0
-}
+    val humidity: Float
+)
 
 fun DeviceUpdateEntity.toDeviceUpdate() = DeviceUpdate(
     deviceId = deviceId,

@@ -19,7 +19,7 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
         DeviceUpdateEntity::class,
         DeviceConfigurationEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -27,7 +27,12 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
             from = 2,
             to = 3,
             spec = KwiatonomousDatabaseAutoMigrationFrom2To3::class
-        )
+        ),
+        AutoMigration(
+            from = 3,
+            to = 4,
+            spec = KwiatonomousDatabaseAutoMigrationFrom3To4::class
+        ),
     ]
 )
 @TypeConverters(Converters::class)
@@ -40,3 +45,9 @@ abstract class KwiatonomousDatabase : RoomDatabase() {
 
 @DeleteTable.Entries(DeleteTable(tableName = "user_device"))
 class KwiatonomousDatabaseAutoMigrationFrom2To3 : AutoMigrationSpec
+
+@DeleteColumn.Entries(
+    DeleteColumn(tableName = "device_update", columnName = "lastUpdated"),
+    DeleteColumn(tableName = "device_update", columnName = "deviceUpdateId")
+)
+class KwiatonomousDatabaseAutoMigrationFrom3To4 : AutoMigrationSpec
