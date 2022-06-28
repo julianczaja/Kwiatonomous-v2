@@ -11,4 +11,7 @@ object Constants {
 
     const val DEVICE_INACTIVE_TIME_SECONDS = 1L * 3600L
     const val SPLASH_SCREEN_TIME_MILLIS = 1000L
+
+    const val LOW_BATTERY_VOLTAGE_THRESHOLD = 3.3f
+    const val MAX_TIME_DIFF_HOURS = 12
 }
