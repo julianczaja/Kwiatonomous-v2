@@ -322,6 +322,7 @@ private fun DeviceUpdatesSection(
                         horizontalArrangement = Arrangement.End
                     ) {
                         IconButton(
+                            enabled = deviceUpdates.isNotEmpty(),
                             onClick = {
                                 updatesTableDialogOpened = true
                             },
