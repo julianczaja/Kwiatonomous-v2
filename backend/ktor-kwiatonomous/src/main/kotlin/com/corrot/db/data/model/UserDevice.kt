@@ -4,5 +4,6 @@ data class UserDevice(
     val deviceId: String,
     val deviceName: String,
     val deviceImageId: Int,
-    val isFavourite: Boolean
+    val isFavourite: Boolean,
+    val notificationsOn: Boolean,
 )

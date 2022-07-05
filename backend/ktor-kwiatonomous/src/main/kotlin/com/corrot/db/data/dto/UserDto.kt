@@ -10,7 +10,7 @@ data class UserDto(
 ) {
     override fun toString(): String {
         return "> userId: $userId\n" +
-                "> addedDevicesIds: $devices\n" +
+                "> devices: $devices\n" +
                 "> registrationTimestamp: $registrationTimestamp\n" +
                 "> lastActivityTimestamp: $lastActivityTimestamp"
     }

@@ -17,8 +17,8 @@ import java.util.*
 
 class KwiatonomousDatabase {
 
-    //    private val debugDbPath = "jdbc:sqlite:file:test?mode=memory&cache=shared"
-    private val debugDbPath = "jdbc:sqlite:file:kwiatonomous.sqlite"
+        private val debugDbPath = "jdbc:sqlite:file:test?mode=memory&cache=shared"
+//    private val debugDbPath = "jdbc:sqlite:file:kwiatonomous.sqlite"
 
     private val releaseDbPath = "jdbc:sqlite:file:${System.getProperty("user.home")}/kwiatonomous.sqlite"
 
@@ -68,8 +68,9 @@ fun populateUser(
             UserDevice(
                 deviceId = "test_id_01",
                 deviceName = "KWIATEK",
-                deviceImageId = 2131165285,
-                isFavourite = false
+                deviceImageId = 2131165287,
+                isFavourite = false,
+                notificationsOn = true
             )
         )
     )

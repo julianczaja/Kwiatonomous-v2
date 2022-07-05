@@ -3,8 +3,6 @@ package com.corrot.routes
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.UserDao
 import com.corrot.db.data.model.UserDevice
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -28,11 +26,7 @@ fun Route.updateUserAddedDevicesIds(path: String, userDao: UserDao, deviceDao: D
         }
 
         try {
-            val newUserDevicesString = call.receive<String>().trim().removeSurrounding("\"")
-            val newUserDevices: List<UserDevice> = Gson().fromJson(
-                newUserDevicesString,
-                object : TypeToken<List<UserDevice>>() {}.type
-            )
+            val newUserDevices = call.receive<List<UserDevice>>()
 
             newUserDevices.forEach {
                 if (deviceDao.getDevice(it.deviceId) == null) {
