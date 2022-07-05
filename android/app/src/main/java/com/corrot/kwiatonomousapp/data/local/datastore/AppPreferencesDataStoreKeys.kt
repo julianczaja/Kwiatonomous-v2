@@ -8,4 +8,5 @@ object AppPreferencesDataStoreKeys {
     val FIRST_TIME_USER_KEY = booleanPreferencesKey("first_time_user_key")
     val APP_THEME_KEY = intPreferencesKey("app_theme_key")
     val CHART_SETTINGS_KEY = stringPreferencesKey("chart_settings_key")
+    val NOTIFICATIONS_SETTINGS_KEY = stringPreferencesKey("notifications_settings_key")
 }

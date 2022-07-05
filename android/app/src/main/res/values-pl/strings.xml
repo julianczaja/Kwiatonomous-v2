@@ -46,6 +46,8 @@
     <string name="next_watering">Następne podlewanie</string>
     <string name="next_watering_date">Data następnego podlewania</string>
     <string name="notifications">Powiadomienia</string>
+    <string name="notifications_on">Powiadomienia wł.</string>
+    <string name="notifications_settings">Ustawienia powiadomień</string>
     <string name="off_abbr">Wył.</string>
     <string name="ok">OK</string>
     <string name="on_abbr">Wł.</string>

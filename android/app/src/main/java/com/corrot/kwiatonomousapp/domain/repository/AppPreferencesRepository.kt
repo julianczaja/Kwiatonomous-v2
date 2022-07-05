@@ -4,6 +4,7 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import kotlinx.coroutines.flow.Flow
 
 interface AppPreferencesRepository {
@@ -23,4 +24,8 @@ interface AppPreferencesRepository {
     fun getChartSettings(): Flow<ChartSettings>
 
     suspend fun updateChartSettings(chartSettings: ChartSettings)
+
+    fun getNotificationsSettings(): Flow<NotificationsSettings>
+
+    suspend fun updateNotificationsSettings(notificationsSettings: NotificationsSettings)
 }

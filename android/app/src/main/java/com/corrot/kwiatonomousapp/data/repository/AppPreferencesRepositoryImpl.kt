@@ -7,9 +7,11 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.APP_THEME_KEY
 import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.CHART_SETTINGS_KEY
 import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.FIRST_TIME_USER_KEY
+import com.corrot.kwiatonomousapp.data.local.datastore.AppPreferencesDataStoreKeys.NOTIFICATIONS_SETTINGS_KEY
 import com.corrot.kwiatonomousapp.domain.model.AppPreferences
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +20,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AppPreferencesRepositoryImpl @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
 ) : AppPreferencesRepository {
 
     override fun getAppPreferences(): Flow<Result<AppPreferences>> = dataStore.data
@@ -33,7 +35,11 @@ class AppPreferencesRepositoryImpl @Inject constructor(
                     chartSettings = Gson().fromJson(
                         preferences[CHART_SETTINGS_KEY],
                         ChartSettings::class.java
-                    ) ?: ChartSettings()
+                    ) ?: ChartSettings(),
+                    notificationsSettings = Gson().fromJson(
+                        preferences[NOTIFICATIONS_SETTINGS_KEY],
+                        NotificationsSettings::class.java
+                    ) ?: NotificationsSettings()
                 )
             )
         }
@@ -77,6 +83,19 @@ class AppPreferencesRepositoryImpl @Inject constructor(
     override suspend fun updateChartSettings(chartSettings: ChartSettings) {
         dataStore.edit { preferences ->
             preferences[CHART_SETTINGS_KEY] = Gson().toJson(chartSettings)
+        }
+    }
+
+    override fun getNotificationsSettings(): Flow<NotificationsSettings> = dataStore.data
+        .map { preferences ->
+            Gson().fromJson(
+                preferences[NOTIFICATIONS_SETTINGS_KEY], NotificationsSettings::class.java
+            ) ?: NotificationsSettings()
+        }
+
+    override suspend fun updateNotificationsSettings(notificationsSettings: NotificationsSettings) {
+        dataStore.edit { preferences ->
+            preferences[NOTIFICATIONS_SETTINGS_KEY] = Gson().toJson(notificationsSettings)
         }
     }
 }

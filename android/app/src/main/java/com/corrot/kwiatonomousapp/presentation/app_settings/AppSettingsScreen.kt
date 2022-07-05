@@ -19,12 +19,13 @@ import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @Composable
 fun AppSettingsScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: AppSettingsViewModel = hiltViewModel()
+    viewModel: AppSettingsViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state.value
 
@@ -58,6 +59,14 @@ fun AppSettingsScreen(
                     )
                 }
             }
+            state.notificationsSettings?.let {
+                item {
+                    NotificationsSettingsSection(
+                        currentNotificationsSettings = state.notificationsSettings,
+                        onNotificationsSettingsChanged = { viewModel.setNotificationsSettings(it) }
+                    )
+                }
+            }
         }
         if (state.isLoading) {
             CircularProgressIndicator()
@@ -75,7 +84,7 @@ fun AppSettingsScreen(
 @Composable
 private fun AppThemeSection(
     currentAppTheme: AppTheme,
-    onAppThemeSelected: (AppTheme) -> Unit
+    onAppThemeSelected: (AppTheme) -> Unit,
 ) {
     Card(
         elevation = 8.dp
@@ -134,7 +143,7 @@ private fun AppThemeSection(
 @Composable
 private fun ChartSettingsSection(
     currentChartSettings: ChartSettings,
-    onChartSettingsChanged: (ChartSettings) -> Unit
+    onChartSettingsChanged: (ChartSettings) -> Unit,
 ) {
     Card(
         elevation = 8.dp
@@ -175,7 +184,41 @@ private fun ChartSettingsSection(
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
+@Composable
+private fun NotificationsSettingsSection(
+    currentNotificationsSettings: NotificationsSettings,
+    onNotificationsSettingsChanged: (NotificationsSettings) -> Unit,
+) {
+    Card(
+        elevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Text(stringResource(R.string.notifications_settings),
+                style = MaterialTheme.typography.h5)
+            Divider(
+                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+            AppSettingsToggleItem(
+                title = stringResource(R.string.notifications_on),
+                isChecked = currentNotificationsSettings.notificationsOn,
+                onToggleClicked = {
+                    onNotificationsSettingsChanged(
+                        currentNotificationsSettings.copy(
+                            notificationsOn = !currentNotificationsSettings.notificationsOn
+                        )
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 200)
 @Composable
 private fun AppThemeSectionLightPreview() {
     KwiatonomousAppTheme(darkTheme = false) {
@@ -188,7 +231,20 @@ private fun AppThemeSectionLightPreview() {
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 300)
+@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 200)
+@Composable
+private fun AppThemeSectionDarkPreview() {
+    KwiatonomousAppTheme(darkTheme = true) {
+        Surface {
+            AppThemeSection(
+                currentAppTheme = AppTheme.AUTO,
+                onAppThemeSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 200)
 @Composable
 private fun ChartSettingsSectionLightPreview() {
     KwiatonomousAppTheme(darkTheme = false) {
@@ -201,14 +257,27 @@ private fun ChartSettingsSectionLightPreview() {
     }
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 300)
+@Preview(uiMode = UI_MODE_NIGHT_NO, heightDp = 150)
 @Composable
-private fun AppThemeSectionDarkPreview() {
+private fun NotificationsSettingsSectionLightPreview() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            NotificationsSettingsSection(
+                currentNotificationsSettings = NotificationsSettings(),
+                onNotificationsSettingsChanged = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES, heightDp = 150)
+@Composable
+private fun NotificationsSettingsSectionDarkPreview() {
     KwiatonomousAppTheme(darkTheme = true) {
         Surface {
-            AppThemeSection(
-                currentAppTheme = AppTheme.AUTO,
-                onAppThemeSelected = {}
+            NotificationsSettingsSection(
+                currentNotificationsSettings = NotificationsSettings(),
+                onNotificationsSettingsChanged = {}
             )
         }
     }

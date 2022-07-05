@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppSettingsViewModel @Inject constructor(
-    private val appPreferencesRepository: AppPreferencesRepository
+    private val appPreferencesRepository: AppPreferencesRepository,
 ) : ViewModel() {
 
     val state = mutableStateOf(AppSettingsState())
@@ -33,6 +34,7 @@ class AppSettingsViewModel @Inject constructor(
                         state.value = state.value.copy(
                             appTheme = appPreferences.data.appTheme,
                             chartSettings = appPreferences.data.chartSettings,
+                            notificationsSettings = appPreferences.data.notificationsSettings,
                             isLoading = false,
                             error = null
                         )
@@ -55,5 +57,9 @@ class AppSettingsViewModel @Inject constructor(
 
     fun setChartSettings(chartSettings: ChartSettings) = viewModelScope.launch {
         appPreferencesRepository.updateChartSettings(chartSettings)
+    }
+
+    fun setNotificationsSettings(notificationsSettings: NotificationsSettings) = viewModelScope.launch {
+        appPreferencesRepository.updateNotificationsSettings(notificationsSettings)
     }
 }
