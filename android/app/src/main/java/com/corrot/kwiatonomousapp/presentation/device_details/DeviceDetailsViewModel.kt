@@ -27,6 +27,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val getDeviceUpdatesByDateUseCase: GetDeviceUpdatesByDateUseCase,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
     private val getUserDeviceUseCase: GetUserDeviceUseCase,
+    private val updateUserDeviceUseCase: UpdateUserDeviceUseCase,
     private val deleteUserDeviceUseCase: DeleteUserDeviceUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -78,6 +79,37 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun confirmError() {
         state.value = state.value.copy(error = null)
+    }
+
+
+    fun toggleDeviceNotifications() = viewModelScope.launch(ioDispatcher) {
+        state.value.userDevice.let { currentUserDevice ->
+            if (currentUserDevice != null) {
+                updateUserDeviceUseCase.execute(
+                    currentUserDevice.copy(notificationsOn = !currentUserDevice.notificationsOn)
+                ).collect { ret ->
+                    when (ret) {
+                        is Result.Loading -> {
+                            state.value = state.value.copy(isUserDeviceLoading = true)
+                        }
+                        is Result.Success -> {
+                            state.value = state.value.copy(isUserDeviceLoading = false)
+                        }
+                        is Result.Error -> {
+                            state.value = state.value.copy(
+                                isUserDeviceLoading = false,
+                                error = ret.throwable.message ?: "Unknown error"
+                            )
+                        }
+                    }
+                }
+            } else {
+                state.value = state.value.copy(
+                    isUserDeviceLoading = false,
+                    error = "Unknown error"
+                )
+            }
+        }
     }
 
     fun onUserDeviceAction(action: UserDeviceAction) = viewModelScope.launch(ioDispatcher) {
@@ -278,5 +310,4 @@ class DeviceDetailsViewModel @Inject constructor(
         }
         return Pair(from, to)
     }
-
 }

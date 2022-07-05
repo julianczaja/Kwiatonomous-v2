@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.device_details
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,8 +11,12 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -73,7 +78,28 @@ fun DeviceDetailsScreen(
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.device_details),
-                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
+                onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            viewModel.toggleDeviceNotifications()
+                        }
+                    ) {
+                        if (state.userDevice?.notificationsOn == true) {
+                            Image(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_notifications_on),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Image(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_notifications_off),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
             )
         }
     ) {

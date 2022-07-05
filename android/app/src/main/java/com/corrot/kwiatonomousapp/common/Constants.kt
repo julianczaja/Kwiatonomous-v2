@@ -4,7 +4,7 @@ object Constants {
     const val DEBUG_MODE = false
     const val BASE_URL = "http://maluch.mikr.us:20188/"
     const val BASE_URL_DEBUG = "http://10.0.2.2:8080/"
-    // const val BASE_URL_DEBUG = "http://192.168.43.195:8015/kwiatonomous/android"
+    // const val BASE_URL_DEBUG = "http://192.168.1.11:8015/"
     const val NAV_ARG_DEVICE_ID = "deviceId"
     const val PREFERENCES_DATA_STORE_NAME = "preferences_data_store"
     const val API_REALM = "KwiatonomousRealm"

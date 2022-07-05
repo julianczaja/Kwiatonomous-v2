@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.AppSettingsToggleItem
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
@@ -171,30 +172,6 @@ private fun ChartSettingsSection(
                 }
             )
         }
-    }
-}
-
-@Composable
-private fun AppSettingsToggleItem(
-    title: String,
-    isChecked: Boolean,
-    onToggleClicked: (Boolean) -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.body1
-        )
-
-        Switch(
-            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary),
-            checked = isChecked,
-            onCheckedChange = onToggleClicked
-        )
     }
 }
 

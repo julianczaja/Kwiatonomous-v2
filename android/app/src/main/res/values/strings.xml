@@ -43,6 +43,7 @@
     <string name="low_battery_notification_content">Remember to charge your %s</string>
     <string name="minute">Minute</string>
     <string name="month">Month</string>
+    <string name="notifications">Notifications</string>
     <string name="next_watering">Next watering</string>
     <string name="next_watering_date">Next watering date</string>
     <string name="off_abbr">Off</string>

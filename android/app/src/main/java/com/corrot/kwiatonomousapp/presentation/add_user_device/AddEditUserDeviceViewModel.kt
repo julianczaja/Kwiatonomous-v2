@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
-import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.domain.usecase.AddUserDeviceUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetUserDeviceUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.UpdateUserDeviceUseCase
@@ -53,8 +52,8 @@ class AddEditUserDeviceViewModel @Inject constructor(
                                     isDeviceIdValid = true,
                                     deviceName = ret.data.deviceName,
                                     isDeviceNameValid = true,
-                                    deviceImageId = ret.data.deviceImageId
-
+                                    deviceImageId = ret.data.deviceImageId,
+                                    notificationsOn = ret.data.notificationsOn
                                 )
                             }
                             is Result.Error -> {
@@ -90,6 +89,12 @@ class AddEditUserDeviceViewModel @Inject constructor(
         )
     }
 
+    fun onNotificationsOnChanged(notificationsOn: Boolean) {
+        state.value = state.value.copy(
+            notificationsOn = notificationsOn
+        )
+    }
+
     fun confirmError() = viewModelScope.launch {
         if (isEditMode) {
             eventFlow.emit(Event.NAVIGATE_UP)
@@ -107,12 +112,7 @@ class AddEditUserDeviceViewModel @Inject constructor(
     }
 
     private suspend fun updateUserDevice() {
-        val newUserDevice = UserDevice(
-            deviceId = state.value.deviceId,
-            deviceName = state.value.deviceName,
-            deviceImageId = state.value.deviceImageId
-        )
-        updateUserDeviceUseCase.execute(newUserDevice).collect { ret ->
+        updateUserDeviceUseCase.execute(state.value.createUserDevice()).collect { ret ->
             withContext(Dispatchers.Main) {
                 when (ret) {
                     is Result.Loading -> {
@@ -134,12 +134,7 @@ class AddEditUserDeviceViewModel @Inject constructor(
     }
 
     private suspend fun addNewUserDevice() {
-        val newUserDevice = UserDevice(
-            deviceId = state.value.deviceId,
-            deviceName = state.value.deviceName,
-            deviceImageId = state.value.deviceImageId
-        )
-        addUserDeviceUseCase.execute(newUserDevice).collect { ret ->
+        addUserDeviceUseCase.execute(state.value.createUserDevice()).collect { ret ->
             withContext(Dispatchers.Main) {
                 when (ret) {
                     is Result.Loading -> {
