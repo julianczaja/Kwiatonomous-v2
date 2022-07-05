@@ -65,16 +65,16 @@ fun SplashScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.flower_2),
+            painter = painterResource(id = R.drawable.app_icon_v1),
             contentDescription = "",
             modifier = Modifier
-                .size(100.dp)
+                .size(150.dp)
                 .scale(scale.value)
         )
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.h4,
-            modifier = Modifier.padding(top = 64.dp)
+            modifier = Modifier.padding(top = 128.dp)
         )
     }
 
