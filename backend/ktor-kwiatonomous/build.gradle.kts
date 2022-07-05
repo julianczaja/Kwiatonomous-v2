@@ -7,11 +7,11 @@ plugins {
     application
     kotlin("jvm") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.6.21"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.corrot"
-version = "0.0.7"
+version = "0.0.8"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
