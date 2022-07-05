@@ -58,7 +58,7 @@ fun LoginScreen(
                 .fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = R.drawable.flower_1),
+                painter = painterResource(id = R.drawable.app_icon_v1),
                 contentDescription = "",
                 modifier = Modifier.size(150.dp)
             )
