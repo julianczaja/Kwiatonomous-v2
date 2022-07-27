@@ -72,11 +72,10 @@ fun DeviceConfigurationItem(
                         text = "${deviceConfiguration.sleepTimeMinutes}m",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -88,11 +87,10 @@ fun DeviceConfigurationItem(
                         text = "UTC${deviceConfiguration.timeZoneOffset}",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -107,11 +105,10 @@ fun DeviceConfigurationItem(
                             stringResource(R.string.off_abbr),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -123,11 +120,10 @@ fun DeviceConfigurationItem(
                         text = "${deviceConfiguration.wateringIntervalDays} days",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -139,11 +135,10 @@ fun DeviceConfigurationItem(
                         text = "${deviceConfiguration.wateringAmount} ml",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -155,7 +150,7 @@ fun DeviceConfigurationItem(
                         text = "${deviceConfiguration.wateringTime}",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.body1,
-                        fontWeight = FontWeight.Thin,
+                        fontWeight = FontWeight.Light,
                     )
                 }
             }

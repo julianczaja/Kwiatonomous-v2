@@ -135,11 +135,10 @@ fun DeviceItem(
                     text = device.deviceId,
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Thin,
+                    fontWeight = FontWeight.Light,
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -149,11 +148,10 @@ fun DeviceItem(
                 Text(
                     text = device.birthday.toFormattedString(),
                     style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Thin,
+                    fontWeight = FontWeight.Light,
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -163,11 +161,10 @@ fun DeviceItem(
                 Text(
                     text = device.lastUpdate.toFormattedString(),
                     style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Thin,
+                    fontWeight = FontWeight.Light,
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -177,7 +174,7 @@ fun DeviceItem(
                 Text(
                     text = device.nextWatering.toFormattedString(),
                     style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Thin,
+                    fontWeight = FontWeight.Light,
                 )
             }
         }
