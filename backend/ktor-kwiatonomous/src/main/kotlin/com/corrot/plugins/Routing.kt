@@ -8,6 +8,8 @@ import com.corrot.db.data.dao.UserDao
 import com.corrot.routes.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.freemarker.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 
@@ -23,6 +25,13 @@ fun Application.configureRouting(
         registerNewAccount("/kwiatonomous/android/register", userDao)
 
         authenticate(KWIATONOMOUS_DIGEST_AUTH) {
+
+            route("/kwiatonomous/status") {
+                get {
+                    call.respond(FreeMarkerContent("index.ftl", mapOf("devices" to deviceDao.getAllDevices())))
+                }
+            }
+
             // get
             getUser(
                 "/kwiatonomous/android/user",

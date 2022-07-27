@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.0.8"
+version = "0.0.9"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -58,4 +58,7 @@ dependencies {
 
     // Auth
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
+
+    // FreeMaker
+    implementation("io.ktor:ktor-server-freemarker:$ktor_version")
 }
