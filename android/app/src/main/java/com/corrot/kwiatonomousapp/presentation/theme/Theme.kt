@@ -49,7 +49,7 @@ fun KwiatonomousAppTheme(
 
     MaterialTheme(
         colors = colors,
-        typography = TypographyOutfit,
+        typography = TypographyRoboto,
         shapes = Shapes,
         content = content
     )

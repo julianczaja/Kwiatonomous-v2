@@ -29,8 +29,8 @@ val OutfitFamily = FontFamily(
     Font(R.font.outfit_medium, FontWeight.Medium)
 )
 
-val TypographyOutfit = Typography(
-    defaultFontFamily = OutfitFamily,
+val TypographyRoboto = Typography(
+    defaultFontFamily = RobotoFamily,
     h1 = TextStyle(
         fontWeight = FontWeight.Light,
         fontSize = 96.sp,
