@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.BuildConfig
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
@@ -16,6 +17,7 @@ import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
+import com.corrot.kwiatonomousapp.NotificationsManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -71,7 +73,7 @@ object AppModule {
             .client(OkHttpClient().newBuilder()
                 .addInterceptor(digestAuthInterceptor)
                 .apply {
-                    if (DEBUG_MODE) {
+                    if (BuildConfig.DEBUG) {
                         addInterceptor(
                             HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
                         )
@@ -166,5 +168,11 @@ object AppModule {
         networkPreferencesRepository: NetworkPreferencesRepository
     ): AuthManager {
         return AuthManager(userRepository, networkPreferencesRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationsManager(): NotificationsManager {
+        return NotificationsManager()
     }
 }
