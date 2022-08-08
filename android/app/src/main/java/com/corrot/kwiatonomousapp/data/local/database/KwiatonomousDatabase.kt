@@ -2,14 +2,8 @@ package com.corrot.kwiatonomousapp.data.local.database
 
 import androidx.room.*
 import androidx.room.migration.AutoMigrationSpec
-import com.corrot.kwiatonomousapp.data.local.database.dao.DeviceConfigurationDao
-import com.corrot.kwiatonomousapp.data.local.database.dao.DeviceDao
-import com.corrot.kwiatonomousapp.data.local.database.dao.DeviceUpdateDao
-import com.corrot.kwiatonomousapp.data.local.database.dao.UserDao
-import com.corrot.kwiatonomousapp.data.local.database.entity.DeviceConfigurationEntity
-import com.corrot.kwiatonomousapp.data.local.database.entity.DeviceEntity
-import com.corrot.kwiatonomousapp.data.local.database.entity.DeviceUpdateEntity
-import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
+import com.corrot.kwiatonomousapp.data.local.database.dao.*
+import com.corrot.kwiatonomousapp.data.local.database.entity.*
 
 
 @Database(
@@ -18,8 +12,9 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
         DeviceEntity::class,
         DeviceUpdateEntity::class,
         DeviceConfigurationEntity::class,
+        DeviceEventEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -33,6 +28,7 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.UserEntity
             to = 4,
             spec = KwiatonomousDatabaseAutoMigrationFrom3To4::class
         ),
+        AutoMigration(from = 4, to = 5)
     ]
 )
 @TypeConverters(Converters::class)
@@ -41,6 +37,7 @@ abstract class KwiatonomousDatabase : RoomDatabase() {
     abstract fun deviceUpdateDao(): DeviceUpdateDao
     abstract fun deviceConfigurationDao(): DeviceConfigurationDao
     abstract fun userDao(): UserDao
+    abstract fun deviceEventDao(): DeviceEventDao
 }
 
 @DeleteTable.Entries(DeleteTable(tableName = "user_device"))

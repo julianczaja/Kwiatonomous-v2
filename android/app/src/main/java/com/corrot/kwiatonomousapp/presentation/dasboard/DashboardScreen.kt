@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
+import com.corrot.kwiatonomousapp.common.components.DeviceEventItem
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -33,7 +35,7 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 @Composable
 fun DashboardScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
 
@@ -90,7 +92,20 @@ fun DashboardScreen(
                             RoundedCornerShape(CornerSize(8.dp))
                         )
                 ) {
-                    Text(text = "")
+                    state.value.events?.let {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp)
+                        ) {
+                            it.forEachIndexed { index, event ->
+                                item { DeviceEventItem(deviceEvent = event) }
+                                if (index < it.size - 1) {
+                                    item { Spacer(modifier = Modifier.height(4.dp)) }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

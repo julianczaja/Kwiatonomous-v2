@@ -1,9 +1,6 @@
 package com.corrot.kwiatonomousapp.data.remote.api
 
-import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
-import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
-import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
-import com.corrot.kwiatonomousapp.data.remote.dto.UserDto
+import com.corrot.kwiatonomousapp.data.remote.dto.*
 import com.corrot.kwiatonomousapp.domain.model.RegisterCredentials
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import retrofit2.Response
@@ -74,6 +71,39 @@ interface KwiatonomousApi {
     @POST("/kwiatonomous/android/device/{deviceId}/configuration")
     suspend fun updateDeviceConfiguration(
         @Path("deviceId") id: String,
-        @Body configuration: DeviceConfigurationDto
+        @Body configuration: DeviceConfigurationDto,
+    )
+
+    // DeviceEvent
+    @GET("/kwiatonomous/android/device/{deviceId}/events")
+    suspend fun getAllDeviceEvents(
+        @Path("deviceId") id: String
+    ): List<DeviceEventDto>
+
+    @GET("/kwiatonomous/android/device/{deviceId}/events")
+    suspend fun getAllDeviceEvents(
+        @Path("deviceId") id: String,
+        @Query("limit") limit: Int
+    ): List<DeviceEventDto>
+
+    @GET("/kwiatonomous/android/device/{deviceId}/events")
+    suspend fun getDeviceEventsByDate(
+        @Path("deviceId") id: String,
+        @Query("from") from: Long,
+        @Query("to") to: Long
+    ): List<DeviceEventDto>
+
+    @POST("/kwiatonomous/android/device/{deviceId}/events")
+    suspend fun addNewDeviceEvent(
+        @Path("deviceId") id: String,
+        @Body deviceEventDto: DeviceEventDto
+    )
+
+    @HTTP(method = "DELETE",
+        path = "/kwiatonomous/android/device/{deviceId}/events",
+        hasBody = true)
+    suspend fun removeDeviceEvent(
+        @Path("deviceId") id: String,
+        @Body deviceEventDto: DeviceEventDto
     )
 }
