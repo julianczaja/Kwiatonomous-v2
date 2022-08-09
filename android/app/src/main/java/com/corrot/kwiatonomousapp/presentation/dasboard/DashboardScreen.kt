@@ -4,9 +4,8 @@ import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -35,7 +34,7 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 @Composable
 fun DashboardScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: DashboardViewModel = hiltViewModel(),
+    viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
 
@@ -56,11 +55,12 @@ fun DashboardScreen(
         topBar = {
             DefaultTopAppBar(title = stringResource(R.string.app_name))
         }
-    ) {
+    ) { padding ->
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
         ) {
             Row(
                 modifier = Modifier
@@ -110,7 +110,7 @@ fun DashboardScreen(
             }
 
             LazyVerticalGrid(
-                cells = GridCells.Adaptive(150.dp),
+                columns = GridCells.Adaptive(150.dp),
                 contentPadding = PaddingValues(8.dp),
             ) {
                 item {
