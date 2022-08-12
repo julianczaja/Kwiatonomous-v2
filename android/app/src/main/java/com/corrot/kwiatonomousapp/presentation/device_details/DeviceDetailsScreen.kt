@@ -11,10 +11,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,16 +29,15 @@ import com.corrot.kwiatonomousapp.common.components.chart.mapToString
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.*
 import com.corrot.kwiatonomousapp.presentation.Screen
-import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceConfigurationItem
-import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceItem
-import com.corrot.kwiatonomousapp.presentation.device_details.components.DeviceUpdatesTable
+import com.corrot.kwiatonomousapp.presentation.device_details.components.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import java.time.LocalDateTime
 
 @Composable
 fun DeviceDetailsScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: DeviceDetailsViewModel = hiltViewModel()
+    viewModel: DeviceDetailsViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state.value
     val currentAppTheme = viewModel.currentAppTheme.collectAsState(initial = AppTheme.AUTO)
@@ -52,6 +49,8 @@ fun DeviceDetailsScreen(
         AppTheme.DARK -> true
     }
     var deleteAlertDialogOpened by remember { mutableStateOf(false) }
+    var addNoteDialogOpened by remember { mutableStateOf(false) }
+    var addWateringDialogOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
@@ -101,11 +100,30 @@ fun DeviceDetailsScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            ExpandableFloatingActionButton(
+                items = listOf(
+                    ExpandableFloatingActionButtonItem(
+                        strokeColor = MaterialTheme.colors.secondary,
+                        fillColor = MaterialTheme.colors.surface,
+                        imageId = R.drawable.watering,
+                        onItemClick = { addWateringDialogOpened = !addWateringDialogOpened }
+                    ),
+                    ExpandableFloatingActionButtonItem(
+                        strokeColor = MaterialTheme.colors.secondary,
+                        fillColor = MaterialTheme.colors.surface,
+                        imageId = R.drawable.note,
+                        onItemClick = { addNoteDialogOpened = !addNoteDialogOpened }
+                    )
+                )
+            )
         }
-    ) {
+    ) { padding ->
         SwipeRefresh(
             state = rememberSwipeRefreshState(viewModel.isLoading),
-            onRefresh = { viewModel.refreshData() }
+            onRefresh = { viewModel.refreshData() },
+            Modifier.padding(padding)
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -165,6 +183,10 @@ fun DeviceDetailsScreen(
                     }
                 }
 
+                if (state.deviceEvents != null) {
+                    item { DeviceEventsSection(state.deviceEvents) }
+                }
+
                 item { Spacer(Modifier.height(16.dp)) }
             }
         }
@@ -178,6 +200,30 @@ fun DeviceDetailsScreen(
                     deleteAlertDialogOpened = false
                     viewModel.deleteUserDevice()
                 }
+            )
+        }
+        if (addNoteDialogOpened) {
+            AddNoteDialog(
+                title = state.noteTitle,
+                content = state.noteContent,
+                onTitleChange = { viewModel.onNoteTitleChanged(it) },
+                onContentChange = { viewModel.onNoteContentChanged(it) },
+                onAddClicked = {
+                    addNoteDialogOpened = false
+                    viewModel.onAddNoteClicked()
+                },
+                onCancelClicked = { addNoteDialogOpened = false }
+            )
+        }
+        if (addWateringDialogOpened) {
+            AddWateringEventDialog(
+                dateTime = LocalDateTime.now(),
+                onDateTimeChange = {},
+                onAddClicked = {
+                    addWateringDialogOpened = false
+                    viewModel.onAddWateringEventClicked()
+                },
+                onCancelClicked = { addWateringDialogOpened = false }
             )
         }
         state.error?.let { error ->
@@ -197,7 +243,7 @@ fun DeviceDetailsScreen(
 private fun UserDeviceSection(
     userDevice: UserDevice,
     lastUpdate: DeviceUpdate?,
-    onActionClicked: (UserDeviceAction) -> Unit
+    onActionClicked: (UserDeviceAction) -> Unit,
 ) {
     val isExpanded = remember { mutableStateOf(false) }
 
@@ -280,7 +326,7 @@ private fun DeviceSection(device: Device) {
 @Composable
 private fun DeviceConfigurationSection(
     deviceConfiguration: DeviceConfiguration,
-    onEditClicked: () -> Unit
+    onEditClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -322,7 +368,7 @@ private fun DeviceUpdatesSection(
     chartSettings: ChartSettings,
     onChartDateTypeSelected: (LineChartDateType) -> Unit,
     onChartDataTypeSelected: (LineChartDataType) -> Unit,
-    onChartSettingsClicked: () -> Unit
+    onChartSettingsClicked: () -> Unit,
 ) {
     var updatesTableDialogOpened by remember { mutableStateOf(false) }
 
@@ -415,5 +461,35 @@ private fun DeviceUpdatesSection(
         DeviceUpdatesTable(
             deviceUpdates = deviceUpdates,
             onDismiss = { updatesTableDialogOpened = false })
+    }
+    Divider(
+        color = MaterialTheme.colors.primaryVariant,
+        thickness = 1.dp,
+        modifier = Modifier.padding(vertical = 16.dp)
+    )
+}
+
+
+@Composable
+fun DeviceEventsSection(
+    deviceEvents: List<DeviceEvent>,
+) {
+    ExpandableBoxWithLabel(
+        title = stringResource(R.string.events_label),
+        initialExpandedState = true
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .padding(8.dp)
+        ) {
+            deviceEvents.forEachIndexed { index, event ->
+                item { DeviceEventItem(deviceEvent = event) }
+                if (index < deviceEvents.size - 1) {
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
+                }
+            }
+        }
     }
 }

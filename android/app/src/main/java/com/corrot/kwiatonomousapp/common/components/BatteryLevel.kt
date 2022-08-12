@@ -10,9 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -24,9 +24,9 @@ fun BatteryLevel(batteryLevel: Int) {
     fun getBatteryDrawable(): Int {
         return when {
             batteryLevel >= 90 -> R.drawable.full_battery
-            batteryLevel in 30..89 -> R.drawable.charged_battery
-            batteryLevel in 10..29 -> R.drawable.low_battery
-            else -> R.drawable.empty_battery
+            batteryLevel in 60..89 -> R.drawable.charged_battery
+            batteryLevel in 30..60 -> R.drawable.half_battery
+            else -> R.drawable.low_battery
         }
     }
 
@@ -36,7 +36,7 @@ fun BatteryLevel(batteryLevel: Int) {
         modifier = Modifier.padding(4.dp)
     ) {
         Image(
-            bitmap = ImageBitmap.imageResource(id = getBatteryDrawable()),
+            imageVector = ImageVector.vectorResource(id = getBatteryDrawable()),
             contentDescription = null,
             modifier = Modifier.size(24.dp)
         )

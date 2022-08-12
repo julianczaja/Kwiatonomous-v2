@@ -8,13 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceConfigurationUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceNextWateringUseCase
+import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
+import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -22,12 +21,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeviceSettingsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getDeviceConfigurationUseCase: GetDeviceConfigurationUseCase,
     private val updateDeviceConfigurationUseCase: UpdateDeviceConfigurationUseCase,
     private val getDeviceUseCase: GetDeviceUseCase,
-    private val updateDeviceNextWateringUseCase: UpdateDeviceNextWateringUseCase
+    private val updateDeviceNextWateringUseCase: UpdateDeviceNextWateringUseCase,
+    private val addDeviceEventUseCase: AddDeviceEventUseCase,
 ) : ViewModel() {
+
+    private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
 
     private val _state = mutableStateOf(DeviceSettingsState())
     val state: State<DeviceSettingsState> = _state
@@ -45,27 +47,52 @@ class DeviceSettingsViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
+        deviceId?.let {
             getDeviceConfiguration(it)
             getDeviceNextWatering(it)
         }
     }
 
     fun resetChanges() {
-        _state.value =
-            _state.value.copy(
-                deviceConfiguration = _originalDeviceConfiguration.value,
-                isLoading = false,
-                error = null
-            )
+        _state.value = _state.value.copy(
+            deviceConfiguration = _originalDeviceConfiguration.value,
+            isLoading = false,
+            error = null
+        )
     }
 
-    fun saveNewDeviceConfiguration() {
-        savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)?.let {
-            updateDeviceConfiguration(it, _state.value.deviceConfiguration!!)
+    fun saveNewDeviceConfiguration() = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            deviceId?.let {
+                updateDeviceConfiguration(it, _state.value.deviceConfiguration!!)
 
-            if (_state.value.nextWatering != _originalNextWatering.value) {
-                updateNextWatering(it, _state.value.nextWatering!!)
+                if (_state.value.nextWatering != _originalNextWatering.value) {
+                    updateNextWatering(it, _state.value.nextWatering!!)
+                }
+
+                addNewDeviceEvent(DeviceEvent.ConfigurationChange(it, LocalDateTime.now()))
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
+
+    private suspend fun addNewDeviceEvent(deviceEvent: DeviceEvent) {
+        addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
+            withContext(Dispatchers.Main) {
+                when (ret) {
+                    is Result.Loading -> _state.value = state.value.copy(
+                        isLoading = true,
+                        error = null
+                    )
+                    is Result.Success -> _state.value = state.value.copy(
+                        isLoading = false
+                    )
+                    is Result.Error -> _state.value = state.value.copy(
+                        isLoading = false,
+                        error = ret.throwable.message ?: "Unknown error"
+                    )
+                }
             }
         }
     }
@@ -102,10 +129,9 @@ class DeviceSettingsViewModel @Inject constructor(
             _state.value = _state.value.copy(nextWatering = newWateringDateTime)
         } else {
             // TODO: Handle exception
-            Timber.e(
-                "onDeviceWateringTimeChanged: " +
-                        "Can't update watering time, because the current zone offset is unknown (null)"
-            )
+            Timber
+                .tag("onDeviceWateringDateChanged")
+                .e("Can't update watering time, because the current zone offset is unknown (null)")
         }
     }
 
@@ -123,10 +149,9 @@ class DeviceSettingsViewModel @Inject constructor(
             _state.value = _state.value.copy(nextWatering = newWateringDateTime)
         } else {
             // TODO: Handle exception
-            Timber.e(
-                "onDeviceWateringDateChanged: " +
-                        "Can't update watering time, because the current zone offset is unknown (null)"
-            )
+            Timber
+                .tag("onDeviceWateringDateChanged")
+                .e("Can't update watering time, because the current zone offset is unknown (null)")
         }
     }
 
@@ -134,78 +159,89 @@ class DeviceSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             getDeviceConfigurationUseCase.execute(id).collect { ret ->
                 when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
+                    is Result.Loading -> _state.value = _state.value.copy(
+                        isLoading = true,
+                        error = null
+                    )
                     is Result.Success -> {
-                        _state.value =
-                            _state.value.copy(
-                                deviceConfiguration = ret.data,
-                                isLoading = false,
-                                error = null
-                            )
+                        _state.value = _state.value.copy(
+                            deviceConfiguration = ret.data,
+                            isLoading = false,
+                            error = null
+                        )
                         _originalDeviceConfiguration.value = ret.data
                     }
-                    is Result.Error -> _state.value =
-                        DeviceSettingsState(error = ret.throwable.message)
+                    is Result.Error -> _state.value = DeviceSettingsState(
+                        error = ret.throwable.message
+                    )
                 }
             }
         }
     }
 
-    private fun getDeviceNextWatering(id: String) {
-        viewModelScope.launch {
-            getDeviceUseCase.execute(id).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
-                    is Result.Success -> {
-                        _state.value =
-                            _state.value.copy(
-                                nextWatering = ret.data.nextWatering,
-                                isLoading = false,
-                                error = null
-                            )
-                        _originalNextWatering.value = ret.data.nextWatering
-                    }
-                    is Result.Error -> _state.value =
-                        DeviceSettingsState(error = ret.throwable.message)
+    private fun getDeviceNextWatering(id: String) = viewModelScope.launch {
+        getDeviceUseCase.execute(id).collect { ret ->
+            when (ret) {
+                is Result.Loading -> _state.value = _state.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        nextWatering = ret.data.nextWatering,
+                        isLoading = false,
+                        error = null
+                    )
+                    _originalNextWatering.value = ret.data.nextWatering
                 }
+                is Result.Error -> _state.value = DeviceSettingsState(
+                    error = ret.throwable.message
+                )
             }
         }
     }
 
-    private fun updateDeviceConfiguration(id: String, deviceConfiguration: DeviceConfiguration) {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateDeviceConfigurationUseCase.execute(id, deviceConfiguration).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
-                    is Result.Success -> {
-                        _state.value =
-                            _state.value.copy(isLoading = false, error = null)
-                        refreshData()
-                    }
-                    is Result.Error -> _state.value =
-                        DeviceSettingsState(isLoading = false, error = ret.throwable.message)
+    private suspend fun updateDeviceConfiguration(
+        id: String,
+        deviceConfiguration: DeviceConfiguration,
+    ) {
+        updateDeviceConfigurationUseCase.execute(id, deviceConfiguration).collect { ret ->
+            when (ret) {
+                is Result.Loading -> _state.value = _state.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                    refreshData()
                 }
+                is Result.Error -> _state.value = DeviceSettingsState(
+                    isLoading = false,
+                    error = ret.throwable.message
+                )
             }
         }
     }
 
-    private fun updateNextWatering(id: String, newWateringTime: LocalDateTime) {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateDeviceNextWateringUseCase.execute(id, newWateringTime).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value =
-                        _state.value.copy(isLoading = true, error = null)
-                    is Result.Success -> _state.value =
-                        _state.value.copy(isLoading = false, error = null)
-                    is Result.Error -> _state.value =
-                        DeviceSettingsState(isLoading = false, error = ret.throwable.message)
-
-                }
+    private suspend fun updateNextWatering(id: String, newWateringTime: LocalDateTime) {
+        updateDeviceNextWateringUseCase.execute(id, newWateringTime).collect { ret ->
+            when (ret) {
+                is Result.Loading -> _state.value = _state.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+                is Result.Success -> _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = null
+                )
+                is Result.Error -> _state.value = DeviceSettingsState(
+                    isLoading = false,
+                    error = ret.throwable.message
+                )
             }
-
         }
     }
 }

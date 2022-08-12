@@ -1,6 +1,7 @@
 <resources>
     <string name="active">Aktywny</string>
     <string name="add_device">Dodaj urządzenie</string>
+    <string name="add">Dodaj</string>
     <string name="all_devices">Wszystkie urządzenia</string>
     <string name="app_name">KwiatonomousApp</string>
     <string name="application_settings">Ustawienia aplikacji</string>
@@ -12,6 +13,7 @@
     <string name="cancel">Anuluj</string>
     <string name="chart_settings">Ustawienia wykresu</string>
     <string name="change">Zmień</string>
+    <string name="content">Treść</string>
     <string name="date">Data</string>
     <string name="day">Dzień</string>
     <string name="delete">Usuń</string>
@@ -26,6 +28,7 @@
     <string name="edit_device">Edytuj urządzenie</string>
     <string name="enter_watering_time">Wprowadź czas podlewania</string>
     <string name="error">Błąd</string>
+    <string name="events_label">Zdarzenia</string>
     <string name="hello_user_format">Witaj %s!</string>
     <string name="hour">Godzina</string>
     <string name="humidity">Wilgotność</string>
@@ -66,6 +69,7 @@
     <string name="theme_light">Jasny</string>
     <string name="theme_sync_with_device">Synchronizuj z urządzeniem</string>
     <string name="time_zone">Strefa czasowa</string>
+    <string name="title">Tytuł</string>
     <string name="update_time">Czas aktualizacji</string>
     <string name="user_device_delete_warning_message">Czy jesteś pewnien, że chcesz usunąć to urządzenie z aplikacji?</string>
     <string name="watering">Podlewanie</string>

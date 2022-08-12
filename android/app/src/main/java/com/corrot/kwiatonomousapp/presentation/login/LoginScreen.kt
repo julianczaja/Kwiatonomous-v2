@@ -50,12 +50,13 @@ fun LoginScreen(
     Scaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = { DefaultTopAppBar(title = stringResource(R.string.login_verb)) },
-    ) {
+    ) { padding ->
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_icon_v1),

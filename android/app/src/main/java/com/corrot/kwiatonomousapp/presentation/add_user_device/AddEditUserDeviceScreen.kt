@@ -54,10 +54,11 @@ fun AddEditUserDeviceScreen(
                 onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
-    ) {
+    ) { padding ->
         AddEditUserDeviceScreenContent(
             state = viewModel.state.value,
             isEditMode = viewModel.isEditMode,
+            padding = padding,
             onDeviceImageIdChanged = { viewModel.onDeviceImageIdChanged(it) },
             onDeviceIdChanged = { viewModel.onDeviceIdChanged(it) },
             onDeviceNameChanged = { viewModel.onDeviceNameChanged(it) },
@@ -72,6 +73,7 @@ fun AddEditUserDeviceScreen(
 @Composable
 fun AddEditUserDeviceScreenContent(
     state: AddEditUserDeviceState,
+    padding: PaddingValues,
     isEditMode: Boolean,
     onDeviceImageIdChanged: (Int) -> Unit,
     onDeviceIdChanged: (String) -> Unit,
@@ -81,7 +83,9 @@ fun AddEditUserDeviceScreenContent(
     confirmError: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.Top,
@@ -261,6 +265,7 @@ fun AddEditUserDeviceScreenContentPreviewDark() {
                     deviceName = "deviceName",
                     isDeviceNameValid = false,
                 ),
+                PaddingValues(),
                 isEditMode = false,
                 {}, {}, {}, {}, {}, {}
             )

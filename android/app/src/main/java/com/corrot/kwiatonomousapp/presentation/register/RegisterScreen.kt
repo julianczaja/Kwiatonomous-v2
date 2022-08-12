@@ -52,12 +52,13 @@ fun RegisterScreen(
                 }
             )
         }
-    ) {
+    ) { padding ->
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.app_icon_v1),

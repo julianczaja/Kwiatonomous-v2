@@ -34,12 +34,13 @@ fun DeviceSettingsScreen(
                 onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
-    ) {
+    ) { padding ->
         SwipeRefresh(
             state = rememberSwipeRefreshState(state.isLoading),
             onRefresh = {
                 viewModel.refreshData()
-            }
+            },
+            modifier = Modifier.padding(padding)
         ) {
             LazyColumn(
                 modifier = Modifier

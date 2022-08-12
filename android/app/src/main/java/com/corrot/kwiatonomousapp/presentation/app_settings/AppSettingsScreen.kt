@@ -36,7 +36,7 @@ fun AppSettingsScreen(
                 onNavigateBackClicked = { kwiatonomousAppState.navController.popBackStack() }
             )
         }
-    ) {
+    ) { padding ->
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier

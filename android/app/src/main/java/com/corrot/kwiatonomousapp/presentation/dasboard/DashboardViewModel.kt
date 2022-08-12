@@ -60,7 +60,8 @@ class DashboardViewModel @Inject constructor(
                     )
                     is Result.Success ->
                         state.value = state.value.copy(
-                            events = ret.data
+                            events = ret.data.sortedBy { it.timestamp },
+                            isLoading = false
                         )
                     is Result.Error -> state.value = state.value.copy(
                         isLoading = false,

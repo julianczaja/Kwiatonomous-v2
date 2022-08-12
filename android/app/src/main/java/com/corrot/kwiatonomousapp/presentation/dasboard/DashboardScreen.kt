@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
@@ -101,7 +102,7 @@ fun DashboardScreen(
                             it.forEachIndexed { index, event ->
                                 item { DeviceEventItem(deviceEvent = event) }
                                 if (index < it.size - 1) {
-                                    item { Spacer(modifier = Modifier.height(4.dp)) }
+                                    item { Spacer(modifier = Modifier.height(8.dp)) }
                                 }
                             }
                         }
