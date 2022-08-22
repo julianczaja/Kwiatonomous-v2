@@ -161,6 +161,35 @@ bool KwiatonomousApi::sendUpdate(DeviceUpdate *deviceUpdate)
     }
 }
 
+bool KwiatonomousApi::sendWateringEvent(unsigned long epochTime)
+{
+    Serial.println("\n> KwiatonomousApi::sendWateringEvent");
+
+    char path[128];
+    sprintf(path, "%s/%s/events", SERVER_NAME, _deviceId);
+
+    _http.begin(_client, path);
+    _http.addHeader("Content-Type", "application/json");
+
+    char payload[64];
+    sprintf(payload, POST_WATERING_EVENT_FORMAT, epochTime);
+    Serial.print("Sending payload: ");
+    Serial.println(payload);
+
+    int httpResponseCode = _http.POST(payload);
+    if (httpResponseCode == HTTP_CODE_OK)
+    {
+        Serial.println("Success");
+        return true;
+    }
+    else
+    {
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
+        return false;
+    }
+}
+
 void KwiatonomousApi::end()
 {
     Serial.println("\n> KwiatonomousApi::end");

@@ -59,7 +59,7 @@ void setup()
   Serial.println(dataManager.getFailuresCount());
 
   // Get battery status before Wi-Fi is on
-  ledInfo.on(20);
+  ledInfo.on(2);
   batteryManager.update();
   ledInfo.off();
 
@@ -68,7 +68,7 @@ void setup()
   dataManager.getWiFiConfiguration(&wifiConfiguration);
   connectToWifi(&wifiConfiguration);
 
-  ledInfo.on(10);
+  ledInfo.on(2);
   kwiatonomousApi.init((char *)DEVICE_ID);
 
   // Get device configuration
@@ -120,6 +120,10 @@ void setup()
       // be watered on each wake up
       //
       // Maybe save info about failure to EEPROM?
+    } 
+    else
+    {
+      kwiatonomousApi.sendWateringEvent(deviceUpdate.epochTime);
     }
   }
 
@@ -136,7 +140,7 @@ void setup()
 
   // Everything done, go to sleep
   ledInfo.off();
-  unsigned long  sleepTimeMicros = configuration.sleepTimeMinutes * 60e6;
+  unsigned long sleepTimeMicros = configuration.sleepTimeMinutes * 60e6;
   goToSleep(sleepTimeMicros);
 }
 
@@ -145,7 +149,7 @@ void loop() {}
 void connectToWifi(WiFiConfiguration *wifiConfiguration)
 {
   Serial.println("Connecting to Wi-Fi...");
-  ledBuiltin.on(5);
+  ledBuiltin.on(2);
 
   unsigned long *startConnection = (unsigned long *)malloc(sizeof(unsigned long));
   *startConnection = millis();
@@ -205,9 +209,9 @@ unsigned long getEpochTime(int16_t timeZoneOffset)
       onError((char *)"Something is wrong with epochTime (year > 2035)");
     }
   }
-  else 
+  else
   {
-      onError((char *)"Can't get epochTime");
+    onError((char *)"Can't get epochTime");
   }
 
   timeClient.end();
