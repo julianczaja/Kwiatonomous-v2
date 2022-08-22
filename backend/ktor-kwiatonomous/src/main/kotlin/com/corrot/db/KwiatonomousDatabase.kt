@@ -120,7 +120,7 @@ private fun populateUser(
             UserDevice(
                 deviceId = "test_id_01",
                 deviceName = "KWIATEK",
-                deviceImageId = 2131165288,
+                deviceImageName = "flower_2",
                 isFavourite = false,
                 notificationsOn = true
             )
