@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 
 data class User(
     val userId: String,
+    val userName: String,
     val devices: List<UserDevice>,
     val registrationTimestamp: LocalDateTime,
     var lastActivityTimestamp: LocalDateTime,
@@ -15,6 +16,7 @@ data class User(
 
 fun User.toUserEntity() = UserEntity(
     userId = userId,
+    userName = userName,
     devices = Gson().toJson(devices, object : TypeToken<List<UserDevice>>() {}.type),
     registrationTimestamp = registrationTimestamp,
     lastActivityTimestamp = lastActivityTimestamp,

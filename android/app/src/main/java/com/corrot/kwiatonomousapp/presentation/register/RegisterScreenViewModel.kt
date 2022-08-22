@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterScreenViewModel @Inject constructor(
-    val authManager: AuthManager
+    val authManager: AuthManager,
 ) : ViewModel() {
 
     val state = mutableStateOf(RegisterScreenState())
@@ -21,6 +21,11 @@ class RegisterScreenViewModel @Inject constructor(
 
     enum class Event {
         REGISTERED
+    }
+
+    fun userNameChanged(newUserName: String) {
+        // TODO: add validation
+        state.value = state.value.copy(userName = newUserName)
     }
 
     fun loginChanged(newLogin: String) {
@@ -38,7 +43,11 @@ class RegisterScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                authManager.tryToRegister(state.value.login, state.value.password)
+                authManager.tryToRegister(
+                    state.value.userName,
+                    state.value.login,
+                    state.value.password
+                )
                 onRegistered()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

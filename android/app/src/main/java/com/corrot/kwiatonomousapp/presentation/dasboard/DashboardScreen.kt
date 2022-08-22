@@ -69,7 +69,7 @@ fun DashboardScreen(
                     .padding(12.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.hello_user_format).format(state.value.user?.userId),
+                    text = stringResource(id = R.string.hello_user_format).format(state.value.user?.userName),
                     style = MaterialTheme.typography.caption,
                     textAlign = TextAlign.Center,
                     modifier = Modifier

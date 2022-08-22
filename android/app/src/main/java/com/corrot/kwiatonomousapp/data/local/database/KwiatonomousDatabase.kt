@@ -14,7 +14,7 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.*
         DeviceConfigurationEntity::class,
         DeviceEventEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -28,7 +28,8 @@ import com.corrot.kwiatonomousapp.data.local.database.entity.*
             to = 4,
             spec = KwiatonomousDatabaseAutoMigrationFrom3To4::class
         ),
-        AutoMigration(from = 4, to = 5)
+        AutoMigration(from = 4, to = 5),
+        AutoMigration(from = 5, to = 6)
     ]
 )
 @TypeConverters(Converters::class)

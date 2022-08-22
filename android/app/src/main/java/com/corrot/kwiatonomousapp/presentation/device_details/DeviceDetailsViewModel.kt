@@ -361,7 +361,7 @@ class DeviceDetailsViewModel @Inject constructor(
                     ?: throw Exception("There is no logged in user")
 
                 val deviceEvent = DeviceEvent.UserNote(
-                    userName = user.userId, // Fixme: change to user name when added
+                    userName = user.userName,
                     title = state.value.noteTitle,
                     content = state.value.noteContent,
                     deviceId = deviceId,

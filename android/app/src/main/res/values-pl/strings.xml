@@ -71,6 +71,7 @@
     <string name="time_zone">Strefa czasowa</string>
     <string name="title">Tytuł</string>
     <string name="update_time">Czas aktualizacji</string>
+    <string name="username">Nazwa użytkownika</string>
     <string name="user_device_delete_warning_message">Czy jesteś pewnien, że chcesz usunąć to urządzenie z aplikacji?</string>
     <string name="watering">Podlewanie</string>
     <string name="watering_amount">Ilość podlewania</string>

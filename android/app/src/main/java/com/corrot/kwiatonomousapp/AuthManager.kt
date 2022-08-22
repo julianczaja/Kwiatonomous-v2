@@ -77,8 +77,8 @@ class AuthManager @Inject constructor(
     // FIXME: Sending credentials in plain text using HTTP is stupid idea,
     //  but for now it has to stay like that
     @Throws(Exception::class)
-    suspend fun tryToRegister(login: String, password: String) {
-        val credentials = RegisterCredentials(login, password)
+    suspend fun tryToRegister(userName: String, login: String, password: String) {
+        val credentials = RegisterCredentials(userName, login, password)
         userRepository.registerNewAccount(credentials)
     }
 

@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 
 data class UserDto(
     val userId: String,
+    val userName: String,
     val devices: List<UserDevice>,
     val registrationTimestamp: Long,
     var lastActivityTimestamp: Long,
@@ -15,6 +16,7 @@ data class UserDto(
 
 fun UserDto.toUserEntity(isLoggedIn: Boolean) = UserEntity(
     userId = userId,
+    userName = userName,
     devices = Gson().toJson(devices, object : TypeToken<List<UserDevice>>() {}.type),
     registrationTimestamp = registrationTimestamp.toLocalDateTime(),
     lastActivityTimestamp = lastActivityTimestamp.toLocalDateTime(),
