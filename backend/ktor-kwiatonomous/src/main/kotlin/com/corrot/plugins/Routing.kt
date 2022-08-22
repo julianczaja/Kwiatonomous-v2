@@ -115,5 +115,8 @@ fun Application.configureRouting(
 
         // get
         getKwiatonomousDeviceConfigurationESP("/kwiatonomous/esp/{id}/configuration", deviceConfigurationDao)
+
+        // post
+        addKwiatonomousDeviceEventESP("/kwiatonomous/esp/{id}/events", deviceDao, deviceEventDao)
     }
 }
