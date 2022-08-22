@@ -25,11 +25,12 @@ fun Route.registerNewAccount(path: String, userDao: UserDao) {
             }
 
             userDao.createUser(
+                userName = registerCredentials.userName,
                 userId = registerCredentials.login,
                 ha1 = calculateHA1(registerCredentials.login, registerCredentials.password)
             )
 
-            println("Registered new user: ${registerCredentials.login}")
+            println("Registered new user: $registerCredentials")
             call.respond(HttpStatusCode.OK)
         } catch (e: Exception) {
             println("/register : $e")
@@ -42,7 +43,11 @@ fun Route.registerNewAccount(path: String, userDao: UserDao) {
 @kotlin.jvm.Throws(Exception::class)
 fun validateRegisterCredentials(registerCredentials: RegisterCredentials) {
     // TODO: Implement proper validation
-    if (registerCredentials.login.length < 5 || registerCredentials.password.length < 5) {
+    if (registerCredentials.login.length < 5
+        || registerCredentials.password.length < 5
+        || registerCredentials.userName.length < 5
+        || registerCredentials.userName.length > 32
+    ) {
         throw Exception("Login or password must be a minimum of 5 characters")
     }
 }

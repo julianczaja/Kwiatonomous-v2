@@ -9,7 +9,7 @@ interface UserDao {
 
     fun getUser(userId: String): User?
 
-    fun createUser(userId: String, ha1: ByteArray)
+    fun createUser(userId: String, userName: String, ha1: ByteArray)
 
     fun updateUserDevices(userId: String, devices: List<UserDevice>)
 

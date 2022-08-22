@@ -48,7 +48,7 @@ fun populateDatabase(
         populateDevice(it, deviceDao, deviceUpdatesDao, deviceConfigurationDao)
     }
     listOf("testid", "testid2").forEach {
-        populateUser(it, "password", userDao)
+        populateUser(it, "user name", "password", userDao)
     }
 
     populateDeviceEvent(
@@ -109,11 +109,12 @@ private fun populateDeviceEvent(
 
 private fun populateUser(
     userId: String,
+    userName: String,
     password: String,
     userDao: UserDao
 ) {
     val ha1 = calculateHA1(userId, password)
-    userDao.createUser(userId, ha1)
+    userDao.createUser(userId, userName, ha1)
     userDao.updateUserDevices(
         userId, listOf(
             UserDevice(

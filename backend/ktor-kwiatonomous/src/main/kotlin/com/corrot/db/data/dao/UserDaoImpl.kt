@@ -24,6 +24,7 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
             Users.selectAll().map {
                 User(
                     userId = it[Users.userId],
+                    userName = it[Users.userName],
                     ha1 = it[Users.ha1],
                     devices = Gson().fromJson(it[Users.devices], object : TypeToken<List<UserDevice>>() {}.type),
                     registrationTimestamp = it[Users.registrationTimestamp],
@@ -37,6 +38,7 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
             Users.select { Users.userId eq userId }.map {
                 User(
                     userId = it[Users.userId],
+                    userName = it[Users.userName],
                     ha1 = it[Users.ha1],
                     devices = Gson().fromJson(it[Users.devices], object : TypeToken<List<UserDevice>>() {}.type),
                     registrationTimestamp = it[Users.registrationTimestamp],
@@ -45,11 +47,12 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
             }.singleOrNull()
         }
 
-    override fun createUser(userId: String, ha1: ByteArray) {
+    override fun createUser(userId: String, userName: String, ha1: ByteArray) {
         transaction(database.db) {
             println("Creating user : $userId  |  ${ha1.contentToString()}")
             Users.insert {
                 it[Users.userId] = userId
+                it[Users.userName] = userName
                 it[Users.ha1] = ha1
                 it[Users.devices] = "[]"
                 it[Users.registrationTimestamp] = TimeUtils.getCurrentTimestamp()
