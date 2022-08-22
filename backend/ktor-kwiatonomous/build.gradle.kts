@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.0.9"
+version = "0.1.0"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -21,7 +21,7 @@ repositories {
     mavenCentral()
 }
 
-tasks{
+tasks {
     shadowJar {
         manifest {
             attributes(Pair("Main-Class", "com.example.ApplicationKt"))
