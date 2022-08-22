@@ -1,5 +1,6 @@
 package com.corrot.kwiatonomousapp.common.components
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -12,12 +13,12 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -28,7 +29,7 @@ import java.time.LocalDateTime
 fun UserDeviceItem(
     userDevice: UserDevice,
     lastDeviceUpdate: DeviceUpdate?,
-    onItemClick: ((UserDevice) -> Unit)? = null
+    onItemClick: ((UserDevice) -> Unit)? = null,
 ) {
     BoxWithConstraints {
         val maxWidth = maxWidth
@@ -59,9 +60,10 @@ fun UserDeviceItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(8.dp)
                 )
+                val imageId = getDrawableIdByName(LocalContext.current, userDevice.deviceImageName)
                 Image(
                     alignment = Alignment.Center,
-                    painter = painterResource(userDevice.deviceImageId),
+                    painter = painterResource(imageId),
                     contentDescription = "",
                     modifier = Modifier
                         .size(150.dp)
@@ -106,6 +108,10 @@ fun LastDeviceUpdate(
     }
 }
 
+private fun getDrawableIdByName(context: Context, drawableName: String) =
+    context.resources.getIdentifier(drawableName, "drawable", context.packageName)
+
+
 @Preview(
     "UserDeviceItemPreviewLight",
     widthDp = 400,
@@ -120,7 +126,7 @@ fun UserDeviceItemPreviewLight() {
                 userDevice = UserDevice(
                     "testID",
                     "My pot flower",
-                    R.drawable.flower_2,
+                    "flower_2",
                 ),
                 lastDeviceUpdate = DeviceUpdate(
                     "testID",
@@ -149,7 +155,7 @@ fun UserDeviceItemPreviewDark() {
                 userDevice = UserDevice(
                     "testID",
                     "My flower with long name", // max 24 characters
-                    R.drawable.flower_1,
+                    "flower_1",
                 ),
                 lastDeviceUpdate = null,
                 onItemClick = {})

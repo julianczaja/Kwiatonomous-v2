@@ -9,7 +9,7 @@ data class AddEditUserDeviceState(
     val deviceName: String = "",
     val isDeviceNameValid: Boolean = false,
 
-    val deviceImageId: Int = 0,
+    val deviceImageName: String = "",
 
     val notificationsOn: Boolean = true,
 
@@ -19,7 +19,7 @@ data class AddEditUserDeviceState(
     fun createUserDevice() = UserDevice(
         deviceId = deviceId,
         deviceName = deviceName,
-        deviceImageId = deviceImageId,
+        deviceImageName = deviceImageName,
         notificationsOn = notificationsOn
     )
 }

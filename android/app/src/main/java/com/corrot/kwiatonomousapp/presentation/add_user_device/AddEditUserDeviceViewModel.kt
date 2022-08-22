@@ -52,7 +52,7 @@ class AddEditUserDeviceViewModel @Inject constructor(
                                     isDeviceIdValid = true,
                                     deviceName = ret.data.deviceName,
                                     isDeviceNameValid = true,
-                                    deviceImageId = ret.data.deviceImageId,
+                                    deviceImageName = ret.data.deviceImageName,
                                     notificationsOn = ret.data.notificationsOn
                                 )
                             }
@@ -83,9 +83,9 @@ class AddEditUserDeviceViewModel @Inject constructor(
         )
     }
 
-    fun onDeviceImageIdChanged(deviceImageId: Int) {
+    fun onDeviceImageNameChanged(deviceImageName: String) {
         state.value = state.value.copy(
-            deviceImageId = deviceImageId
+            deviceImageName = deviceImageName
         )
     }
 

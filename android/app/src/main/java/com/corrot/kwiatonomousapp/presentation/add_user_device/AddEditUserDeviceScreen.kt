@@ -1,7 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.add_user_device
 
+import android.content.Context
 import android.content.res.Configuration
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -59,7 +60,7 @@ fun AddEditUserDeviceScreen(
             state = viewModel.state.value,
             isEditMode = viewModel.isEditMode,
             padding = padding,
-            onDeviceImageIdChanged = { viewModel.onDeviceImageIdChanged(it) },
+            onDeviceImageNameChanged = { viewModel.onDeviceImageNameChanged(it) },
             onDeviceIdChanged = { viewModel.onDeviceIdChanged(it) },
             onDeviceNameChanged = { viewModel.onDeviceNameChanged(it) },
             onNotificationsOnChanged = { viewModel.onNotificationsOnChanged(it) },
@@ -75,13 +76,15 @@ fun AddEditUserDeviceScreenContent(
     state: AddEditUserDeviceState,
     padding: PaddingValues,
     isEditMode: Boolean,
-    onDeviceImageIdChanged: (Int) -> Unit,
+    onDeviceImageNameChanged: (String) -> Unit,
     onDeviceIdChanged: (String) -> Unit,
     onDeviceNameChanged: (String) -> Unit,
     onNotificationsOnChanged: (Boolean) -> Unit,
     onDoneClicked: () -> Unit,
     confirmError: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -97,15 +100,21 @@ fun AddEditUserDeviceScreenContent(
             item {
                 if (isEditMode) {
                     // Wait until data is loaded to initiate pager with proper page
-                    if (state.deviceImageId != 0) {
+                    if (state.deviceImageName.isNotEmpty()) {
+                        val initialPage = getPageByUserDeviceImageName(
+                            context,
+                            state.deviceImageName
+                        )
                         UserDeviceImagePager(
-                            initialPage = getNumberOfUserDeviceImageId(state.deviceImageId),
-                            onImageIdChanged = { onDeviceImageIdChanged(it) }
+                            context = context,
+                            initialPage = initialPage,
+                            onImageNameChanged = { onDeviceImageNameChanged(it) }
                         )
                     }
                 } else {
                     UserDeviceImagePager(
-                        onImageIdChanged = { onDeviceImageIdChanged(it) }
+                        context = context,
+                        onImageNameChanged = { onDeviceImageNameChanged(it) }
                     )
                 }
             }
@@ -194,13 +203,17 @@ fun AddEditUserDeviceScreenContent(
 
 @ExperimentalPagerApi
 @Composable
-private fun UserDeviceImagePager(initialPage: Int? = null, onImageIdChanged: (Int) -> Unit) {
+private fun UserDeviceImagePager(
+    context: Context,
+    initialPage: Int? = null,
+    onImageNameChanged: (String) -> Unit,
+) {
     val pagerState = rememberPagerState(initialPage ?: 0)
 
     // Observe page state
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
-            onImageIdChanged(getUserDeviceImageIdByNumber(page))
+            onImageNameChanged(getUserDeviceImageNameByPage(context, page))
         }
     }
 
@@ -211,7 +224,7 @@ private fun UserDeviceImagePager(initialPage: Int? = null, onImageIdChanged: (In
     ) { page ->
         Image(
             alignment = Alignment.Center,
-            painter = painterResource(getUserDeviceImageIdByNumber(page)),
+            painter = painterResource(getUserDeviceImageIdByPage(page)),
             contentDescription = "",
             modifier = Modifier
                 .fillMaxSize()
@@ -225,7 +238,19 @@ private fun UserDeviceImagePager(initialPage: Int? = null, onImageIdChanged: (In
     )
 }
 
-private fun getUserDeviceImageIdByNumber(number: Int): Int = when (number) {
+private fun getUserDeviceImageNameByPage(context: Context, page: Int): String = when (page) {
+    0 -> context.resources.getResourceEntryName(R.drawable.flower_1)
+    1 -> context.resources.getResourceEntryName(R.drawable.flower_2)
+    2 -> context.resources.getResourceEntryName(R.drawable.flower_3)
+    3 -> context.resources.getResourceEntryName(R.drawable.flower_4)
+    4 -> context.resources.getResourceEntryName(R.drawable.flower_5)
+    5 -> context.resources.getResourceEntryName(R.drawable.flower_6)
+    6 -> context.resources.getResourceEntryName(R.drawable.flower_7)
+    7 -> context.resources.getResourceEntryName(R.drawable.flower_8)
+    else -> context.resources.getResourceEntryName(R.drawable.flower_2)
+}
+
+private fun getUserDeviceImageIdByPage(page: Int): Int = when (page) {
     0 -> R.drawable.flower_1
     1 -> R.drawable.flower_2
     2 -> R.drawable.flower_3
@@ -237,15 +262,15 @@ private fun getUserDeviceImageIdByNumber(number: Int): Int = when (number) {
     else -> R.drawable.flower_2
 }
 
-private fun getNumberOfUserDeviceImageId(@DrawableRes id: Int): Int = when (id) {
-    R.drawable.flower_1 -> 0
-    R.drawable.flower_2 -> 1
-    R.drawable.flower_3 -> 2
-    R.drawable.flower_4 -> 3
-    R.drawable.flower_5 -> 4
-    R.drawable.flower_6 -> 5
-    R.drawable.flower_7 -> 6
-    R.drawable.flower_8 -> 7
+private fun getPageByUserDeviceImageName(context: Context, page: String): Int = when (page) {
+    context.resources.getResourceEntryName(R.drawable.flower_1) -> 0
+    context.resources.getResourceEntryName(R.drawable.flower_2) -> 1
+    context.resources.getResourceEntryName(R.drawable.flower_3) -> 2
+    context.resources.getResourceEntryName(R.drawable.flower_4) -> 3
+    context.resources.getResourceEntryName(R.drawable.flower_5) -> 4
+    context.resources.getResourceEntryName(R.drawable.flower_6) -> 5
+    context.resources.getResourceEntryName(R.drawable.flower_7) -> 6
+    context.resources.getResourceEntryName(R.drawable.flower_8) -> 7
     else -> 1
 }
 
