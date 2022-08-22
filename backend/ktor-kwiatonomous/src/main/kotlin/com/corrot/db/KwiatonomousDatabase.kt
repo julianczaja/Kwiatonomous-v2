@@ -2,10 +2,7 @@ package com.corrot.db
 
 import com.corrot.Constants.DEBUG_MODE
 import com.corrot.calculateHA1
-import com.corrot.db.data.dao.DeviceConfigurationDao
-import com.corrot.db.data.dao.DeviceDao
-import com.corrot.db.data.dao.DeviceUpdateDao
-import com.corrot.db.data.dao.UserDao
+import com.corrot.db.data.dao.*
 import com.corrot.db.data.model.DeviceConfiguration
 import com.corrot.db.data.model.UserDevice
 import org.jetbrains.exposed.sql.Database
@@ -17,7 +14,7 @@ import java.util.*
 
 class KwiatonomousDatabase {
 
-        private val debugDbPath = "jdbc:sqlite:file:test?mode=memory&cache=shared"
+    private val debugDbPath = "jdbc:sqlite:file:test?mode=memory&cache=shared"
 //    private val debugDbPath = "jdbc:sqlite:file:kwiatonomous.sqlite"
 
     private val releaseDbPath = "jdbc:sqlite:file:${System.getProperty("user.home")}/kwiatonomous.sqlite"
@@ -42,7 +39,8 @@ fun populateDatabase(
     userDao: UserDao,
     deviceDao: DeviceDao,
     deviceUpdatesDao: DeviceUpdateDao,
-    deviceConfigurationDao: DeviceConfigurationDao
+    deviceConfigurationDao: DeviceConfigurationDao,
+    deviceEventDao: DeviceEventDao
 ) {
     println("Populating database...")
 
@@ -53,10 +51,63 @@ fun populateDatabase(
         populateUser(it, "password", userDao)
     }
 
+    populateDeviceEvent(
+        "test_id_01",
+        1659900245L,
+        "LowBattery",
+        "{\"batteryLevel\":50,\"batteryVoltage\":3.5}",
+        deviceEventDao
+    )
+    populateDeviceEvent(
+        "test_id_01",
+        1659900514,
+        "UserNote",
+        "{\"userName\":\"test_id_01\",\"title\":\"title of note\",\"content\":\"content of note\"}",
+        deviceEventDao
+    )
+    populateDeviceEvent(
+        "test_id_01",
+        1659900582,
+        "Watering",
+        "",
+        deviceEventDao
+    )
+    populateDeviceEvent(
+        "test_id_01",
+        1659900782,
+        "ConfigurationChange",
+        "",
+        deviceEventDao
+    )
+    populateDeviceEvent(
+        "test_id_01",
+        1659902514,
+        "UserNote",
+        "{\"userName\":\"test_id_01\",\"title\":\"title of note 2\",\"content\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud\"}",
+        deviceEventDao
+    )
+    populateDeviceEvent(
+        "test_id_01",
+        1659906514,
+        "Watering",
+        "",
+        deviceEventDao
+    )
+
     println("Populating database DONE")
 }
 
-fun populateUser(
+private fun populateDeviceEvent(
+    deviceId: String,
+    timestamp: Long,
+    type: String,
+    data: String,
+    deviceEventDao: DeviceEventDao
+) {
+    deviceEventDao.createDeviceEvent(deviceId, timestamp, type, data)
+}
+
+private fun populateUser(
     userId: String,
     password: String,
     userDao: UserDao
@@ -68,7 +119,7 @@ fun populateUser(
             UserDevice(
                 deviceId = "test_id_01",
                 deviceName = "KWIATEK",
-                deviceImageId = 2131165287,
+                deviceImageId = 2131165288,
                 isFavourite = false,
                 notificationsOn = true
             )
@@ -76,7 +127,7 @@ fun populateUser(
     )
 }
 
-fun populateDevice(
+private fun populateDevice(
     deviceId: String,
     deviceDao: DeviceDao,
     deviceUpdatesDao: DeviceUpdateDao,
@@ -95,7 +146,7 @@ fun populateDevice(
         DeviceConfiguration(
             deviceId = deviceId,
             sleepTimeMinutes = 30,
-            timeZoneOffset = 1,
+            timeZoneOffset = 2,
             wateringOn = true,
             wateringIntervalDays = 1,
             wateringAmount = 250,

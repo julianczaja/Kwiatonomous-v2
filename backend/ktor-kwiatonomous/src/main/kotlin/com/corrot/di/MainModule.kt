@@ -15,4 +15,6 @@ val MainModule = module {
     single { DeviceUpdateDaoImpl(get() as KwiatonomousDatabase) as DeviceUpdateDao }
 
     single { DeviceConfigurationDaoImpl(get() as KwiatonomousDatabase) as DeviceConfigurationDao }
+
+    single { DeviceEventDaoImpl(get() as KwiatonomousDatabase) as DeviceEventDao }
 }

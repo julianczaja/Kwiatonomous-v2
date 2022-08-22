@@ -1,10 +1,7 @@
 package com.corrot.plugins
 
 import com.corrot.Constants.KWIATONOMOUS_DIGEST_AUTH
-import com.corrot.db.data.dao.DeviceConfigurationDao
-import com.corrot.db.data.dao.DeviceDao
-import com.corrot.db.data.dao.DeviceUpdateDao
-import com.corrot.db.data.dao.UserDao
+import com.corrot.db.data.dao.*
 import com.corrot.routes.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,7 +14,8 @@ fun Application.configureRouting(
     userDao: UserDao,
     deviceDao: DeviceDao,
     deviceUpdateDao: DeviceUpdateDao,
-    deviceConfigurationDao: DeviceConfigurationDao
+    deviceConfigurationDao: DeviceConfigurationDao,
+    deviceEventDao: DeviceEventDao
 ) {
     routing {
         // ---------------------------------------- For Android ---------------------------------------- //
@@ -84,6 +82,24 @@ fun Application.configureRouting(
             updateKwiatonomousDeviceConfiguration(
                 "/kwiatonomous/android/device/{deviceId}/configuration",
                 userDao, deviceConfigurationDao
+            )
+
+            // get
+            getAllKwiatonomousDeviceEvents(
+                "/kwiatonomous/android/device/{deviceId}/events",
+                userDao, deviceEventDao
+            )
+
+            // post
+            addKwiatonomousDeviceEvent(
+                "/kwiatonomous/android/device/{deviceId}/events",
+                userDao, deviceEventDao
+            )
+
+            // delete
+            removeKwiatonomousDeviceEvent(
+                "/kwiatonomous/android/device/{deviceId}/events",
+                userDao, deviceEventDao
             )
         }
 

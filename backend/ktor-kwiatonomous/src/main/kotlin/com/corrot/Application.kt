@@ -2,10 +2,7 @@ package com.corrot
 
 import com.corrot.Constants.DEBUG_MODE
 import com.corrot.db.KwiatonomousDatabase
-import com.corrot.db.data.dao.DeviceConfigurationDao
-import com.corrot.db.data.dao.DeviceDao
-import com.corrot.db.data.dao.DeviceUpdateDao
-import com.corrot.db.data.dao.UserDao
+import com.corrot.db.data.dao.*
 import com.corrot.db.populateDatabase
 import com.corrot.plugins.*
 import io.ktor.server.engine.*
@@ -29,6 +26,7 @@ fun main() {
         val deviceDao by inject<DeviceDao>()
         val deviceUpdatesDao by inject<DeviceUpdateDao>()
         val deviceConfigurationDao by inject<DeviceConfigurationDao>()
+        val deviceEventDao by inject<DeviceEventDao>()
 
         println("\n-------------------\nStarting DATABASE: ${database.db.url}\n-------------------\n")
 
@@ -37,10 +35,10 @@ fun main() {
         }
 
         configureSecurity(userDao)
-        configureRouting(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+        configureRouting(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao, deviceEventDao)
 
         if (DEBUG_MODE) {
-            populateDatabase(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao)
+            populateDatabase(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao, deviceEventDao)
         }
 
     }.start(wait = true)
