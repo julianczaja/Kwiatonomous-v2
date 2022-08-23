@@ -52,10 +52,6 @@ class DigestAuthInterceptor @Inject constructor(
         // response -> MD5(HA1:nonce:HA2)
         val response = "$ha1:$nonce:$ha2".toMD5()
 
-        Timber.e("login =\t$login")
-        Timber.e("HA1 =\t$ha1")
-        Timber.e("nonce =\t$nonce")
-
         getDigestAuthHeader(
             username = login,
             realm = API_REALM,
