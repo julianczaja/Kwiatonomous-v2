@@ -57,6 +57,7 @@
     <string name="password">Password</string>
     <string name="register">Register</string>
     <string name="register_prompt">Psst…\nDon\'t have account?\nClick here to register</string>
+    <string name="remove_devices_cache_warning_message">Are you sure that you want to remove all devices cache?</string>
     <string name="render_drop_lines">Render drop lines</string>
     <string name="render_grid_lines">Render grid lines</string>
     <string name="reset">Reset</string>

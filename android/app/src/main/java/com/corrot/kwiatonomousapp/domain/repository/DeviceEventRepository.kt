@@ -38,4 +38,6 @@ interface DeviceEventRepository {
     suspend fun removeDeviceEventFromDatabase(deviceId: String, timestamp: Long)
 
     suspend fun saveFetchedDeviceEvents(deviceEvents: List<DeviceEventEntity>)
+
+    suspend fun removeAll()
 }

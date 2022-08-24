@@ -65,4 +65,10 @@ class DeviceEventRepositoryImpl @Inject constructor(
             kwiatonomousDb.deviceEventDao().insertOrUpdate(deviceEvents)
         }
     }
+
+    override suspend fun removeAll() {
+        kwiatonomousDb.withTransaction {
+            kwiatonomousDb.deviceEventDao().removeAll()
+        }
+    }
 }

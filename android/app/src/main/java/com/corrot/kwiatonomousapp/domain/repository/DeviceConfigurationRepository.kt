@@ -16,4 +16,6 @@ interface DeviceConfigurationRepository {
     fun getDeviceConfigurationFromDatabase(deviceId: String): Flow<DeviceConfiguration>
 
     suspend fun saveFetchedDeviceConfiguration(deviceConfiguration: DeviceConfigurationEntity)
+
+    suspend fun removeAll()
 }

@@ -23,4 +23,5 @@ interface DeviceUpdateRepository {
 
     suspend fun saveFetchedDeviceUpdates(deviceUpdates: List<DeviceUpdateEntity>)
 
+    suspend fun removeAll()
 }

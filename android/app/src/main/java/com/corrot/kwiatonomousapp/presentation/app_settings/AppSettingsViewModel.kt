@@ -8,16 +8,24 @@ import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
+import com.corrot.kwiatonomousapp.domain.usecase.ClearDevicesCacheUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AppSettingsViewModel @Inject constructor(
     private val appPreferencesRepository: AppPreferencesRepository,
+    private val clearDevicesCacheUseCase: ClearDevicesCacheUseCase,
 ) : ViewModel() {
 
+    enum class Event {
+        SHOW_DELETE_DONE_SNACKBAR
+    }
+
     val state = mutableStateOf(AppSettingsState())
+    val eventFlow = MutableSharedFlow<Event>()
 
     init {
         getAppPreferences()
@@ -61,5 +69,10 @@ class AppSettingsViewModel @Inject constructor(
 
     fun setNotificationsSettings(notificationsSettings: NotificationsSettings) = viewModelScope.launch {
         appPreferencesRepository.updateNotificationsSettings(notificationsSettings)
+    }
+
+    fun clearDeviceUpdatesCache() = viewModelScope.launch {
+        clearDevicesCacheUseCase.execute()
+        eventFlow.emit(Event.SHOW_DELETE_DONE_SNACKBAR)
     }
 }

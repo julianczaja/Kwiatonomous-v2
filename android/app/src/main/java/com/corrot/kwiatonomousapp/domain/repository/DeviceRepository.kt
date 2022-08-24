@@ -25,4 +25,6 @@ interface DeviceRepository {
     suspend fun saveFetchedDevice(device: DeviceEntity)
 
     suspend fun saveFetchedDevices(devices: List<DeviceEntity>)
+
+    suspend fun removeAll()
 }
