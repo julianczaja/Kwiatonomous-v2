@@ -10,15 +10,11 @@ import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.corrot.kwiatonomousapp.domain.usecase.GetAllDeviceEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +26,9 @@ class DashboardViewModel @Inject constructor(
 
     val state = mutableStateOf(DashboardState())
     val eventFlow = MutableSharedFlow<Event>()
+
+    private var getEventsJob: Job? = null
+    private lateinit var userDevices: List<UserDevice>
 
     enum class Event {
         LOGGED_OUT
@@ -43,7 +42,8 @@ class DashboardViewModel @Inject constructor(
                 isLoading = false,
                 error = null
             )
-            getDeviceEvents(user.devices)
+            userDevices = user.devices
+            getDevicesEvents(userDevices)
         } else {
             state.value = state.value.copy(
                 user = user,
@@ -54,18 +54,21 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun getDeviceEvents(userDevices: List<UserDevice>) {
+    fun refreshDevicesEvents() {
+        getDevicesEvents(userDevices)
+    }
+
+    private fun getDevicesEvents(userDevices: List<UserDevice>) = viewModelScope.launch {
         val allEvents = mutableListOf<DeviceEvent>()
         state.value = state.value.copy(
             isLoading = true,
             events = allEvents
         )
-
-        viewModelScope.launch(Dispatchers.IO) {
+        getEventsJob?.cancelAndJoin()
+        getEventsJob = viewModelScope.launch(Dispatchers.IO) {
             userDevices.map { getAllDeviceEventsUseCase.execute(it.deviceId, 50) }
                 .merge()
                 .collectLatest { ret ->
-                    Timber.e(ret.toString())
                     withContext(Dispatchers.Main) {
                         when (ret) {
                             is Result.Loading -> state.value = state.value.copy(
@@ -73,10 +76,15 @@ class DashboardViewModel @Inject constructor(
                                 error = null
                             )
                             is Result.Success -> {
-                                allEvents.addAll(ret.data)
+                                ret.data.forEach { deviceEvent ->
+                                    // FIXME: that's not an optiman way to do this
+                                    if (allEvents.find { it.timestamp == deviceEvent.timestamp } == null) {
+                                        allEvents.add(deviceEvent)
+                                    }
+                                }
                                 state.value = state.value.copy(
                                     isLoading = false,
-                                    events = allEvents.sortedBy { it.timestamp }
+                                    events = allEvents.sortedByDescending { it.timestamp }
                                 )
                             }
                             is Result.Error -> state.value = state.value.copy(
