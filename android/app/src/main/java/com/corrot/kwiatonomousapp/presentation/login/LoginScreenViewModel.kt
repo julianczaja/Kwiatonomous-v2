@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.common.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val authManager: AuthManager
+    private val authManager: AuthManager,
 ) : ViewModel() {
 
     val state = mutableStateOf(LoginScreenState())
@@ -24,13 +25,15 @@ class LoginScreenViewModel @Inject constructor(
     }
 
     fun loginChanged(newLogin: String) {
-        // TODO: add validation
-        state.value = state.value.copy(login = newLogin)
+        if (newLogin.matches(Constants.REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
+            state.value = state.value.copy(login = newLogin)
+        }
     }
 
     fun passwordChanged(newPassword: String) {
-        // TODO: add validation
-        state.value = state.value.copy(password = newPassword)
+        if (newPassword.matches(Constants.REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
+            state.value = state.value.copy(password = newPassword)
+        }
     }
 
     fun loginClicked() {

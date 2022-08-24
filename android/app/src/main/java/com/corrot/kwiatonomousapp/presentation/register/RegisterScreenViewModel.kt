@@ -4,11 +4,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITHOUT_SPACE
+import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITH_SPACE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,18 +27,22 @@ class RegisterScreenViewModel @Inject constructor(
     }
 
     fun userNameChanged(newUserName: String) {
-        // TODO: add validation
-        state.value = state.value.copy(userName = newUserName)
+        Timber.e(newUserName)
+        if (newUserName.matches(REGEX_ALPHANUMERIC_WITH_SPACE)) {
+            state.value = state.value.copy(userName = newUserName)
+        }
     }
 
     fun loginChanged(newLogin: String) {
-        // TODO: add validation
-        state.value = state.value.copy(login = newLogin)
+        if (newLogin.matches(REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
+            state.value = state.value.copy(login = newLogin)
+        }
     }
 
     fun passwordChanged(newPassword: String) {
-        // TODO: add validation
-        state.value = state.value.copy(password = newPassword)
+        if (newPassword.matches(REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
+            state.value = state.value.copy(password = newPassword)
+        }
     }
 
     fun registerClicked() {

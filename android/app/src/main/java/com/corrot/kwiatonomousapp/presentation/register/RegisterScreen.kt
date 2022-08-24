@@ -3,13 +3,18 @@ package com.corrot.kwiatonomousapp.presentation.register
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,6 +100,8 @@ private fun RegisterScreenContent(
     onPasswordChanged: (String) -> Unit,
     onRegisterClicked: () -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,20 +125,42 @@ private fun RegisterScreenContent(
 
         OutlinedTextField(
             value = userName,
-            onValueChange = { onUserNameChanged(it) },
+            onValueChange = {
+                if (it.endsWith("\n")) {
+                    focusManager.moveFocus(FocusDirection.Next)
+                } else {
+                    onUserNameChanged(it)
+                }
+            },
             label = { Text(stringResource(R.string.username)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.padding(4.dp)
         )
         OutlinedTextField(
             value = login,
-            onValueChange = { onLoginChanged(it) },
+            onValueChange = {
+                if (it.endsWith("\n")) {
+                    focusManager.moveFocus(FocusDirection.Next)
+                } else {
+                    onLoginChanged(it)
+                }
+            },
             label = { Text(stringResource(R.string.login_noun)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
             modifier = Modifier.padding(4.dp)
         )
         OutlinedTextField(
             value = password,
-            onValueChange = { onPasswordChanged(it) },
+            onValueChange = {
+                if (it.endsWith("\n")) {
+                    onRegisterClicked()
+                } else {
+                    onPasswordChanged(it)
+                }
+            },
             label = { Text(stringResource(R.string.password)) },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.padding(4.dp)
         )
 

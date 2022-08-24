@@ -14,4 +14,7 @@ object Constants {
 
     const val LOW_BATTERY_VOLTAGE_THRESHOLD = 3.3f
     const val MAX_TIME_DIFF_HOURS = 12
+
+    val REGEX_ALPHANUMERIC_WITH_SPACE = "^[a-zA-Z0-9 ]*\$".toRegex()
+    val REGEX_ALPHANUMERIC_WITHOUT_SPACE = "^[a-zA-Z0-9]*\$".toRegex()
 }
