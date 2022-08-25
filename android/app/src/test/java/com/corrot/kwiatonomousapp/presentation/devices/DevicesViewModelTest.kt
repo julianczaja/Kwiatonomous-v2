@@ -1,9 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.devices
 
 import com.corrot.kwiatonomousapp.MainCoroutineRule
-import com.corrot.kwiatonomousapp.domain.model.User
-import com.corrot.kwiatonomousapp.domain.model.UserDevice
-import com.corrot.kwiatonomousapp.domain.repository.UserRepository
+import com.corrot.kwiatonomousapp.domain.usecase.GetUserDevicesWithLastUpdatesUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -22,7 +20,7 @@ class DevicesViewModelTest {
     @get:Rule
     val coroutineRule = MainCoroutineRule()
 
-    private var userRepository: UserRepository = mockk()
+    private val getUserDevicesWithLastUpdatesUseCase: GetUserDevicesWithLastUpdatesUseCase = mockk()
 
     @Before
     fun setUp() {
@@ -33,30 +31,39 @@ class DevicesViewModelTest {
     @Test
     fun test_some_devices_found() = coroutineRule.runBlockingTest {
         // GIVEN
-        val userDevicesList = listOf<UserDevice>(mockk(), mockk(), mockk())
-        val user = User("testid", userDevicesList, mockk(), mockk(), true)
-        every { userRepository.getCurrentUserFromDatabase() }.returns(flowOf(user))
-        val devicesViewModel = DevicesViewModel(userRepository, coroutineRule.dispatcher)
+        every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(
+            flowOf(
+                listOf(
+                    Pair(mockk(), mockk()),
+                    Pair(mockk(), mockk()),
+                    Pair(mockk(), mockk()),
+                )
+            )
+        )
+        val devicesViewModel = DevicesViewModel(
+            getUserDevicesWithLastUpdatesUseCase, coroutineRule.dispatcher
+        )
 
         // THEN
         val state = devicesViewModel.state.value
         assertThat(state.isLoading).isFalse()
         assertThat(state.error).isNull()
-        assertThat(state.userDevices).hasSize(3)
+        assertThat(state.userDevicesWithLastUpdates).hasSize(3)
     }
 
     @ExperimentalCoroutinesApi
     @Test
     fun test_no_devices_found() = coroutineRule.runBlockingTest {
         // GIVEN
-        val user = User("testid", emptyList(), mockk(), mockk(), true)
-        every { userRepository.getCurrentUserFromDatabase() }.returns(flowOf(user))
-        val devicesViewModel = DevicesViewModel(userRepository, coroutineRule.dispatcher)
+        every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(flowOf(emptyList()))
+        val devicesViewModel = DevicesViewModel(
+            getUserDevicesWithLastUpdatesUseCase, coroutineRule.dispatcher
+        )
 
         // THEN
         val state = devicesViewModel.state.value
         assertThat(state.isLoading).isFalse()
         assertThat(state.error).isNull()
-        assertThat(state.userDevices).isEmpty()
+        assertThat(state.userDevicesWithLastUpdates).isEmpty()
     }
 }

@@ -28,7 +28,7 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
         val work = PeriodicWorkRequestBuilder<DeviceBatteryInfoWorker>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
             .addTag(DeviceBatteryInfoWorker.DEVICE_BATTERY_WORK_TAG)
-            .setInitialDelay(getMinutesUntilLocalTime(notificationsTime), TimeUnit.MINUTES)
+            .setInitialDelay(getMinutesUntilLocalTime(toTime = notificationsTime), TimeUnit.MINUTES)
             .build()
 
         workManager.enqueueUniquePeriodicWork(

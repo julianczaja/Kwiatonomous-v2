@@ -72,4 +72,8 @@ class FakeDeviceUpdateRepository : DeviceUpdateRepository {
             databaseDevicesUpdates.add(it)
         }
     }
+
+    override suspend fun removeAll() {
+        databaseDevicesUpdates.clear()
+    }
 }

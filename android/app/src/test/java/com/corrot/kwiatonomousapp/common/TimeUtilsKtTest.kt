@@ -81,4 +81,18 @@ class TimeUtilsKtTest {
         assertThat(result3).isEqualTo("14:07")
         assertThat(result4).isEqualTo("01:02")
     }
+
+    @Test
+    fun getMinutesUntilLocalTimeAfter() {
+        val t1 = LocalTime.of(7,0)
+        val t2 = LocalTime.of(8,0)
+        assertThat(getMinutesUntilLocalTime(fromTime = t1, toTime = t2)).isEqualTo(1*60L)
+    }
+
+    @Test
+    fun getMinutesUntilLocalTimeBefore() {
+        val t1 = LocalTime.of(8,0)
+        val t2 = LocalTime.of(7,0)
+        assertThat(getMinutesUntilLocalTime(fromTime = t1, toTime = t2)).isEqualTo(23*60L)
+    }
 }

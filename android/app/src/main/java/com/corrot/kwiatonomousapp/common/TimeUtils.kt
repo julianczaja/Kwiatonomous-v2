@@ -58,8 +58,11 @@ fun getAllUTCZones(): List<String> {
     return list
 }
 
-fun getMinutesUntilLocalTime(notificationTime: LocalTime): Long {
-    val until = LocalTime.now().until(notificationTime, ChronoUnit.MINUTES)
+fun getMinutesUntilLocalTime(
+    fromTime: LocalTime = LocalTime.now(),
+    toTime: LocalTime,
+): Long {
+    val until = fromTime.until(toTime, ChronoUnit.MINUTES)
 
     return if (until >= 0) {
         until

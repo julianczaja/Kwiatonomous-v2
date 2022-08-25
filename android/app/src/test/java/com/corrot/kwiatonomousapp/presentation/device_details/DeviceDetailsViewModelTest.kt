@@ -4,13 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.corrot.kwiatonomousapp.MainCoroutineRule
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.common.Result
+import com.corrot.kwiatonomousapp.domain.model.AppTheme
+import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
-import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
-import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
+import com.corrot.kwiatonomousapp.domain.repository.*
 import com.corrot.kwiatonomousapp.domain.usecase.*
-import com.corrot.kwiatonomousapp.presentation.app_settings.AppTheme
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -23,6 +22,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDateTime
 
 class DeviceDetailsViewModelTest {
 
@@ -36,11 +36,16 @@ class DeviceDetailsViewModelTest {
     private val deviceUpdateRepository: DeviceUpdateRepository = mockk()
     private val getUserDeviceUseCase: GetUserDeviceUseCase = mockk()
     private val deleteUserDeviceUseCase: DeleteUserDeviceUseCase = mockk()
+    private val userRepository: UserRepository = mockk()
+    private val updateUserDeviceUseCase: UpdateUserDeviceUseCase = mockk()
+    private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase = mockk()
+    private val addDeviceEventUseCase: AddDeviceEventUseCase = mockk()
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
         every { appPreferencesRepository.getAppTheme() }.returns(flowOf(AppTheme.DARK))
+        every { appPreferencesRepository.getChartSettings() }.returns(flowOf(ChartSettings()))
     }
 
     @ExperimentalCoroutinesApi
@@ -76,6 +81,19 @@ class DeviceDetailsViewModelTest {
         coEvery { getUserDeviceUseCase.execute(any()) }
             .returns(flowOf(Result.Success(mockk())))
 
+        // Mock UpdateUserDeviceUseCase
+        coEvery { updateUserDeviceUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(mockk())))
+
+        // Mock getAllDeviceEventsUseCase
+        val eventsList = listOf<DeviceEvent>(DeviceEvent.Watering(deviceId, LocalDateTime.now()))
+        coEvery { getAllDeviceEventsUseCase.execute(any(), any()) }
+            .returns(flowOf(Result.Success(eventsList)))
+
+        // Mock addDeviceEventUseCase
+        coEvery { addDeviceEventUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(null)))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
@@ -84,8 +102,14 @@ class DeviceDetailsViewModelTest {
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
             getUserDeviceUseCase = getUserDeviceUseCase,
             deleteUserDeviceUseCase = deleteUserDeviceUseCase,
-            ioDispatcher = coroutineRule.dispatcher
+            ioDispatcher = coroutineRule.dispatcher,
+            userRepository = userRepository,
+            updateUserDeviceUseCase = updateUserDeviceUseCase,
+            getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
+            addDeviceEventUseCase = addDeviceEventUseCase
         )
+
+        println(deviceDetailsViewModel.state.value.error)
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
         assertThat(deviceDetailsViewModel.state.value.userDevice).isNotNull()
@@ -93,6 +117,7 @@ class DeviceDetailsViewModelTest {
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).isNotNull()
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).hasSize(3)
         assertThat(deviceDetailsViewModel.state.value.deviceConfiguration).isNotNull()
+        assertThat(deviceDetailsViewModel.state.value.deviceEvents).isNotNull()
 //        assertThat(deviceDetailsViewModel.state.value.error).isNull()
     }
 
@@ -126,6 +151,18 @@ class DeviceDetailsViewModelTest {
         coEvery { getUserDeviceUseCase.execute(any()) }
             .returns(flowOf(Result.Error(Throwable(errMsg))))
 
+        // Mock UpdateUserDeviceUseCase
+        coEvery { updateUserDeviceUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(mockk())))
+
+        // Mock getAllDeviceEventsUseCase
+        coEvery { getAllDeviceEventsUseCase.execute(any(), any()) }
+            .returns(flowOf(Result.Error(Throwable(errMsg))))
+
+        // Mock addDeviceEventUseCase
+        coEvery { addDeviceEventUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(null)))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
@@ -134,7 +171,11 @@ class DeviceDetailsViewModelTest {
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
             getUserDeviceUseCase = getUserDeviceUseCase,
             deleteUserDeviceUseCase = deleteUserDeviceUseCase,
-            ioDispatcher = coroutineRule.dispatcher
+            ioDispatcher = coroutineRule.dispatcher,
+            userRepository = userRepository,
+            updateUserDeviceUseCase = updateUserDeviceUseCase,
+            getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
+            addDeviceEventUseCase = addDeviceEventUseCase
         )
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
@@ -142,6 +183,7 @@ class DeviceDetailsViewModelTest {
         assertThat(deviceDetailsViewModel.state.value.device).isNull()
         assertThat(deviceDetailsViewModel.state.value.deviceUpdates).isNull()
         assertThat(deviceDetailsViewModel.state.value.deviceConfiguration).isNull()
+        assertThat(deviceDetailsViewModel.state.value.deviceEvents).isNull()
         assertThat(deviceDetailsViewModel.state.value.error).isEqualTo(errMsg)
 
         deviceDetailsViewModel.confirmError()

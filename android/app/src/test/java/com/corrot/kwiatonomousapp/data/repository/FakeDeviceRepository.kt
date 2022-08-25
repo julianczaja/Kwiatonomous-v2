@@ -72,4 +72,8 @@ class FakeDeviceRepository : DeviceRepository {
             databaseDevices.add(it)
         }
     }
+
+    override suspend fun removeAll() {
+        databaseDevices.clear()
+    }
 }

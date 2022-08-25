@@ -49,4 +49,8 @@ class FakeDeviceConfigurationRepository : DeviceConfigurationRepository {
         databaseDevicesConfigurations.add(deviceConfiguration)
     }
 
+    override suspend fun removeAll() {
+        backendDevicesConfigurations.clear()
+    }
+
 }
