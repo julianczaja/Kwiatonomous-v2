@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -30,9 +31,12 @@ import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.*
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
+import com.corrot.kwiatonomousapp.common.isScrolled
+import com.corrot.kwiatonomousapp.common.isScrollingUp
 import com.corrot.kwiatonomousapp.presentation.device_details.components.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import timber.log.Timber
 import java.time.LocalDateTime
 
 @Composable
@@ -49,6 +53,8 @@ fun DeviceDetailsScreen(
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
     }
+    var isEventsContentScrolled by remember { mutableStateOf(false) }
+    var isContentScrollingUp by remember { mutableStateOf(false) }
     var deleteAlertDialogOpened by remember { mutableStateOf(false) }
     var addNoteDialogOpened by remember { mutableStateOf(false) }
     var addWateringDialogOpened by remember { mutableStateOf(false) }
@@ -105,6 +111,7 @@ fun DeviceDetailsScreen(
         },
         floatingActionButton = {
             ExpandableFloatingActionButton(
+                isVisible = isContentScrollingUp || !isEventsContentScrolled,
                 items = listOf(
                     ExpandableFloatingActionButtonItem(
                         strokeColor = MaterialTheme.colors.secondary,
@@ -127,11 +134,16 @@ fun DeviceDetailsScreen(
             onRefresh = { viewModel.refreshData() },
             Modifier.padding(padding)
         ) {
+            val scroll = rememberLazyListState()
+            isContentScrollingUp = scroll.isScrollingUp()
+
             LazyColumn(
+                state = scroll,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 12.dp)
             ) {
+
                 item { Spacer(Modifier.height(16.dp)) }
 
                 state.userDevice?.let { userDevice ->
@@ -186,7 +198,15 @@ fun DeviceDetailsScreen(
                 }
 
                 if (state.deviceEvents != null) {
-                    item { DeviceEventsSection(state.deviceEvents) }
+                    item {
+                        DeviceEventsSection(
+                            deviceEvents = state.deviceEvents,
+                            onScrolled = { isScrolled ->
+                                Timber.e("EVENTS SCROLLED $isScrolled")
+                                isEventsContentScrolled = isScrolled
+                            }
+                        )
+                    }
                 }
 
                 item { Spacer(Modifier.height(16.dp)) }
@@ -475,12 +495,17 @@ private fun DeviceUpdatesSection(
 @Composable
 fun DeviceEventsSection(
     deviceEvents: List<DeviceEvent>,
+    onScrolled: (Boolean) -> Unit,
 ) {
+    val scroll = rememberLazyListState()
+    onScrolled(scroll.isScrolled)
+
     ExpandableBoxWithLabel(
         title = stringResource(R.string.events_label),
         initialExpandedState = true
     ) {
         LazyColumn(
+            state = scroll,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)

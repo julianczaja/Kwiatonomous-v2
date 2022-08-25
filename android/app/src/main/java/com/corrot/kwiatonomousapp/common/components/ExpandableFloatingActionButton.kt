@@ -1,10 +1,13 @@
 package com.corrot.kwiatonomousapp.common.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,6 +44,7 @@ data class ExpandableFloatingActionButtonItem(
 
 @Composable
 fun ExpandableFloatingActionButton(
+    isVisible: Boolean,
     items: List<ExpandableFloatingActionButtonItem>,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -69,28 +73,34 @@ fun ExpandableFloatingActionButton(
         }
     }
 
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier.height(IntrinsicSize.Min)
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
-        if (positionAnimatable.value > 0) {
-            items.forEachIndexed { index, item ->
-                val padding = (72.dp + (56.dp * index)) * positionAnimatable.value
-                SmallFloatingActionButton(
-                    alpha = alphaAnimatable.value,
-                    item = item,
-                    onItemClick = { isExpanded = false },
-                    modifier = Modifier.padding(bottom = padding)
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.height(IntrinsicSize.Min)
+        ) {
+            if (positionAnimatable.value > 0) {
+                items.forEachIndexed { index, item ->
+                    val padding = (72.dp + (56.dp * index)) * positionAnimatable.value
+                    SmallFloatingActionButton(
+                        alpha = alphaAnimatable.value,
+                        item = item,
+                        onItemClick = { isExpanded = false },
+                        modifier = Modifier.padding(bottom = padding)
+                    )
+                }
+            }
+            FloatingActionButton(
+                onClick = { isExpanded = !isExpanded },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add, "",
+                    modifier = Modifier.rotate(rotationAnimatable.value)
                 )
             }
-        }
-        FloatingActionButton(
-            onClick = { isExpanded = !isExpanded },
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add, "",
-                modifier = Modifier.rotate(rotationAnimatable.value)
-            )
         }
     }
 }
