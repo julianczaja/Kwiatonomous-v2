@@ -25,10 +25,11 @@ import java.time.LocalTime
 
 
 @Composable
-fun WateringTimePicker(
+fun TimePicker(
+    title: String,
     initialValue: LocalTime?,
     onDismiss: () -> Unit,
-    onConfirmClick: (Pair<Int, Int>) -> Unit
+    onConfirmClick: (LocalTime) -> Unit,
 ) {
     var hours: Int? by rememberSaveable { mutableStateOf(initialValue?.hour ?: 0) }
     var minutes: Int? by rememberSaveable { mutableStateOf(initialValue?.minute ?: 0) }
@@ -57,7 +58,7 @@ fun WateringTimePicker(
                     Modifier.padding(bottom = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.enter_watering_time) + ":",
+                        text = title,
                         style = MaterialTheme.typography.h6
                     )
                 }
@@ -124,7 +125,7 @@ fun WateringTimePicker(
                     onCancelClicked = onDismiss,
                     onOkClicked = {
                         if (isHourValid(hours) && isMinuteValid(minutes)) {
-                            onConfirmClick(Pair(hours!!, minutes!!))
+                            onConfirmClick(LocalTime.of(hours!!, minutes!!))
                         }
                     }
                 )
@@ -183,29 +184,39 @@ private fun CancelOkButtons(
 }
 
 @Preview(
-    "WateringTimePickerPreviewLight",
+    "TimePickerPreviewLight",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     heightDp = 300
 )
 @Composable
-fun WateringTimePickerPreviewLight() {
+fun TimePickerPreviewLight() {
     KwiatonomousAppTheme(darkTheme = false) {
         Surface {
-            WateringTimePicker(initialValue = null, onDismiss = {}, onConfirmClick = {})
+            TimePicker(
+                title = "Enter watering time",
+                initialValue = null,
+                onDismiss = {},
+                onConfirmClick = {}
+            )
         }
     }
 }
 
 @Preview(
-    "WateringTimePickerPreviewDark",
+    "TimePickerPreviewDark",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     heightDp = 300
 )
 @Composable
-fun WateringTimePickerPreviewDark() {
+fun TimePickerPreviewDark() {
     KwiatonomousAppTheme(darkTheme = true) {
         Surface {
-            WateringTimePicker(initialValue = null, onDismiss = {}, onConfirmClick = {})
+            TimePicker(
+                title = "Enter notifications time",
+                initialValue = null,
+                onDismiss = {},
+                onConfirmClick = {}
+            )
         }
     }
 }

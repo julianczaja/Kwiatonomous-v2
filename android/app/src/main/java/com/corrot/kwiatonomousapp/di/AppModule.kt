@@ -13,11 +13,15 @@ import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
 import com.corrot.kwiatonomousapp.common.Constants.PREFERENCES_DATA_STORE_NAME
+import com.corrot.kwiatonomousapp.common.LocalTimeConverter
 import com.corrot.kwiatonomousapp.data.local.database.KwiatonomousDatabase
 import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
+import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,6 +36,7 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
+import java.time.LocalTime
 import javax.inject.Singleton
 
 
@@ -45,7 +50,7 @@ object AppModule {
         override fun responseBodyConverter(
             type: Type,
             annotations: Array<out Annotation>,
-            retrofit: Retrofit
+            retrofit: Retrofit,
         ) = object : Converter<ResponseBody, Any?> {
             val nextResponseBodyConverter =
                 retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
@@ -58,15 +63,21 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDigestAuthInterceptor(
-        networkPreferencesRepository: NetworkPreferencesRepository
+        networkPreferencesRepository: NetworkPreferencesRepository,
     ): DigestAuthInterceptor {
         return DigestAuthInterceptor(networkPreferencesRepository)
     }
 
     @Provides
     @Singleton
+    fun provideGson(): Gson = GsonBuilder()
+        .registerTypeAdapter(LocalTime::class.java, LocalTimeConverter())
+        .create()
+
+    @Provides
+    @Singleton
     fun provideKwiatonomousApi(
-        digestAuthInterceptor: DigestAuthInterceptor
+        digestAuthInterceptor: DigestAuthInterceptor,
     ): KwiatonomousApi {
         return Retrofit.Builder()
             .baseUrl(if (DEBUG_MODE) BASE_URL_DEBUG else BASE_URL)
@@ -110,7 +121,7 @@ object AppModule {
     @Singleton
     fun provideUserRepository(
         kwiatonomousApi: KwiatonomousApi,
-        kwiatonomousDatabase: KwiatonomousDatabase
+        kwiatonomousDatabase: KwiatonomousDatabase,
     ): UserRepository {
         return UserRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
@@ -119,7 +130,7 @@ object AppModule {
     @Singleton
     fun provideDeviceRepository(
         kwiatonomousApi: KwiatonomousApi,
-        kwiatonomousDatabase: KwiatonomousDatabase
+        kwiatonomousDatabase: KwiatonomousDatabase,
     ): DeviceRepository {
         return DeviceRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
@@ -128,7 +139,7 @@ object AppModule {
     @Singleton
     fun provideDeviceUpdateRepository(
         kwiatonomousApi: KwiatonomousApi,
-        kwiatonomousDatabase: KwiatonomousDatabase
+        kwiatonomousDatabase: KwiatonomousDatabase,
     ): DeviceUpdateRepository {
         return DeviceUpdateRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
@@ -137,7 +148,7 @@ object AppModule {
     @Singleton
     fun provideDeviceConfigurationRepository(
         kwiatonomousApi: KwiatonomousApi,
-        kwiatonomousDatabase: KwiatonomousDatabase
+        kwiatonomousDatabase: KwiatonomousDatabase,
     ): DeviceConfigurationRepository {
         return DeviceConfigurationRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
@@ -146,7 +157,7 @@ object AppModule {
     @Singleton
     fun provideDeviceEventRepository(
         kwiatonomousApi: KwiatonomousApi,
-        kwiatonomousDatabase: KwiatonomousDatabase
+        kwiatonomousDatabase: KwiatonomousDatabase,
     ): DeviceEventRepository {
         return DeviceEventRepositoryImpl(kwiatonomousApi, kwiatonomousDatabase)
     }
@@ -154,15 +165,16 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppPreferencesRepository(
-        preferencesDataStore: DataStore<Preferences>
+        gson: Gson,
+        preferencesDataStore: DataStore<Preferences>,
     ): AppPreferencesRepository {
-        return AppPreferencesRepositoryImpl(preferencesDataStore)
+        return AppPreferencesRepositoryImpl(gson, preferencesDataStore)
     }
 
     @Provides
     @Singleton
     fun provideNetworkPreferencesRepository(
-        preferencesDataStore: DataStore<Preferences>
+        preferencesDataStore: DataStore<Preferences>,
     ): NetworkPreferencesRepository {
         return NetworkPreferencesRepositoryImpl(preferencesDataStore)
     }
@@ -174,7 +186,7 @@ object AppModule {
     @Singleton
     fun provideLoginManager(
         userRepository: UserRepository,
-        networkPreferencesRepository: NetworkPreferencesRepository
+        networkPreferencesRepository: NetworkPreferencesRepository,
     ): AuthManager {
         return AuthManager(userRepository, networkPreferencesRepository)
     }
@@ -183,5 +195,13 @@ object AppModule {
     @Singleton
     fun provideNotificationsManager(): NotificationsManager {
         return NotificationsManager()
+    }
+
+    @Provides
+    @Singleton
+    fun provideKwiatonomousWorkManager(
+        @ApplicationContext applicationContext: Context,
+    ): KwiatonomousWorkManager {
+        return KwiatonomousWorkManager(applicationContext)
     }
 }

@@ -15,14 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
-import com.corrot.kwiatonomousapp.common.components.AppSettingsToggleItem
-import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
-import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancelRetry
-import com.corrot.kwiatonomousapp.common.components.WarningBox
+import com.corrot.kwiatonomousapp.common.components.*
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
-import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
+import com.corrot.kwiatonomousapp.presentation.device_settings.components.TimePicker
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -34,6 +31,7 @@ fun AppSettingsScreen(
     val context = LocalContext.current
     val state = viewModel.state.value
     var clearDevicesCacheAlertDialogOpened by remember { mutableStateOf(false) }
+    var timePickerDialogOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
@@ -60,7 +58,8 @@ fun AppSettingsScreen(
             onAppThemeSelected = { viewModel.setAppTheme(it) },
             onChartSettingsChanged = { viewModel.setChartSettings(it) },
             onNotificationsSettingsChanged = { viewModel.setNotificationsSettings(it) },
-            onClearCacheButtonClicked = { clearDevicesCacheAlertDialogOpened = true }
+            onClearCacheButtonClicked = { clearDevicesCacheAlertDialogOpened = true },
+            onChangeNotificationsTimeClicked = { timePickerDialogOpened = true }
         )
         if (state.isLoading) {
             CircularProgressIndicator()
@@ -74,6 +73,17 @@ fun AppSettingsScreen(
                 onConfirmClicked = {
                     clearDevicesCacheAlertDialogOpened = false
                     viewModel.clearDeviceUpdatesCache()
+                }
+            )
+        }
+        if (timePickerDialogOpened && state.notificationsSettings != null) {
+            TimePicker(
+                title = stringResource(R.string.enter_notifications_time),
+                initialValue = state.notificationsSettings.notificationsTime,
+                onDismiss = { timePickerDialogOpened = false },
+                onConfirmClick = {
+                    viewModel.setNotificationsTime(it)
+                    timePickerDialogOpened = false
                 }
             )
         }
@@ -96,6 +106,7 @@ private fun AppSettingsScreenContent(
     onChartSettingsChanged: (ChartSettings) -> Unit,
     onNotificationsSettingsChanged: (NotificationsSettings) -> Unit,
     onClearCacheButtonClicked: () -> Unit,
+    onChangeNotificationsTimeClicked: () -> Unit,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -123,7 +134,8 @@ private fun AppSettingsScreenContent(
             item {
                 NotificationsSettingsSection(
                     currentNotificationsSettings = notificationsSettings,
-                    onNotificationsSettingsChanged = onNotificationsSettingsChanged
+                    onNotificationsSettingsChanged = onNotificationsSettingsChanged,
+                    onChangeNotificationsTimeClicked = onChangeNotificationsTimeClicked
                 )
             }
         }
@@ -251,6 +263,7 @@ private fun ChartSettingsSection(
 private fun NotificationsSettingsSection(
     currentNotificationsSettings: NotificationsSettings,
     onNotificationsSettingsChanged: (NotificationsSettings) -> Unit,
+    onChangeNotificationsTimeClicked: () -> Unit,
 ) {
     Card(
         elevation = 8.dp
@@ -277,6 +290,16 @@ private fun NotificationsSettingsSection(
                     )
                 }
             )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.notifications_time) + " (${currentNotificationsSettings.notificationsTime})")
+                OutlinedButton(onClick = onChangeNotificationsTimeClicked) {
+                    Text(text = stringResource(id = R.string.change))
+                }
+            }
         }
     }
 }
@@ -290,7 +313,7 @@ private fun AppSettingsScreenContentLightPreview() {
                 AppTheme.LIGHT,
                 ChartSettings(),
                 NotificationsSettings(),
-                {}, {}, {}, {}
+                {}, {}, {}, {}, {}
             )
         }
     }

@@ -94,11 +94,11 @@ fun DeviceSettingsScreen(
                                     )
                                 )
                             },
-                            onWateringTimeChanged = { hour, minute ->
-                                viewModel.onDeviceWateringTimeChanged(hour, minute)
+                            onWateringTimeChanged = { localTime ->
+                                viewModel.onDeviceWateringTimeChanged(localTime)
                                 viewModel.onDeviceConfigurationChanged(
                                     state.deviceConfiguration.copy(
-                                        wateringTime = LocalTime.of(hour, minute)
+                                        wateringTime = localTime
                                     )
                                 )
                             },

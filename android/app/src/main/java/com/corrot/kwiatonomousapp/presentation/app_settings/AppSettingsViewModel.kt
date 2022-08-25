@@ -9,13 +9,16 @@ import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.domain.usecase.ClearDevicesCacheUseCase
+import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
 class AppSettingsViewModel @Inject constructor(
+    private val kwiatonomousWorkManager: KwiatonomousWorkManager,
     private val appPreferencesRepository: AppPreferencesRepository,
     private val clearDevicesCacheUseCase: ClearDevicesCacheUseCase,
 ) : ViewModel() {
@@ -67,8 +70,15 @@ class AppSettingsViewModel @Inject constructor(
         appPreferencesRepository.updateChartSettings(chartSettings)
     }
 
-    fun setNotificationsSettings(notificationsSettings: NotificationsSettings) = viewModelScope.launch {
-        appPreferencesRepository.updateNotificationsSettings(notificationsSettings)
+    fun setNotificationsSettings(settings: NotificationsSettings) = viewModelScope.launch {
+        appPreferencesRepository.updateNotificationsSettings(settings)
+        kwiatonomousWorkManager.setupWorkManager(settings)
+    }
+
+    fun setNotificationsTime(newNotificationsTime: LocalTime) {
+        state.value.notificationsSettings?.let {
+            setNotificationsSettings(it.copy(notificationsTime = newNotificationsTime))
+        }
     }
 
     fun clearDeviceUpdatesCache() = viewModelScope.launch {

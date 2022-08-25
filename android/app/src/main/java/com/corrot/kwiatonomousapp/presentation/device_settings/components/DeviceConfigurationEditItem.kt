@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DropdownableRow
+import com.corrot.kwiatonomousapp.common.getAllUTCZones
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalDateTime
@@ -21,45 +22,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
-@Preview(
-    "DeviceConfigurationEditPreviewLightA",
-    heightDp = 500,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-fun DeviceConfigurationEditPreviewLight() {
-    KwiatonomousAppTheme(darkTheme = false) {
-        Surface {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp)
-            ) {
-                item {
-                    DeviceConfigurationEditItem(
-                        DeviceConfiguration(
-                            "test_id",
-                            30,
-                            ZoneOffset.ofHours(1),
-                            true,
-                            2,
-                            200,
-                            LocalTime.of(12, 30)
-                        ),
-                        LocalDateTime.now(),
-                        onSleepTimeChanged = {},
-                        onTimeZoneChanged = {},
-                        onWateringAmountChanged = {},
-                        onWateringIntervalDaysChanged = {},
-                        onWateringOnChanged = {},
-                        onWateringTimeChanged = { hour, minute -> },
-                        onWateringDateChanged = { year, month, day -> }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun DeviceConfigurationEditItem(
@@ -70,18 +32,19 @@ fun DeviceConfigurationEditItem(
     onWateringOnChanged: (Boolean) -> Unit,
     onWateringIntervalDaysChanged: (Int) -> Unit,
     onWateringAmountChanged: (Int) -> Unit,
-    onWateringTimeChanged: (Int, Int) -> Unit,
-    onWateringDateChanged: (Int, Int, Int) -> Unit
+    onWateringTimeChanged: (LocalTime) -> Unit,
+    onWateringDateChanged: (Int, Int, Int) -> Unit,
 ) {
     var wateringTimePickerDialogOpened by remember { mutableStateOf(false) }
     var wateringDatePickerDialogOpened by remember { mutableStateOf(false) }
 
     if (wateringTimePickerDialogOpened) {
-        WateringTimePicker(
+        TimePicker(
+            title = stringResource(R.string.enter_watering_time),
             initialValue = deviceConfiguration.wateringTime,
             onDismiss = { wateringTimePickerDialogOpened = false },
             onConfirmClick = {
-                onWateringTimeChanged(it.first, it.second)
+                onWateringTimeChanged(it)
                 wateringTimePickerDialogOpened = false
             }
         )
@@ -181,24 +144,42 @@ fun DeviceConfigurationEditItem(
         }
     }
 }
-
-private fun getAllUTCZones(): List<String> {
-    val list = mutableListOf<String>()
-
-    for (i in -12..14) {
-        val format = when {
-            i > 0 -> {
-                "UTC%+03d:00"
-            }
-            i < 0 -> {
-                "UTC%03d:00"
-            }
-            else -> {
-                "UTC"
+@Preview(
+    "DeviceConfigurationEditPreviewLight",
+    heightDp = 500,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun DeviceConfigurationEditPreviewLight() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                item {
+                    DeviceConfigurationEditItem(
+                        DeviceConfiguration(
+                            "test_id",
+                            30,
+                            ZoneOffset.ofHours(1),
+                            true,
+                            2,
+                            200,
+                            LocalTime.of(12, 30)
+                        ),
+                        LocalDateTime.now(),
+                        onSleepTimeChanged = {},
+                        onTimeZoneChanged = {},
+                        onWateringAmountChanged = {},
+                        onWateringIntervalDaysChanged = {},
+                        onWateringOnChanged = {},
+                        onWateringTimeChanged = { localTime -> },
+                        onWateringDateChanged = { year, month, day -> }
+                    )
+                }
             }
         }
-        list.add(String.format(format, i))
     }
-
-    return list
 }

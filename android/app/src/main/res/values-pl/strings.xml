@@ -27,6 +27,7 @@
     <string name="done">Gotowe</string>
     <string name="edit">Edytuj</string>
     <string name="edit_device">Edytuj urządzenie</string>
+    <string name="enter_notifications_time">Wprowadź godzinę powiadomień</string>
     <string name="enter_watering_time">Wprowadź czas podlewania</string>
     <string name="error">Błąd</string>
     <string name="events_label">Zdarzenia</string>
@@ -53,6 +54,7 @@
     <string name="notifications">Powiadomienia</string>
     <string name="notifications_on">Powiadomienia wł.</string>
     <string name="notifications_settings">Ustawienia powiadomień</string>
+    <string name="notifications_time">Godzina powiadomień</string>
     <string name="off_abbr">Wył.</string>
     <string name="ok">OK</string>
     <string name="on_abbr">Wł.</string>

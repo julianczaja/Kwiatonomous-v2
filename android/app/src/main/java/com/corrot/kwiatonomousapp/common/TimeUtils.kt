@@ -5,10 +5,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 const val DEFAULT_DATE_TIME_FORMAT = "dd.MM.yyyy, HH:mm"
 const val DAY_SECONDS = 86400L
+const val DAY_MINUTES = 1440L
 
 // Always convert as UTC, because device send datetime with applied zone offset
 fun Long.toLocalDateTime(): LocalDateTime =
@@ -34,3 +36,34 @@ fun LocalTime.toDatabaseString(): String =
 
 fun ZoneOffset.totalHours(): Int =
     this.totalSeconds / 3600
+
+fun getAllUTCZones(): List<String> {
+    val list = mutableListOf<String>()
+
+    for (i in -12..14) {
+        val format = when {
+            i > 0 -> {
+                "UTC%+03d:00"
+            }
+            i < 0 -> {
+                "UTC%03d:00"
+            }
+            else -> {
+                "UTC"
+            }
+        }
+        list.add(String.format(format, i))
+    }
+
+    return list
+}
+
+fun getMinutesUntilLocalTime(notificationTime: LocalTime): Long {
+    val until = LocalTime.now().until(notificationTime, ChronoUnit.MINUTES)
+
+    return if (until >= 0) {
+        until
+    } else {
+        until + DAY_MINUTES
+    }
+}

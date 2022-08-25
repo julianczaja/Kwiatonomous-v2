@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import javax.inject.Inject
 
@@ -115,13 +116,13 @@ class DeviceSettingsViewModel @Inject constructor(
         )
     }
 
-    fun onDeviceWateringTimeChanged(hour: Int, minute: Int) {
+    fun onDeviceWateringTimeChanged(localTime: LocalTime) {
         // Convert new watering datetime to be in device time zone
         val currentZoneOffset = _state.value.deviceConfiguration?.timeZoneOffset
         if (currentZoneOffset != null) {
             val newWateringDateTime = _state.value.nextWatering!!
-                .withHour(hour)
-                .withMinute(minute)
+                .withHour(localTime.hour)
+                .withMinute(localTime.minute)
                 .withSecond(0)
                 .atOffset(currentZoneOffset)
                 .toLocalDateTime()

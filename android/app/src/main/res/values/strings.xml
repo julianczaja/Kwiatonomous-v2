@@ -27,6 +27,7 @@
     <string name="done">Done</string>
     <string name="edit">Edit</string>
     <string name="edit_device">Edit device</string>
+    <string name="enter_notifications_time">Enter notifications time</string>
     <string name="enter_watering_time">Enter watering time</string>
     <string name="error">Error</string>
     <string name="events_label">Events</string>
@@ -51,6 +52,7 @@
     <string name="notifications">Notifications</string>
     <string name="notifications_on">Notifications on</string>
     <string name="notifications_settings">Notifications settings</string>
+    <string name="notifications_time">Notifications time</string>
     <string name="next_watering">Next watering</string>
     <string name="next_watering_date">Next watering date</string>
     <string name="off_abbr">Off</string>

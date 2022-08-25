@@ -9,10 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.work.*
-import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker
-import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker.Companion.DEVICE_BATTERY_WORK_NAME
-import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker.Companion.DEVICE_BATTERY_WORK_TAG
+import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
 import com.corrot.kwiatonomousapp.NotificationsManager
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
@@ -23,7 +20,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -35,6 +31,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var notificationsManager: NotificationsManager
+
+    @Inject
+    lateinit var kwiatonomousWorkManager: KwiatonomousWorkManager
 
     @ExperimentalPagerApi
     @ExperimentalMaterialApi
@@ -54,8 +53,8 @@ class MainActivity : ComponentActivity() {
         notificationsManager.init(this)
 
         CoroutineScope(Dispatchers.Main).launch {
-            appPreferencesRepository.getNotificationsSettings().collect() {
-                setupWorkManager(it.notificationsOn)
+            appPreferencesRepository.getNotificationsSettings().collect { notificationsSettings ->
+                kwiatonomousWorkManager.setupWorkManager(notificationsSettings)
             }
         }
 
@@ -81,33 +80,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun setupWorkManager(notificationsOn: Boolean) {
-        val workManager = WorkManager.getInstance(applicationContext)
-        if (notificationsOn) {
-            setupBatteryWork(workManager)
-        } else {
-            workManager.cancelAllWork()
-        }
-    }
-
-    private fun setupBatteryWork(workManager: WorkManager) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(false)
-            .build()
-
-        val work = PeriodicWorkRequestBuilder<DeviceBatteryInfoWorker>(1, TimeUnit.DAYS)
-            .setConstraints(constraints)
-            .addTag(DEVICE_BATTERY_WORK_TAG)
-            .setInitialDelay(5, TimeUnit.SECONDS)
-            .build()
-
-        workManager.enqueueUniquePeriodicWork(
-            DEVICE_BATTERY_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            work
-        )
     }
 }

@@ -19,7 +19,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+
 class AppPreferencesRepositoryImpl @Inject constructor(
+    private val gson: Gson,
     private val dataStore: DataStore<Preferences>,
 ) : AppPreferencesRepository {
 
@@ -32,11 +34,11 @@ class AppPreferencesRepositoryImpl @Inject constructor(
                 AppPreferences(
                     isFirstTimeUser = preferences[FIRST_TIME_USER_KEY] ?: false,
                     appTheme = AppTheme.values()[preferences[APP_THEME_KEY] ?: 0],
-                    chartSettings = Gson().fromJson(
+                    chartSettings = gson.fromJson(
                         preferences[CHART_SETTINGS_KEY],
                         ChartSettings::class.java
                     ) ?: ChartSettings(),
-                    notificationsSettings = Gson().fromJson(
+                    notificationsSettings = gson.fromJson(
                         preferences[NOTIFICATIONS_SETTINGS_KEY],
                         NotificationsSettings::class.java
                     ) ?: NotificationsSettings()
@@ -48,7 +50,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
         dataStore.edit { preferences ->
             preferences[FIRST_TIME_USER_KEY] = newAppPreferences.isFirstTimeUser
             preferences[APP_THEME_KEY] = newAppPreferences.appTheme.ordinal
-            preferences[CHART_SETTINGS_KEY] = Gson().toJson(newAppPreferences.chartSettings)
+            preferences[CHART_SETTINGS_KEY] = gson.toJson(newAppPreferences.chartSettings)
         }
     }
 
@@ -76,26 +78,26 @@ class AppPreferencesRepositoryImpl @Inject constructor(
 
     override fun getChartSettings(): Flow<ChartSettings> = dataStore.data
         .map { preferences ->
-            Gson().fromJson(preferences[CHART_SETTINGS_KEY], ChartSettings::class.java)
+            gson.fromJson(preferences[CHART_SETTINGS_KEY], ChartSettings::class.java)
                 ?: ChartSettings()
         }
 
     override suspend fun updateChartSettings(chartSettings: ChartSettings) {
         dataStore.edit { preferences ->
-            preferences[CHART_SETTINGS_KEY] = Gson().toJson(chartSettings)
+            preferences[CHART_SETTINGS_KEY] = gson.toJson(chartSettings)
         }
     }
 
     override fun getNotificationsSettings(): Flow<NotificationsSettings> = dataStore.data
         .map { preferences ->
-            Gson().fromJson(
+            gson.fromJson(
                 preferences[NOTIFICATIONS_SETTINGS_KEY], NotificationsSettings::class.java
             ) ?: NotificationsSettings()
         }
 
     override suspend fun updateNotificationsSettings(notificationsSettings: NotificationsSettings) {
         dataStore.edit { preferences ->
-            preferences[NOTIFICATIONS_SETTINGS_KEY] = Gson().toJson(notificationsSettings)
+            preferences[NOTIFICATIONS_SETTINGS_KEY] = gson.toJson(notificationsSettings)
         }
     }
 }
