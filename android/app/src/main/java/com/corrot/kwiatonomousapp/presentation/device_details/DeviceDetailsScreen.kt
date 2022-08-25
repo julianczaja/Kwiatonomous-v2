@@ -29,6 +29,7 @@ import com.corrot.kwiatonomousapp.common.components.chart.mapToString
 import com.corrot.kwiatonomousapp.common.toLong
 import com.corrot.kwiatonomousapp.domain.model.*
 import com.corrot.kwiatonomousapp.presentation.Screen
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.presentation.device_details.components.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -73,7 +74,8 @@ fun DeviceDetailsScreen(
         }
     }
 
-    Scaffold(
+    DefaultScaffold(
+        scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = {
             DefaultTopAppBar(
                 title = stringResource(R.string.device_details),

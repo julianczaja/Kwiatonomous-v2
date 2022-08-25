@@ -23,6 +23,7 @@ import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.AppSettingsToggleItem
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -45,7 +46,8 @@ fun AddEditUserDeviceScreen(
         }
     }
 
-    Scaffold(
+    DefaultScaffold(
+        scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = {
             DefaultTopAppBar(
                 title = if (viewModel.isEditMode)

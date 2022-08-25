@@ -22,6 +22,7 @@ import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.presentation.register.RegisterScreenViewModel.Event.REGISTERED
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import kotlinx.coroutines.runBlocking
@@ -45,7 +46,7 @@ fun RegisterScreen(
         }
     }
 
-    Scaffold(
+    DefaultScaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = {
             DefaultTopAppBar(

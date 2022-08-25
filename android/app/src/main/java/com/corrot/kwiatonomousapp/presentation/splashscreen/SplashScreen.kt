@@ -28,8 +28,9 @@ import com.corrot.kwiatonomousapp.presentation.Screen
 @Composable
 fun SplashScreen(
     kwiatonomousAppState: KwiatonomousAppState,
-    viewModel: SplashScreenViewModel = hiltViewModel()
+    viewModel: SplashScreenViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val scale = remember { Animatable(0f) }
 
     LaunchedEffect(true) {
@@ -51,7 +52,7 @@ fun SplashScreen(
                     kwiatonomousAppState.navController.navigate(Screen.Login.route)
                 }
                 SplashScreenViewModel.Event.LOGGED_IN -> {
-                    kwiatonomousAppState.showSnackbar("Logged in")
+                    kwiatonomousAppState.showSnackbar(context.getString(R.string.logged_in))
                     kwiatonomousAppState.navController.popBackStack()
                     kwiatonomousAppState.navController.navigate(Screen.Dashboard.route)
                 }

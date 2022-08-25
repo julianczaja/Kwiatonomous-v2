@@ -9,18 +9,15 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation.compose.rememberNavController
 import androidx.work.*
 import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker
 import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker.Companion.DEVICE_BATTERY_WORK_NAME
 import com.corrot.kwiatonomousapp.DeviceBatteryInfoWorker.Companion.DEVICE_BATTERY_WORK_TAG
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.NotificationsManager
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
+import com.corrot.kwiatonomousapp.rememberKwiatonomousAppState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -72,13 +69,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                     KwiatonomousAppTheme(darkTheme = isDarkTheme) {
-                        Surface(color = MaterialTheme.colors.background) {
+                        Surface(
+                            color = MaterialTheme.colors.background
+                        ) {
                             KwiatonomousNavHost(
-                                KwiatonomousAppState(
-                                    navController = rememberNavController(),
-                                    scaffoldState = rememberScaffoldState(),
-                                    snackbarScope = rememberCoroutineScope()
-                                ),
+                                kwiatonomousAppState = rememberKwiatonomousAppState(),
                                 startDestination = Screen.Splash.route
                             )
                         }

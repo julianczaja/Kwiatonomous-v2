@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import com.corrot.kwiatonomousapp.common.components.WarningBox
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -29,6 +31,7 @@ fun AppSettingsScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: AppSettingsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val state = viewModel.state.value
     var clearDevicesCacheAlertDialogOpened by remember { mutableStateOf(false) }
 
@@ -36,13 +39,12 @@ fun AppSettingsScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 AppSettingsViewModel.Event.SHOW_DELETE_DONE_SNACKBAR -> {
-                    kwiatonomousAppState.showSnackbar("Cache cleared")
+                    kwiatonomousAppState.showSnackbar(context.getString(R.string.cache_cleared))
                 }
             }
         }
     }
-
-    Scaffold(
+    DefaultScaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = {
             DefaultTopAppBar(

@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.DeviceEventItem
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
@@ -39,13 +41,14 @@ fun DashboardScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val state = viewModel.state
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
                 DashboardViewModel.Event.LOGGED_OUT -> {
-                    kwiatonomousAppState.showSnackbar("Logged out") // FIXME
+                    kwiatonomousAppState.showSnackbar(context.getString(R.string.logged_out))
                     kwiatonomousAppState.navController.popBackStack()
                     kwiatonomousAppState.navController.navigate(Screen.Login.route)
                 }
@@ -53,11 +56,9 @@ fun DashboardScreen(
         }
     }
 
-    Scaffold(
+    DefaultScaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
-        topBar = {
-            DefaultTopAppBar(title = stringResource(R.string.app_name))
-        }
+        topBar = { DefaultTopAppBar(title = stringResource(R.string.app_name)) }
     ) { padding ->
         DashboardScreenContent(
             padding = padding,

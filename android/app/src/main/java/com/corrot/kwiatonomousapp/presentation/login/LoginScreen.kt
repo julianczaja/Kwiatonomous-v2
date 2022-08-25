@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,6 +27,7 @@ import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
 import com.corrot.kwiatonomousapp.presentation.Screen
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.presentation.login.LoginScreenViewModel.Event.LOGGED_IN
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
@@ -35,13 +37,14 @@ fun LoginScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: LoginScreenViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val state = viewModel.state.value
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
                 LOGGED_IN -> {
-                    kwiatonomousAppState.showSnackbar("Logged in") // FIXME
+                    kwiatonomousAppState.showSnackbar(context.getString(R.string.logged_in))
                     kwiatonomousAppState.navController.popBackStack()
                     kwiatonomousAppState.navController.navigate(Screen.Dashboard.route)
                 }
@@ -49,7 +52,7 @@ fun LoginScreen(
         }
     }
 
-    Scaffold(
+    DefaultScaffold(
         scaffoldState = kwiatonomousAppState.scaffoldState,
         topBar = { DefaultTopAppBar(title = stringResource(R.string.login_verb)) },
     ) { padding ->

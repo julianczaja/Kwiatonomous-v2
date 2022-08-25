@@ -10,6 +10,7 @@
     <string name="battery_level">Battery level</string>
     <string name="battery_voltage">Battery voltage</string>
     <string name="birthday">Birthday</string>
+    <string name="cache_cleared">Cache cleared</string>
     <string name="cancel">Cancel</string>
     <string name="chart_settings">Chart settings</string>
     <string name="change">Change</string>
@@ -38,6 +39,7 @@
     <string name="last_update">Last update</string>
     <string name="last_updates">Last updates</string>
     <string name="logged_in">Logged in</string>
+    <string name="logged_out">Logged out</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>
     <string name="login_verb">Login</string>

@@ -10,6 +10,7 @@
     <string name="battery_level">Poziom baterii</string>
     <string name="battery_voltage">Napięcie baterii</string>
     <string name="birthday">Urodziny</string>
+    <string name="cache_cleared">Pamięć prodręczna wyczyszczona</string>
     <string name="cancel">Anuluj</string>
     <string name="chart_settings">Ustawienia wykresu</string>
     <string name="change">Zmień</string>
@@ -38,6 +39,7 @@
     <string name="last_update">Ostatnia aktualizacja</string>
     <string name="last_updates">Ostatnie aktualizacje</string>
     <string name="logged_in">Zalogowano</string>
+    <string name="logged_out">Wylogowano</string>
     <string name="log_in">Zaloguj</string>
     <string name="log_out">Wyloguj</string>
     <string name="login_verb">Logowanie</string>
