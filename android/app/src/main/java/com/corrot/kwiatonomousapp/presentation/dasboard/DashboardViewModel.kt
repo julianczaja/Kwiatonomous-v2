@@ -8,6 +8,7 @@ import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
+import com.corrot.kwiatonomousapp.domain.usecase.DeleteDeviceEventUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetAllDeviceEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -22,6 +23,8 @@ class DashboardViewModel @Inject constructor(
     val userRepository: UserRepository,
     val authManager: AuthManager,
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase,
+    private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     val state = mutableStateOf(DashboardState())
@@ -29,6 +32,7 @@ class DashboardViewModel @Inject constructor(
 
     private var getEventsJob: Job? = null
     private lateinit var userDevices: List<UserDevice>
+    private var selectedDeviceEvent: DeviceEvent? = null
 
     enum class Event {
         LOGGED_OUT
@@ -77,7 +81,8 @@ class DashboardViewModel @Inject constructor(
                             )
                             is Result.Success -> {
                                 ret.data.forEach { deviceEvent ->
-                                    // FIXME: that's not an optiman way to do this
+                                    // FIXME: that's not an optimal way to do this
+                                    // FIXME: It won't change list when something is removed!!!
                                     if (allEvents.find { it.timestamp == deviceEvent.timestamp } == null) {
                                         allEvents.add(deviceEvent)
                                     }
@@ -100,5 +105,38 @@ class DashboardViewModel @Inject constructor(
     fun logOut() = viewModelScope.launch {
         authManager.logOut()
         eventFlow.emit(Event.LOGGED_OUT)
+    }
+
+    fun selectEventToDelete(deviceEvent: DeviceEvent) {
+        selectedDeviceEvent = deviceEvent
+    }
+
+    fun deleteSelectedUserEvent() = viewModelScope.launch(ioDispatcher) {
+        if (selectedDeviceEvent != null) {
+            deleteDeviceEventUseCase.execute(selectedDeviceEvent!!).collect { ret ->
+                withContext(Dispatchers.Main) {
+                    when (ret) {
+                        is Result.Loading -> state.value = state.value.copy(
+                            isLoading = true,
+                            error = null
+                        )
+                        is Result.Success -> state.value = state.value.copy(
+                            isLoading = false
+                        )
+                        is Result.Error -> state.value = state.value.copy(
+                            isLoading = false,
+                            error = ret.throwable.message ?: "Unknown error"
+                        )
+                    }
+                    selectedDeviceEvent = null
+                }
+            }
+        } else {
+            withContext(Dispatchers.Main) {
+                state.value = state.value.copy(
+                    error = "There is no selected event" // FIXME
+                )
+            }
+        }
     }
 }

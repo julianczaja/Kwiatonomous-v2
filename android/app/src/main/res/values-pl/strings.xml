@@ -78,6 +78,7 @@
     <string name="update_time">Czas aktualizacji</string>
     <string name="username">Nazwa użytkownika</string>
     <string name="user_device_delete_warning_message">Czy jesteś pewnien, że chcesz usunąć to urządzenie z aplikacji?</string>
+    <string name="user_device_event_delete_warning_message">Czy jesteś pewnien, że chcesz usunąć to zdarzenie?</string>
     <string name="watering">Podlewanie</string>
     <string name="watering_amount">Ilość podlewania</string>
     <string name="watering_interval">Interwał podlewania</string>

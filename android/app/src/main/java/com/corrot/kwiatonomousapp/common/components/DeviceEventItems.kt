@@ -2,12 +2,14 @@ package com.corrot.kwiatonomousapp.common.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,11 +24,20 @@ import java.time.LocalDateTime
 // TODO: Improve UI
 
 @Composable
-fun DeviceEventItem(deviceEvent: DeviceEvent) {
+fun DeviceEventItem(
+    deviceEvent: DeviceEvent,
+    onLongPressed: () -> Unit,
+) {
     Card(
         shape = RoundedCornerShape(8.dp),
         backgroundColor = MaterialTheme.colors.surface,
-        elevation = 8.dp
+        elevation = 8.dp,
+
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onLongPress = { onLongPressed() }
+            )
+        }
     ) {
         Column(
             modifier = Modifier
@@ -184,19 +195,19 @@ private fun ConfigurationChangeEventItemPreviewLight() {
         Surface {
             Column(Modifier.fillMaxSize().padding(8.dp)) {
                 Divider(Modifier.height(8.dp))
-                DeviceEventItem(DeviceEvent.Watering("deviceId", LocalDateTime.now()))
+                DeviceEventItem(DeviceEvent.Watering("deviceId", LocalDateTime.now()), {})
                 Divider(Modifier.height(8.dp))
-                DeviceEventItem(DeviceEvent.ConfigurationChange("deviceId", LocalDateTime.now()))
+                DeviceEventItem(DeviceEvent.ConfigurationChange("deviceId", LocalDateTime.now()), {})
                 Divider(Modifier.height(8.dp))
                 DeviceEventItem(DeviceEvent.UserNote(
                     "userName",
                     "title",
                     "content",
                     "deviceId",
-                    LocalDateTime.now())
+                    LocalDateTime.now()), {}
                 )
                 Divider(Modifier.height(8.dp))
-                DeviceEventItem(DeviceEvent.LowBattery(75, 3.75f, "deviceId", LocalDateTime.now()))
+                DeviceEventItem(DeviceEvent.LowBattery(75, 3.75f, "deviceId", LocalDateTime.now()), {})
                 Divider(Modifier.height(8.dp))
             }
         }

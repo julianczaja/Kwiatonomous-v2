@@ -53,9 +53,10 @@ fun DeviceDetailsScreen(
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
     }
+    var isDeleteEventAlertDialogOpened by remember { mutableStateOf(false) }
     var isEventsContentScrolled by remember { mutableStateOf(false) }
     var isContentScrollingUp by remember { mutableStateOf(false) }
-    var deleteAlertDialogOpened by remember { mutableStateOf(false) }
+    var isDeleteDeviceAlertDialogOpened by remember { mutableStateOf(false) }
     var addNoteDialogOpened by remember { mutableStateOf(false) }
     var addWateringDialogOpened by remember { mutableStateOf(false) }
 
@@ -74,7 +75,7 @@ fun DeviceDetailsScreen(
                     )
                 }
                 DeviceDetailsViewModel.Event.SHOW_DELETE_ALERT_DIALOG -> {
-                    deleteAlertDialogOpened = true
+                    isDeleteDeviceAlertDialogOpened = true
                 }
             }
         }
@@ -204,6 +205,10 @@ fun DeviceDetailsScreen(
                             onScrolled = { isScrolled ->
                                 Timber.e("EVENTS SCROLLED $isScrolled")
                                 isEventsContentScrolled = isScrolled
+                            },
+                            onLongPressed = {
+                                viewModel.selectEventToDelete(it)
+                                isDeleteEventAlertDialogOpened = true
                             }
                         )
                     }
@@ -212,14 +217,26 @@ fun DeviceDetailsScreen(
                 item { Spacer(Modifier.height(16.dp)) }
             }
         }
-        if (deleteAlertDialogOpened) {
+        if (isDeleteEventAlertDialogOpened) {
+            WarningBox(
+                message = stringResource(R.string.user_device_event_delete_warning_message),
+                onCancelClicked = {
+                    isDeleteEventAlertDialogOpened = false
+                },
+                onConfirmClicked = {
+                    isDeleteEventAlertDialogOpened = false
+                    viewModel.deleteSelectedUserEvent()
+                }
+            )
+        }
+        if (isDeleteDeviceAlertDialogOpened) {
             WarningBox(
                 message = stringResource(R.string.user_device_delete_warning_message),
                 onCancelClicked = {
-                    deleteAlertDialogOpened = false
+                    isDeleteDeviceAlertDialogOpened = false
                 },
                 onConfirmClicked = {
-                    deleteAlertDialogOpened = false
+                    isDeleteDeviceAlertDialogOpened = false
                     viewModel.deleteUserDevice()
                 }
             )
@@ -496,6 +513,7 @@ private fun DeviceUpdatesSection(
 fun DeviceEventsSection(
     deviceEvents: List<DeviceEvent>,
     onScrolled: (Boolean) -> Unit,
+    onLongPressed: (DeviceEvent) -> Unit
 ) {
     val scroll = rememberLazyListState()
     onScrolled(scroll.isScrolled)
@@ -512,7 +530,12 @@ fun DeviceEventsSection(
                 .padding(8.dp)
         ) {
             deviceEvents.forEachIndexed { index, event ->
-                item { DeviceEventItem(deviceEvent = event) }
+                item {
+                    DeviceEventItem(
+                        deviceEvent = event,
+                        onLongPressed = { onLongPressed(event) }
+                    )
+                }
                 if (index < deviceEvents.size - 1) {
                     item { Spacer(modifier = Modifier.height(8.dp)) }
                 }

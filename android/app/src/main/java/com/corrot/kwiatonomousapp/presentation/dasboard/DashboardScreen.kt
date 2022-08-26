@@ -9,9 +9,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +28,7 @@ import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.DeviceEventItem
+import com.corrot.kwiatonomousapp.common.components.WarningBox
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
@@ -43,6 +46,8 @@ fun DashboardScreen(
 ) {
     val context = LocalContext.current
     val state = viewModel.state
+
+    var isDeleteEventAlertDialogOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
@@ -69,8 +74,24 @@ fun DashboardScreen(
             onAllDevicesClicked = { kwiatonomousAppState.navController.navigate(Screen.Devices.route) },
             onAppSettingsClicked = { kwiatonomousAppState.navController.navigate(Screen.AppSettings.route) },
             onPlaceholderClicked = { kwiatonomousAppState.showSnackbar("Not implemented yet") },
-            onLogoutClicked = { viewModel.logOut() }
+            onLogoutClicked = { viewModel.logOut() },
+            onLongPressed = {
+                viewModel.selectEventToDelete(it)
+                isDeleteEventAlertDialogOpened = true
+            }
         )
+        if (isDeleteEventAlertDialogOpened) {
+            WarningBox(
+                message = stringResource(R.string.user_device_event_delete_warning_message),
+                onCancelClicked = {
+                    isDeleteEventAlertDialogOpened = false
+                },
+                onConfirmClicked = {
+                    isDeleteEventAlertDialogOpened = false
+                    viewModel.deleteSelectedUserEvent()
+                }
+            )
+        }
     }
 }
 
@@ -87,6 +108,7 @@ fun DashboardScreenContent(
     onAppSettingsClicked: () -> Unit,
     onPlaceholderClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
+    onLongPressed: (DeviceEvent) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
@@ -135,7 +157,12 @@ fun DashboardScreenContent(
                                 .padding(8.dp)
                         ) {
                             it.forEachIndexed { index, event ->
-                                item { DeviceEventItem(deviceEvent = event) }
+                                item {
+                                    DeviceEventItem(
+                                        deviceEvent = event,
+                                        onLongPressed = { onLongPressed(event) }
+                                    )
+                                }
                                 if (index < it.size - 1) {
                                     item { Spacer(modifier = Modifier.height(8.dp)) }
                                 }
@@ -209,7 +236,8 @@ private fun DashboardPreviewPreviewLight() {
                 onAllDevicesClicked = {},
                 onAppSettingsClicked = {},
                 onPlaceholderClicked = {},
-                onLogoutClicked = {}
+                onLogoutClicked = {},
+                onLongPressed = {}
             )
         }
     }

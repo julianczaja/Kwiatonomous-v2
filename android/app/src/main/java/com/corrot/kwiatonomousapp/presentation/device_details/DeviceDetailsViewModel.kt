@@ -35,6 +35,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val deleteUserDeviceUseCase: DeleteUserDeviceUseCase,
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase,
     private val addDeviceEventUseCase: AddDeviceEventUseCase,
+    private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
@@ -57,6 +58,8 @@ class DeviceDetailsViewModel @Inject constructor(
     private var getDeviceUpdatesJob: Job? = null
     private var getDeviceConfigurationJob: Job? = null
     private var getDeviceEventsJob: Job? = null
+
+    private var selectedDeviceEvent: DeviceEvent? = null
 
     val isLoading: Boolean
         get() = state.value.isUserDeviceLoading
@@ -408,6 +411,39 @@ class DeviceDetailsViewModel @Inject constructor(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    fun selectEventToDelete(deviceEvent: DeviceEvent) {
+        selectedDeviceEvent = deviceEvent
+    }
+
+    fun deleteSelectedUserEvent() = viewModelScope.launch(ioDispatcher) {
+        if (selectedDeviceEvent != null) {
+            deleteDeviceEventUseCase.execute(selectedDeviceEvent!!).collect { ret ->
+                withContext(Dispatchers.Main) {
+                    when (ret) {
+                        is Result.Loading -> state.value = state.value.copy(
+                            isDeviceEventsLoading = true,
+                            error = null
+                        )
+                        is Result.Success -> state.value = state.value.copy(
+                            isDeviceEventsLoading = false
+                        )
+                        is Result.Error -> state.value = state.value.copy(
+                            isDeviceEventsLoading = false,
+                            error = ret.throwable.message ?: "Unknown error"
+                        )
+                    }
+                    selectedDeviceEvent = null
+                }
+            }
+        } else {
+            withContext(Dispatchers.Main) {
+                state.value = state.value.copy(
+                    error = "There is no selected event" // FIXME
+                )
             }
         }
     }
