@@ -16,6 +16,10 @@ build/
 .idea/dictionaries
 .idea/libraries
 .idea/jarRepositories.xml
+.idea/misc.xml
+.idea/runConfigurations
+.idea/codeStyles/codeStyleConfig.xml
+.idea/codeStyles/Project.xml
 
 # Java class files
 *.class
