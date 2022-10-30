@@ -10,7 +10,7 @@ interface DeviceEventDao {
     @Query("SELECT * FROM device_event WHERE deviceId = :deviceId ORDER BY timestamp DESC")
     fun getAll(deviceId: String): Flow<List<DeviceEventEntity>>
 
-    @Query("SELECT * FROM device_event WHERE deviceId = :deviceId ORDER BY timestamp DESC  LIMIT :limit")
+    @Query("SELECT * FROM device_event WHERE deviceId = :deviceId ORDER BY timestamp DESC LIMIT :limit")
     fun getAll(deviceId: String, limit: Int): Flow<List<DeviceEventEntity>>
 
     @Query("SELECT * FROM device_event WHERE deviceId = :deviceId AND timestamp >= :fromDate AND timestamp <= :toDate  ORDER BY timestamp DESC")
@@ -40,7 +40,7 @@ interface DeviceEventDao {
     @Transaction
     suspend fun insertOrUpdate(deviceEvent: DeviceEventEntity) {
         val id = insert(deviceEvent)
-        if (id == -1L) insert(deviceEvent)
+        if (id == -1L) update(deviceEvent)
     }
 
     @Transaction

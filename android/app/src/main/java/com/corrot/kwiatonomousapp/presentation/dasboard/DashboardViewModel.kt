@@ -1,25 +1,24 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.AuthManager
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
-import com.corrot.kwiatonomousapp.domain.model.UserDevice
+import com.corrot.kwiatonomousapp.domain.model.User
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.corrot.kwiatonomousapp.domain.usecase.DeleteDeviceEventUseCase
 import com.corrot.kwiatonomousapp.domain.usecase.GetAllDeviceEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.*
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     val userRepository: UserRepository,
     val authManager: AuthManager,
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase,
@@ -27,78 +26,89 @@ class DashboardViewModel @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
-    val state = mutableStateOf(DashboardState())
+    private companion object {
+        const val EVENTS_LIMIT_PER_DEVICE = 3
+        const val USER_KEY = "user"
+    }
+
+    private var selectedDeviceEvent: DeviceEvent? = null
+    private val userFlow = savedStateHandle.getStateFlow<User?>(USER_KEY, null)
     val eventFlow = MutableSharedFlow<Event>()
 
-    private var getEventsJob: Job? = null
-    private lateinit var userDevices: List<UserDevice>
-    private var selectedDeviceEvent: DeviceEvent? = null
+    val uiState: StateFlow<DashboardState> = uiStateStream()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            initialValue = DashboardState()
+        )
 
     enum class Event {
         LOGGED_OUT
     }
 
     init {
-        val user = runBlocking { userRepository.getCurrentUserFromDatabase().firstOrNull() }
-        if (user != null) {
-            state.value = state.value.copy(
-                user = user,
-                isLoading = false,
-                error = null
-            )
-            userDevices = user.devices
-            getDevicesEvents(userDevices)
-        } else {
-            state.value = state.value.copy(
-                user = user,
-                isLoading = false,
-                error = "Can't find current user in database. Try logging again"
-            )
-            logOut()
+        runBlocking {
+            savedStateHandle[USER_KEY] = userRepository.getCurrentUserFromDatabase().firstOrNull()
         }
     }
 
-    fun refreshDevicesEvents() {
-        getDevicesEvents(userDevices)
-    }
-
-    private fun getDevicesEvents(userDevices: List<UserDevice>) = viewModelScope.launch {
-        val allEvents = mutableListOf<DeviceEvent>()
-        state.value = state.value.copy(
-            isLoading = true,
-            events = allEvents
-        )
-        getEventsJob?.cancelAndJoin()
-        getEventsJob = viewModelScope.launch(Dispatchers.IO) {
-            userDevices.map { getAllDeviceEventsUseCase.execute(it.deviceId, 50) }
-                .merge()
-                .collectLatest { ret ->
-                    withContext(Dispatchers.Main) {
-                        when (ret) {
-                            is Result.Loading -> state.value = state.value.copy(
-                                isLoading = true,
-                                error = null
-                            )
-                            is Result.Success -> {
-                                ret.data.forEach { deviceEvent ->
-                                    // FIXME: that's not an optimal way to do this
-                                    // FIXME: It won't change list when something is removed!!!
-                                    if (allEvents.find { it.timestamp == deviceEvent.timestamp } == null) {
-                                        allEvents.add(deviceEvent)
-                                    }
-                                }
-                                state.value = state.value.copy(
-                                    isLoading = false,
-                                    events = allEvents.sortedByDescending { it.timestamp }
+    private fun uiStateStream(): Flow<DashboardState> = userFlow.flatMapLatest { user ->
+        when (user) {
+            null -> {
+                logOut()
+                return@flatMapLatest flowOf(DashboardState(error = "Can't find current user in database. Try logging again"))
+            }
+            else -> {
+                val allDevicesEvents = mutableMapOf<String, List<DeviceEvent>>()
+                val deviceEventFlows = user.devices.map {
+                    getAllDeviceEventsUseCase.execute(
+                        deviceId = it.deviceId,
+                        limit = EVENTS_LIMIT_PER_DEVICE
+                    )
+                }
+                // FIXME: When fetching 2 devices' events, the `Result.Success` is emmited 3 times for some reason
+                deviceEventFlows
+                    .merge()
+                    .mapLatest { events ->
+                        when (events) {
+                            is Result.Loading -> {
+                                return@mapLatest uiState.value.copy(
+                                    user = user,
+                                    isLoading = true,
+                                    error = null
                                 )
                             }
-                            is Result.Error -> state.value = state.value.copy(
-                                isLoading = false,
-                                error = ret.throwable.message ?: "Unknown error"
-                            )
+                            is Result.Success -> {
+                                allDevicesEvents[events.data.first().deviceId] = events.data
+                                return@mapLatest uiState.value.copy(
+                                    user = user,
+                                    isLoading = false,
+                                    events = allDevicesEvents.flatMap { it.value }.sortedByDescending { it.timestamp }
+                                )
+                            }
+                            is Result.Error -> {
+                                return@mapLatest uiState.value.copy(
+                                    user = user,
+                                    isLoading = false,
+                                    error = events.throwable.message ?: "Unknown error"
+                                )
+                            }
                         }
                     }
-                }
+            }
+        }
+            .distinctUntilChanged()
+    }
+
+
+    fun refreshDevicesEvents() = viewModelScope.launch {
+        userFlow.value?.let { user ->
+            user.devices.forEach { userDevice ->
+                getAllDeviceEventsUseCase.execute(
+                    deviceId = userDevice.deviceId,
+                    limit = EVENTS_LIMIT_PER_DEVICE
+                ).collect()
+            }
         }
     }
 
@@ -112,30 +122,16 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun deleteSelectedUserEvent() = viewModelScope.launch(ioDispatcher) {
-        if (selectedDeviceEvent != null) {
-            deleteDeviceEventUseCase.execute(selectedDeviceEvent!!).collect { ret ->
+        selectedDeviceEvent?.let {
+            deleteDeviceEventUseCase.execute(it).collect { ret ->
                 withContext(Dispatchers.Main) {
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
+                    when (ret) { // FIXME: Connect loading/error to uiState somehow
+                        is Result.Loading -> Timber.e("Loading")
+                        is Result.Success -> Timber.e("Success")
+                        is Result.Error -> Timber.e("Error: ${ret.throwable}")
                     }
                     selectedDeviceEvent = null
                 }
-            }
-        } else {
-            withContext(Dispatchers.Main) {
-                state.value = state.value.copy(
-                    error = "There is no selected event" // FIXME
-                )
             }
         }
     }
