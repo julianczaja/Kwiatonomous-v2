@@ -40,6 +40,7 @@ class DeviceDetailsViewModelTest {
     private val updateUserDeviceUseCase: UpdateUserDeviceUseCase = mockk()
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase = mockk()
     private val addDeviceEventUseCase: AddDeviceEventUseCase = mockk()
+    private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase = mockk()
 
     @Before
     fun setup() {
@@ -93,6 +94,10 @@ class DeviceDetailsViewModelTest {
         // Mock addDeviceEventUseCase
         coEvery { addDeviceEventUseCase.execute(any()) }
             .returns(flowOf(Result.Success(null)))
+        // Mock deleteDeviceEventUseCase
+
+        coEvery { deleteDeviceEventUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(null)))
 
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
@@ -106,7 +111,8 @@ class DeviceDetailsViewModelTest {
             userRepository = userRepository,
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
-            addDeviceEventUseCase = addDeviceEventUseCase
+            addDeviceEventUseCase = addDeviceEventUseCase,
+            deleteDeviceEventUseCase = deleteDeviceEventUseCase
         )
 
         println(deviceDetailsViewModel.state.value.error)
@@ -163,6 +169,10 @@ class DeviceDetailsViewModelTest {
         coEvery { addDeviceEventUseCase.execute(any()) }
             .returns(flowOf(Result.Success(null)))
 
+        // Mock deleteDeviceEventUseCase
+        coEvery { deleteDeviceEventUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(null)))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
@@ -175,7 +185,8 @@ class DeviceDetailsViewModelTest {
             userRepository = userRepository,
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
-            addDeviceEventUseCase = addDeviceEventUseCase
+            addDeviceEventUseCase = addDeviceEventUseCase,
+            deleteDeviceEventUseCase = deleteDeviceEventUseCase
         )
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
