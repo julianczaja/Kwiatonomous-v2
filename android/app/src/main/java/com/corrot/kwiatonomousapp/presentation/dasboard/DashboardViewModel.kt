@@ -79,7 +79,9 @@ class DashboardViewModel @Inject constructor(
                                 )
                             }
                             is Result.Success -> {
-                                allDevicesEvents[events.data.first().deviceId] = events.data
+                                if (events.data.isNotEmpty()) {
+                                    allDevicesEvents[events.data.first().deviceId] = events.data
+                                }
                                 return@mapLatest uiState.value.copy(
                                     user = user,
                                     isLoading = false,

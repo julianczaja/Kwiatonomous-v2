@@ -44,14 +44,11 @@ class AuthManager @Inject constructor(
             }
         } catch (e: HttpException) {
             if (e.code() == 401) {
-                val response =
-                    e.response() ?: throw Exception("Error while parsing authentication header")
-
+                val response = e.response() ?: throw Exception("Error while parsing authentication header")
                 val authHeader = response.headers()["WWW-Authenticate"]
-                val authHeaderObj = parseAuthHeader(authHeader!!)
-                    ?: throw Exception("Error while parsing authentication header")
-
+                val authHeaderObj = parseAuthHeader(authHeader!!) ?: throw Exception("Error while parsing authentication header")
                 val ha1 = "$login:${Constants.API_REALM}:$password".toMD5()
+
                 networkPreferencesRepository.run {
                     updateLogin(login)
                     updateHa1(ha1)
@@ -68,14 +65,13 @@ class AuthManager @Inject constructor(
     }
 
     suspend fun logOut() {
-        val user = userRepository.getCurrentUserFromDatabase().firstOrNull()
-            ?: throw Exception("User null before logOut")
+        val user = userRepository.getCurrentUserFromDatabase().firstOrNull() ?: throw Exception("User null before logOut")
         userRepository.updateUser(user.copy(isLoggedIn = false))
         networkPreferencesRepository.clearCredentials()
     }
 
     // FIXME: Sending credentials in plain text using HTTP is stupid idea,
-    //  but for now it has to stay like that
+    //        but for now it has to stay like that
     @Throws(Exception::class)
     suspend fun tryToRegister(userName: String, login: String, password: String) {
         val credentials = RegisterCredentials(userName, login, password)
