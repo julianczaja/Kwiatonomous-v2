@@ -5,6 +5,7 @@ import androidx.work.*
 import com.corrot.kwiatonomousapp.common.getMinutesUntilLocalTime
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.Duration
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
@@ -37,4 +38,24 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
             work
         )
     }
+
+    fun enqueueDevicesWidgetUpdate(force: Boolean = false) {
+        val workName = DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME
+        val policy = if (force) ExistingPeriodicWorkPolicy.REPLACE else ExistingPeriodicWorkPolicy.KEEP
+        val workRequest = PeriodicWorkRequestBuilder<DeviceWidgetWorker>(Duration.ofMinutes(30))
+            .addTag(DeviceWidgetWorker.DEVICE_WIDGET_WORK_TAG)
+
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniquePeriodicWork(
+                workName,
+                policy,
+                workRequest.build()
+            )
+    }
+
+    fun cancelDevicesWidgetUpdates() {
+        WorkManager.getInstance(applicationContext)
+            .cancelUniqueWork(DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME)
+    }
+
 }

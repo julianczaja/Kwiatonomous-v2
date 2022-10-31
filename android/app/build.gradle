@@ -125,4 +125,7 @@ dependencies {
 
     // Work Manager
     implementation "androidx.work:work-runtime-ktx:2.7.1"
+
+    // Glance widget
+    implementation "androidx.glance:glance-appwidget:1.0.0-alpha05"
 }
