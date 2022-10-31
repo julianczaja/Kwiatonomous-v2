@@ -27,6 +27,7 @@ import com.corrot.kwiatonomousapp.common.toFormattedString
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.DevicesWidgetData
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
+import com.corrot.kwiatonomousapp.presentation.theme.DayOnSurface
 import com.corrot.kwiatonomousapp.presentation.theme.DayPrimary
 import java.time.LocalDateTime
 
@@ -35,6 +36,7 @@ class DevicesWidget : GlanceAppWidget() {
     override val stateDefinition = DevicesWidgetData.StateDefinition
     override val sizeMode: SizeMode = SizeMode.Single
 
+    // TODO: Implement dynamic night mode
     @Composable
     override fun Content() {
         when (val devicesWidgetData = currentState<DevicesWidgetData>()) {
@@ -71,7 +73,7 @@ class DevicesWidget : GlanceAppWidget() {
                 Box(contentAlignment = Alignment.Center, modifier = GlanceModifier.fillMaxWidth()) {
                     Text(
                         text = context.getString((R.string.last_update)) + ": ${updateTime.toFormattedString()}",
-                        style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 11.sp)
+                        style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 11.sp, color = ColorProvider(Color.Gray))
                     )
                 }
             }
@@ -103,7 +105,10 @@ class DevicesWidget : GlanceAppWidget() {
         ) {
             val context = LocalContext.current
 
-            Text(text = context.getString(R.string.error) + ": $message")
+            Text(
+                text = context.getString(R.string.error) + ": $message",
+                style = TextStyle(color = ColorProvider(DayOnSurface))
+            )
             Spacer(GlanceModifier.fillMaxWidth().height(4.dp))
             RefreshButton()
         }
@@ -167,7 +172,7 @@ class DevicesWidget : GlanceAppWidget() {
             ) {
                 Text(
                     text = userDevice.deviceName,
-                    style = TextStyle(fontWeight = FontWeight.Bold),
+                    style = TextStyle(fontWeight = FontWeight.Bold, color = ColorProvider(DayOnSurface)),
                     modifier = GlanceModifier.padding(bottom = 4.dp)
                 )
                 TextWithImageRow(
@@ -194,7 +199,10 @@ class DevicesWidget : GlanceAppWidget() {
                 contentDescription = null,
                 modifier = GlanceModifier.size(19.dp).padding(end = 4.dp)
             )
-            Text(text)
+            Text(
+                text = text,
+                style = TextStyle(color = ColorProvider(DayOnSurface)),
+            )
         }
     }
 }
