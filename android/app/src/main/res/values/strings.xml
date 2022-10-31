@@ -91,6 +91,6 @@
     <string name="battery_level_format" translatable="false">%d %%</string>
     <string name="battery_voltage_format" translatable="false">%.2f V</string>
     <string name="device_id_length_format" translatable="false">%d/10</string>
-    <string name="humidity_format" translatable="false">%.1f%%</string>
+    <string name="humidity_format" translatable="false">%.1f %%</string>
     <string name="temperature_format" translatable="false">%.2f°C</string>
 </resources>
