@@ -66,6 +66,12 @@ fun Application.configureRouting(
                 userDao, deviceDao
             )
 
+            // post
+            updateKwiatonomousDeviceLastPumpCleaning(
+                "/kwiatonomous/android/device/{deviceId}/lastpumpcleaning",
+                userDao, deviceDao
+            )
+
             // get
             getAllKwiatonomousDeviceUpdates(
                 "/kwiatonomous/android/device/{deviceId}/updates",

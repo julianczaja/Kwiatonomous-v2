@@ -11,7 +11,7 @@ class DeviceEventDaoImpl(private val database: KwiatonomousDatabase) : DeviceEve
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns()
+            SchemaUtils.createMissingTablesAndColumns(DeviceEvents)
             SchemaUtils.create(DeviceEvents)
         }
     }

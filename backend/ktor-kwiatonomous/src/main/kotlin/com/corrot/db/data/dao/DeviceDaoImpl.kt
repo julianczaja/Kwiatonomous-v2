@@ -18,7 +18,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns()
+            SchemaUtils.createMissingTablesAndColumns(Devices)
             SchemaUtils.create(Devices)
         }
     }
@@ -29,6 +29,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
                 Device(
                     deviceId = it[Devices.deviceId],
                     birthday = it[Devices.birthday],
+                    lastPumpCleaning = it[Devices.lastPumpCleaning],
                     lastUpdate = it[Devices.lastUpdate],
                     nextWatering = it[Devices.nextWatering]
                 )
@@ -41,6 +42,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
                 Device(
                     deviceId = it[Devices.deviceId],
                     birthday = it[Devices.birthday],
+                    lastPumpCleaning = it[Devices.lastPumpCleaning],
                     lastUpdate = it[Devices.lastUpdate],
                     nextWatering = it[Devices.nextWatering]
                 )
@@ -52,6 +54,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
             Devices.insert {
                 it[Devices.deviceId] = deviceId
                 it[Devices.birthday] = birthday ?: TimeUtils.getCurrentTimestamp()
+                it[Devices.lastPumpCleaning] = TimeUtils.getCurrentTimestamp()
                 it[Devices.lastUpdate] = TimeUtils.getCurrentTimestamp()
                 it[Devices.nextWatering] = 4294967294; // max unsigned long value for ESP8266
             }
@@ -79,6 +82,14 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
         transaction(database.db) {
             Devices.update(where = { Devices.deviceId eq deviceId }, body = {
                 it[Devices.nextWatering] = newNextWateringTime
+            })
+        }
+    }
+
+    override fun updateLastPumpCleaning(deviceId: String, newLastPumpCleaningTime: Long) {
+        transaction(database.db) {
+            Devices.update(where = { Devices.deviceId eq deviceId }, body = {
+                it[Devices.lastPumpCleaning] = newLastPumpCleaningTime
             })
         }
     }

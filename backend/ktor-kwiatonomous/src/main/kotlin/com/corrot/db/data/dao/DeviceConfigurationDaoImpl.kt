@@ -13,7 +13,7 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns()
+            SchemaUtils.createMissingTablesAndColumns(DevicesConfigurations)
             SchemaUtils.create(DevicesConfigurations)
         }
     }

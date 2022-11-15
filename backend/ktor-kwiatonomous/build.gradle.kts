@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.1.0"
+version = "0.1.1"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -39,7 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-gson:$ktor_version")
 
     // GSON
-    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10")
 
     // Logging
     implementation("io.ktor:ktor-server-call-logging:$ktor_version")

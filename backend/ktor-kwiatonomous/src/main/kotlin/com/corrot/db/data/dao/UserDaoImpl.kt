@@ -14,7 +14,7 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns()
+            SchemaUtils.createMissingTablesAndColumns(Users)
             SchemaUtils.create(Users)
         }
     }

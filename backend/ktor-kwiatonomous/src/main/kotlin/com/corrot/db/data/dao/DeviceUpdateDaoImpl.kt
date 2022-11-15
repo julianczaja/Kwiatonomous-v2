@@ -10,7 +10,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns()
+            SchemaUtils.createMissingTablesAndColumns(DeviceUpdates)
             SchemaUtils.create(DeviceUpdates)
         }
     }

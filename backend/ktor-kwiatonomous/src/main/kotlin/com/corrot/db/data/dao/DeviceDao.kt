@@ -14,5 +14,7 @@ interface DeviceDao {
 
     fun updateNextWatering(deviceId: String, newNextWateringTime: Long)
 
+    fun updateLastPumpCleaning(deviceId: String, newLastPumpCleaningTime: Long)
+
     fun deleteDevice(deviceId: String)
 }
