@@ -1,6 +1,7 @@
 package com.corrot.kwiatonomousapp.common.components
 
 import android.content.res.Configuration
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -21,10 +22,9 @@ import com.corrot.kwiatonomousapp.domain.model.DeviceEventExtras
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import java.time.LocalDateTime
 
-// TODO: Improve UI
-
 @Composable
 fun DeviceEventItem(
+    deviceName: String?,
     deviceEvent: DeviceEvent,
     onLongPressed: () -> Unit,
 ) {
@@ -32,7 +32,6 @@ fun DeviceEventItem(
         shape = RoundedCornerShape(8.dp),
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 8.dp,
-
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onLongPress = { onLongPressed() }
@@ -43,162 +42,201 @@ fun DeviceEventItem(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(12.dp)
         ) {
             when (deviceEvent) {
-                is DeviceEvent.ConfigurationChange -> ConfigurationChangeEventItem(deviceEvent)
-                is DeviceEvent.LowBattery -> LowBatteryEventItem(deviceEvent)
-                is DeviceEvent.UserNote -> UserNoteEventItem(deviceEvent)
-                is DeviceEvent.Watering -> WateringEventItem(deviceEvent)
-                is DeviceEvent.PumpCleaning -> PumpCleaningEventItem(deviceEvent)
+                is DeviceEvent.ConfigurationChange -> ConfigurationChangeEventItem(deviceEvent, deviceName)
+                is DeviceEvent.LowBattery -> LowBatteryEventItem(deviceEvent, deviceName)
+                is DeviceEvent.UserNote -> UserNoteEventItem(deviceEvent, deviceName)
+                is DeviceEvent.Watering -> WateringEventItem(deviceEvent, deviceName)
+                is DeviceEvent.PumpCleaning -> PumpCleaningEventItem(deviceEvent, deviceName)
             }
         }
     }
 }
 
 @Composable
-fun PumpCleaningEventItem(deviceEvent: DeviceEvent.PumpCleaning) {
+fun PumpCleaningEventItem(deviceEvent: DeviceEvent.PumpCleaning, deviceName: String?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.pump_cleaning),
-            contentDescription = null,
+        EventImage(R.drawable.pump_cleaning)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(48.dp)
-                .padding(8.dp)
-        )
-        DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
+                .fillMaxWidth()
+                .padding(start = 16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.pump_cleaning),
+                style = MaterialTheme.typography.caption
+            )
+            DeviceNameAndDateTime(
+                deviceName = deviceName,
+                timestamp = deviceEvent.timestamp
+            )
+        }
     }
 }
 
 @Composable
-fun LowBatteryEventItem(deviceEvent: DeviceEvent.LowBattery) {
+fun LowBatteryEventItem(deviceEvent: DeviceEvent.LowBattery, deviceName: String?) {
     val extras = deviceEvent.extras as DeviceEventExtras.LowBattery
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.low_battery),
-            contentDescription = null,
-            modifier = Modifier
-                .size(48.dp)
-                .padding(8.dp)
-        )
+        EventImage(R.drawable.low_battery)
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp)
         ) {
-            DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.low_battery),
+                    style = MaterialTheme.typography.caption
+                )
+                DeviceNameAndDateTime(
+                    deviceName = deviceName,
+                    timestamp = deviceEvent.timestamp
+                )
+            }
             Divider(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
-                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = stringResource(R.string.battery_level_and_voltage_format)
-                    .format(extras.batteryLevel, extras.batteryVoltage),
-                style = MaterialTheme.typography.body1,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                text = stringResource(R.string.battery_level_and_voltage_format).format(extras.batteryLevel, extras.batteryVoltage),
+                style = MaterialTheme.typography.body1
             )
         }
     }
 }
 
 @Composable
-private fun ConfigurationChangeEventItem(deviceEvent: DeviceEvent.ConfigurationChange) {
+private fun ConfigurationChangeEventItem(deviceEvent: DeviceEvent.ConfigurationChange, deviceName: String?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.settings),
-            contentDescription = null,
+        EventImage(R.drawable.settings)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .size(48.dp)
-                .padding(8.dp)
-        )
-        DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
+                .fillMaxWidth()
+                .padding(start = 16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.configuration_change),
+                style = MaterialTheme.typography.caption
+            )
+            DeviceNameAndDateTime(
+                deviceName = deviceName,
+                timestamp = deviceEvent.timestamp
+            )
+        }
     }
 }
 
 @Composable
-private fun UserNoteEventItem(deviceEvent: DeviceEvent.UserNote) {
+private fun UserNoteEventItem(deviceEvent: DeviceEvent.UserNote, deviceName: String?) {
     val extras = deviceEvent.extras as DeviceEventExtras.UserNote
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.note),
-            contentDescription = null,
-            modifier = Modifier
-                .size(48.dp)
-                .padding(8.dp)
-        )
+        EventImage(R.drawable.note)
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp)
         ) {
-            DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.note),
+                    style = MaterialTheme.typography.caption
+                )
+                DeviceNameAndDateTime(
+                    deviceName = deviceName,
+                    timestamp = deviceEvent.timestamp
+                )
+            }
             Divider(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
-                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
                 text = extras.title,
                 style = MaterialTheme.typography.caption,
-                modifier = Modifier.padding(horizontal = 8.dp)
             )
+            if (extras.content.isNotEmpty()) {
+                Text(
+                    text = extras.content,
+                    style = MaterialTheme.typography.body2,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun WateringEventItem(deviceEvent: DeviceEvent.Watering, deviceName: String?) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        EventImage(R.drawable.watering)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp)
+        ) {
             Text(
-                text = extras.content,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                text = stringResource(id = R.string.watering),
+                style = MaterialTheme.typography.caption
+            )
+            DeviceNameAndDateTime(
+                deviceName = deviceName,
+                timestamp = deviceEvent.timestamp
             )
         }
     }
 }
 
 @Composable
-private fun WateringEventItem(deviceEvent: DeviceEvent.Watering) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.watering),
-            contentDescription = null,
-            modifier = Modifier
-                .size(48.dp)
-                .padding(8.dp)
-        )
-        DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
-    }
+private fun EventImage(@DrawableRes resId: Int) {
+    Image(
+        painter = painterResource(id = resId),
+        contentDescription = null,
+        modifier = Modifier.size(32.dp)
+    )
 }
 
 @Composable
-private fun DeviceIdAndDateTime(deviceId: String, timestamp: LocalDateTime) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+private fun DeviceNameAndDateTime(deviceName: String?, timestamp: LocalDateTime) {
+    Column(
+        horizontalAlignment = Alignment.End
     ) {
-        Text(text = deviceId, style = MaterialTheme.typography.body2)
+        deviceName?.let { Text(text = it, style = MaterialTheme.typography.body2) }
         Text(text = timestamp.toFormattedString(), style = MaterialTheme.typography.body2)
     }
 }
@@ -207,7 +245,7 @@ private fun DeviceIdAndDateTime(deviceId: String, timestamp: LocalDateTime) {
     "ConfigurationChangeEventItemPreviewLight",
     showSystemUi = false,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
-    heightDp = 500
+    heightDp = 600
 )
 @Composable
 private fun ConfigurationChangeEventItemPreviewLight() {
@@ -219,11 +257,51 @@ private fun ConfigurationChangeEventItemPreviewLight() {
                     .fillMaxSize()
                     .padding(8.dp),
             ) {
-                DeviceEventItem(DeviceEvent.Watering("deviceId", LocalDateTime.now()), {})
-                DeviceEventItem(DeviceEvent.ConfigurationChange("deviceId", LocalDateTime.now()), {})
-                DeviceEventItem(DeviceEvent.UserNote("userName", "title", "content", "deviceId", LocalDateTime.now()), {})
-                DeviceEventItem(DeviceEvent.LowBattery(75, 3.75f, "deviceId", LocalDateTime.now()), {})
-                DeviceEventItem(DeviceEvent.PumpCleaning("deviceId", LocalDateTime.now()), {})
+                DeviceEventItem(
+                    deviceName = "Device name",
+                    deviceEvent = DeviceEvent.Watering(
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    onLongPressed = {}
+                )
+                DeviceEventItem(
+                    deviceName = "Device name",
+                    deviceEvent = DeviceEvent.ConfigurationChange(
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    onLongPressed = {}
+                )
+                DeviceEventItem(
+                    deviceName = "Device name",
+                    deviceEvent = DeviceEvent.UserNote(
+                        userName = "userName",
+                        title = "Title",
+                        content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    onLongPressed = {}
+                )
+                DeviceEventItem(
+                    deviceName = "Device name",
+                    deviceEvent = DeviceEvent.LowBattery(
+                        batteryLevel = 75,
+                        batteryVoltage = 3.75f,
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    onLongPressed = {}
+                )
+                DeviceEventItem(
+                    deviceName = "Device name",
+                    deviceEvent = DeviceEvent.PumpCleaning(
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    onLongPressed = {}
+                )
             }
         }
     }

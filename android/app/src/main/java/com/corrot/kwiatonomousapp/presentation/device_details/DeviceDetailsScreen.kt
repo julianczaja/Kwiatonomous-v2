@@ -544,6 +544,7 @@ fun DeviceEventsSection(
             deviceEvents.forEachIndexed { index, event ->
                 item {
                     DeviceEventItem(
+                        deviceName = null,
                         deviceEvent = event,
                         onLongPressed = { onLongPressed(event) }
                     )

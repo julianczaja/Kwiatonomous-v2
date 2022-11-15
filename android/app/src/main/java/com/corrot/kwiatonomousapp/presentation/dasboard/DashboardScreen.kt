@@ -73,15 +73,16 @@ fun DashboardScreen(
             isLoading = state.value.isLoading,
             userName = state.value.user?.userName,
             events = state.value.events,
-            onRefreshEvents = { viewModel.refreshDevicesEvents() },
+            onRefreshEvents = viewModel::refreshDevicesEvents,
             onAllDevicesClicked = { kwiatonomousAppState.navController.navigate(Screen.Devices.route) },
             onAppSettingsClicked = { kwiatonomousAppState.navController.navigate(Screen.AppSettings.route) },
             onPlaceholderClicked = { kwiatonomousAppState.showSnackbar("Not implemented yet") },
-            onLogoutClicked = { viewModel.logOut() },
+            onLogoutClicked = viewModel::logOut,
             onLongPressed = {
                 viewModel.selectEventToDelete(it)
                 isDeleteEventAlertDialogOpened = true
-            }
+            },
+            getDeviceName = viewModel::getDeviceNameFromDeviceEvent
         )
         if (isDeleteEventAlertDialogOpened) {
             WarningBox(
@@ -112,6 +113,7 @@ fun DashboardScreenContent(
     onPlaceholderClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
     onLongPressed: (DeviceEvent) -> Unit,
+    getDeviceName: (DeviceEvent) -> String?,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
@@ -162,6 +164,7 @@ fun DashboardScreenContent(
                             it.forEachIndexed { index, event ->
                                 item {
                                     DeviceEventItem(
+                                        deviceName = getDeviceName(event),
                                         deviceEvent = event,
                                         onLongPressed = { onLongPressed(event) }
                                     )
@@ -240,7 +243,8 @@ private fun DashboardPreviewPreviewLight() {
                 onAppSettingsClicked = {},
                 onPlaceholderClicked = {},
                 onLogoutClicked = {},
-                onLongPressed = {}
+                onLongPressed = {},
+                getDeviceName = fun(_: DeviceEvent) = "Device name"
             )
         }
     }

@@ -119,6 +119,17 @@ class DashboardViewModel @Inject constructor(
         eventFlow.emit(Event.LOGGED_OUT)
     }
 
+    fun getDeviceNameFromDeviceEvent(deviceEvent: DeviceEvent): String? {
+        var deviceName: String? = null
+
+        userFlow.value?.let { user ->
+            val foundUserDevice = user.devices.find { it.deviceId == deviceEvent.deviceId }
+            deviceName = foundUserDevice?.deviceName
+        }
+
+        return deviceName
+    }
+
     fun selectEventToDelete(deviceEvent: DeviceEvent) {
         selectedDeviceEvent = deviceEvent
     }

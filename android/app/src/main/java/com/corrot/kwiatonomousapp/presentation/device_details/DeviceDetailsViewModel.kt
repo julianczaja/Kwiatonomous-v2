@@ -269,7 +269,7 @@ class DeviceDetailsViewModel @Inject constructor(
                             error = null
                         )
                         is Result.Success -> state.value = state.value.copy(
-                            deviceEvents = ret.data.sortedBy { it.timestamp },
+                            deviceEvents = ret.data.sortedByDescending { it.timestamp },
                             isDeviceEventsLoading = false
                         )
                         is Result.Error -> state.value = state.value.copy(
