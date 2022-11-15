@@ -18,7 +18,9 @@ import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -36,6 +38,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase,
     private val addDeviceEventUseCase: AddDeviceEventUseCase,
     private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase,
+    private val updateDeviceLastPumpCleaningUseCase: UpdateDeviceLastPumpCleaningUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
@@ -393,6 +396,37 @@ class DeviceDetailsViewModel @Inject constructor(
         deviceId?.let { deviceId ->
             viewModelScope.launch(ioDispatcher) {
                 val deviceEvent = DeviceEvent.Watering(
+                    deviceId = deviceId,
+                    timestamp = LocalDateTime.now()
+                )
+                addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
+                    when (ret) {
+                        is Result.Loading -> state.value = state.value.copy(
+                            isDeviceEventsLoading = true,
+                            error = null
+                        )
+                        is Result.Success -> state.value = state.value.copy(
+                            isDeviceEventsLoading = false
+                        )
+                        is Result.Error -> state.value = state.value.copy(
+                            isDeviceEventsLoading = false,
+                            error = ret.throwable.message ?: "Unknown error"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun onAddPumpCleaningEventClicked() {
+        deviceId?.let { deviceId ->
+            viewModelScope.launch(ioDispatcher) {
+                // TODO: Combine these 2 usecases
+                updateDeviceLastPumpCleaningUseCase.execute(deviceId, LocalDateTime.now())
+                    .onEach { if (it is Result.Error) throw it.throwable }
+                    .collect()
+
+                val deviceEvent = DeviceEvent.PumpCleaning(
                     deviceId = deviceId,
                     timestamp = LocalDateTime.now()
                 )

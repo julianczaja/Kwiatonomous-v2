@@ -36,10 +36,11 @@ fun DeviceItemPreviewLight() {
         Surface {
             DeviceItem(
                 device = Device(
-                    "testID",
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
-                    LocalDateTime.now()
+                    deviceId = "testID",
+                    birthday = LocalDateTime.now(),
+                    lastPumpCleaning = LocalDateTime.now(),
+                    lastUpdate = LocalDateTime.now(),
+                    nextWatering = LocalDateTime.now()
                 ),
                 onItemClick = {})
         }
@@ -58,10 +59,11 @@ fun DeviceItemPreviewDark() {
         Surface {
             DeviceItem(
                 device = Device(
-                    "testID",
-                    LocalDateTime.now().minusDays(2),
-                    LocalDateTime.now().minusDays(2),
-                    LocalDateTime.now().minusDays(2),
+                    deviceId = "testID",
+                    birthday = LocalDateTime.now().minusDays(2),
+                    lastPumpCleaning = LocalDateTime.MIN,
+                    lastUpdate = LocalDateTime.now().minusDays(2),
+                    nextWatering = LocalDateTime.now().plusDays(2)
                 ),
                 onItemClick = {})
         }
@@ -71,10 +73,9 @@ fun DeviceItemPreviewDark() {
 @Composable
 fun DeviceItem(
     device: Device,
-    onItemClick: ((Device) -> Unit)? = null
+    onItemClick: ((Device) -> Unit)? = null,
 ) {
-    val isDeviceActive =
-        (LocalDateTime.now().toLong() - (device.lastUpdate.toLong())) < DEVICE_INACTIVE_TIME_SECONDS
+    val isDeviceActive = (LocalDateTime.now().toLong() - (device.lastUpdate.toLong())) < DEVICE_INACTIVE_TIME_SECONDS
     val imageActiveIndicatorColor = if (isDeviceActive) DeviceActiveColor else DeviceInActiveColor
 
     Card(
@@ -147,6 +148,22 @@ fun DeviceItem(
                 )
                 Text(
                     text = device.birthday.toFormattedString(),
+                    style = MaterialTheme.typography.body1,
+                    fontWeight = FontWeight.Light,
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.last_pump_cleaning) + ": ",
+                    style = MaterialTheme.typography.body1,
+                )
+                Text(
+                    text = if (device.lastPumpCleaning.toLong() > 0)
+                        device.lastPumpCleaning.toFormattedString()
+                    else
+                        stringResource(id = R.string.empty_dash),
                     style = MaterialTheme.typography.body1,
                     fontWeight = FontWeight.Light,
                 )

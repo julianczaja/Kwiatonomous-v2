@@ -22,12 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
+import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.login.LoginScreenViewModel.Event.LOGGED_IN
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 

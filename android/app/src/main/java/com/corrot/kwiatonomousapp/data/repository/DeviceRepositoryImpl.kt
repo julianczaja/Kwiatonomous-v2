@@ -38,6 +38,10 @@ class DeviceRepositoryImpl @Inject constructor(
         kwiatonomousApi.updateNextWateringByDeviceId(id, nextWatering.toLong())
     }
 
+    override suspend fun updateLastPumpCleaningByDeviceIdRemote(id: String, lastPumpCleaning: LocalDateTime) {
+        kwiatonomousApi.updateLastPumpCleaningByDeviceId(id, lastPumpCleaning.toLong())
+    }
+
     override fun getDeviceFromDatabase(deviceId: String) =
         kwiatonomousDb.deviceDao().getByDeviceId(deviceId)
             .map { it.toDevice() }

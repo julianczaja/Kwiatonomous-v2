@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 data class Device(
     val deviceId: String,
     val birthday: LocalDateTime,
+    val lastPumpCleaning: LocalDateTime,
     val lastUpdate: LocalDateTime,
     var nextWatering: LocalDateTime
 )
@@ -13,6 +14,7 @@ data class Device(
 fun Device.toDeviceEntity() = DeviceEntity(
     deviceId = deviceId,
     birthday = birthday,
+    lastPumpCleaning = lastPumpCleaning,
     lastUpdate = lastUpdate,
     nextWatering = nextWatering
 )

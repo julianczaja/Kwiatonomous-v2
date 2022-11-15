@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.domain
 
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.toMD5

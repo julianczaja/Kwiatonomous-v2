@@ -13,11 +13,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.*
+import com.corrot.kwiatonomousapp.domain.NotificationsManager
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
+import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.presentation.device_settings.components.TimePicker
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
@@ -26,6 +27,7 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 @Composable
 fun AppSettingsScreen(
     kwiatonomousAppState: KwiatonomousAppState,
+    notificationsManager: NotificationsManager,
     viewModel: AppSettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -55,10 +57,26 @@ fun AppSettingsScreen(
             appTheme = state.appTheme,
             chartSettings = state.chartSettings,
             notificationsSettings = state.notificationsSettings,
-            onAppThemeSelected = { viewModel.setAppTheme(it) },
-            onChartSettingsChanged = { viewModel.setChartSettings(it) },
-            onNotificationsSettingsChanged = { viewModel.setNotificationsSettings(it) },
+            onAppThemeSelected = viewModel::setAppTheme,
+            onChartSettingsChanged = viewModel::setChartSettings,
+            onNotificationsSettingsChanged = viewModel::setNotificationsSettings,
             onClearCacheButtonClicked = { clearDevicesCacheAlertDialogOpened = true },
+            onTestLowBatteryNotificationClicked = {
+                notificationsManager.sendBatteryNotification(
+                    context = context,
+                    deviceName = "testid",
+                    notificationId = "testid".hashCode(),
+                )
+            },
+            onTestPumpCleaningNotificationClicked = {
+                notificationsManager.sendPumpCleaningReminderNotification(
+                    context = context,
+                    deviceId = "testid",
+                    deviceName = "testid",
+                    notificationId = "testid".hashCode(),
+                    isTest = true
+                )
+            },
             onChangeNotificationsTimeClicked = { timePickerDialogOpened = true }
         )
         if (state.isLoading) {
@@ -106,6 +124,8 @@ private fun AppSettingsScreenContent(
     onChartSettingsChanged: (ChartSettings) -> Unit,
     onNotificationsSettingsChanged: (NotificationsSettings) -> Unit,
     onClearCacheButtonClicked: () -> Unit,
+    onTestLowBatteryNotificationClicked: () -> Unit,
+    onTestPumpCleaningNotificationClicked: () -> Unit,
     onChangeNotificationsTimeClicked: () -> Unit,
 ) {
     LazyColumn(
@@ -150,6 +170,32 @@ private fun AppSettingsScreenContent(
                     onClick = onClearCacheButtonClicked
                 ) {
                     Text(text = "Clear devices cache")
+                }
+            }
+        }
+
+        item {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedButton(
+                    onClick = onTestLowBatteryNotificationClicked
+                ) {
+                    Text(text = "Test low battery notification")
+                }
+            }
+        }
+
+        item {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedButton(
+                    onClick = onTestPumpCleaningNotificationClicked
+                ) {
+                    Text(text = "Test pump cleaning notification")
                 }
             }
         }
@@ -313,7 +359,7 @@ private fun AppSettingsScreenContentLightPreview() {
                 AppTheme.LIGHT,
                 ChartSettings(),
                 NotificationsSettings(),
-                {}, {}, {}, {}, {}
+                {}, {}, {}, {}, {}, {}, {}
             )
         }
     }

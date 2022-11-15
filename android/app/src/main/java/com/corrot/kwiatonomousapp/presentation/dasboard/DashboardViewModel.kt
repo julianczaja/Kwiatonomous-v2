@@ -3,7 +3,7 @@ package com.corrot.kwiatonomousapp.presentation.dasboard
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.model.User

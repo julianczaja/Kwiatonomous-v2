@@ -43,6 +43,12 @@ interface KwiatonomousApi {
         @Body nextWatering: Long
     )
 
+    @POST("/kwiatonomous/android/device/{deviceId}/lastpumpcleaning")
+    suspend fun updateLastPumpCleaningByDeviceId(
+        @Path("deviceId") id: String,
+        @Body lastPumpCleaning: Long
+    )
+
     // DeviceUpdate
     @GET("/kwiatonomous/android/device/{deviceId}/updates")
     suspend fun getAllDeviceUpdates(

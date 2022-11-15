@@ -17,6 +17,8 @@ interface DeviceRepository {
 
     suspend fun updateNextWateringByDeviceId(id: String, nextWatering: LocalDateTime)
 
+    suspend fun updateLastPumpCleaningByDeviceIdRemote(id: String, lastPumpCleaning: LocalDateTime)
+
     // Local
     fun getDeviceFromDatabase(deviceId: String): Flow<Device>
 

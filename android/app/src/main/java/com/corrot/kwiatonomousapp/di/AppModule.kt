@@ -6,9 +6,9 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.BuildConfig
-import com.corrot.kwiatonomousapp.NotificationsManager
+import com.corrot.kwiatonomousapp.domain.NotificationsManager
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL
 import com.corrot.kwiatonomousapp.common.Constants.BASE_URL_DEBUG
 import com.corrot.kwiatonomousapp.common.Constants.DEBUG_MODE
@@ -19,7 +19,7 @@ import com.corrot.kwiatonomousapp.data.remote.DigestAuthInterceptor
 import com.corrot.kwiatonomousapp.data.remote.api.KwiatonomousApi
 import com.corrot.kwiatonomousapp.data.repository.*
 import com.corrot.kwiatonomousapp.domain.repository.*
-import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
+import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module

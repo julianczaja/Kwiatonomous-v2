@@ -3,7 +3,7 @@ package com.corrot.kwiatonomousapp.presentation.register
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITHOUT_SPACE
 import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITH_SPACE
 import dagger.hilt.android.lifecycle.HiltViewModel

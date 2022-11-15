@@ -21,7 +21,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
+import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.toFormattedString
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate

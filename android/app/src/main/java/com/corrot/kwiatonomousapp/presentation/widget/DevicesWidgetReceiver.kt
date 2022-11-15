@@ -2,7 +2,7 @@ package com.corrot.kwiatonomousapp.presentation.widget
 
 import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
+import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 
 class DevicesWidgetReceiver : GlanceAppWidgetReceiver() {
 

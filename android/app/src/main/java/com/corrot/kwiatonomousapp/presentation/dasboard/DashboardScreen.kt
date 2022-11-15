@@ -25,13 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.DeviceEventItem
 import com.corrot.kwiatonomousapp.common.components.WarningBox
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
+import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme

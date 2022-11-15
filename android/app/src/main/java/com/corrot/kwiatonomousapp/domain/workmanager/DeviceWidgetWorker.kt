@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.domain.workmanager
 
 import android.content.Context
 import androidx.glance.GlanceId
@@ -9,6 +9,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.corrot.kwiatonomousapp.data.remote.dto.toDeviceUpdate
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.DevicesWidgetData
 import com.corrot.kwiatonomousapp.domain.model.UserDevice
@@ -39,7 +40,10 @@ class DeviceWidgetWorker @AssistedInject constructor(
         val manager = GlanceAppWidgetManager(applicationContext)
         val glanceIds = manager.getGlanceIds(DevicesWidget::class.java)
 
-        setWidgetState(glanceIds, DevicesWidgetData.Loading)
+        setWidgetState(
+            glanceIds = glanceIds,
+            newState = DevicesWidgetData.Loading
+        )
 
         try {
             if (!authManager.checkIfLoggedIn()) {
@@ -48,7 +52,10 @@ class DeviceWidgetWorker @AssistedInject constructor(
             }
         } catch (e: Exception) {
             Timber.e(e.stackTraceToString())
-            setWidgetState(glanceIds, DevicesWidgetData.Error(e.message ?: "Unknown error"))
+            setWidgetState(
+                glanceIds = glanceIds,
+                newState = DevicesWidgetData.Error(e.message ?: "Unknown error")
+            )
             return if (runAttemptCount < 10) {
                 Result.retry()
             } else {
@@ -67,11 +74,18 @@ class DeviceWidgetWorker @AssistedInject constructor(
                         .toDeviceUpdate()
                         .also { devicesUpdates[userDevice] = it }
                 }
-                setWidgetState(glanceIds, DevicesWidgetData.Success(LocalDateTime.now(), devicesUpdates))
+                setWidgetState(
+                    glanceIds = glanceIds,
+                    newState = DevicesWidgetData.Success(updateTime = LocalDateTime.now(), devicesUpdates = devicesUpdates)
+                )
 
                 Result.success()
             } catch (e: Exception) {
-                setWidgetState(glanceIds, DevicesWidgetData.Error(e.message.orEmpty()))
+                Timber.e("Error: ${e.message}")
+                setWidgetState(
+                    glanceIds = glanceIds,
+                    newState = DevicesWidgetData.Error(message = e.message.orEmpty())
+                )
                 if (runAttemptCount < 10) {
                     Result.retry()
                 } else {

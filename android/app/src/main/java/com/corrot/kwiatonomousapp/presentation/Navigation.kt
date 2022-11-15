@@ -7,8 +7,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
+import com.corrot.kwiatonomousapp.domain.NotificationsManager
+import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.add_user_device.AddEditUserDeviceScreen
 import com.corrot.kwiatonomousapp.presentation.app_settings.AppSettingsScreen
 import com.corrot.kwiatonomousapp.presentation.dasboard.DashboardScreen
@@ -62,7 +63,7 @@ fun KwiatonomousNavHost(
         composable(
             route = Screen.AppSettings.route
         ) {
-            AppSettingsScreen(kwiatonomousAppState)
+            AppSettingsScreen(kwiatonomousAppState, NotificationsManager())
         }
 
         composable(

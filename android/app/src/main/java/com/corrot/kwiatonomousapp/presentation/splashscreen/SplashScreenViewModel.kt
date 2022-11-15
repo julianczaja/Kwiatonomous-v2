@@ -4,7 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.AuthManager
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.common.Constants.SPLASH_SCREEN_TIME_MILLIS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay

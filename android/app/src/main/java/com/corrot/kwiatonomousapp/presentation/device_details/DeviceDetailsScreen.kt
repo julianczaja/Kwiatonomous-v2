@@ -19,7 +19,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.corrot.kwiatonomousapp.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.components.*
@@ -46,8 +45,7 @@ fun DeviceDetailsScreen(
 ) {
     val state = viewModel.state.value
     val currentAppTheme = viewModel.currentAppTheme.collectAsState(initial = AppTheme.AUTO)
-    val currentChartSettings =
-        viewModel.currentChartSettings.collectAsState(initial = ChartSettings())
+    val currentChartSettings = viewModel.currentChartSettings.collectAsState(initial = ChartSettings())
     val isDarkMode = when (currentAppTheme.value) {
         AppTheme.AUTO -> isSystemInDarkTheme()
         AppTheme.LIGHT -> false
@@ -59,21 +57,18 @@ fun DeviceDetailsScreen(
     var isDeleteDeviceAlertDialogOpened by remember { mutableStateOf(false) }
     var addNoteDialogOpened by remember { mutableStateOf(false) }
     var addWateringDialogOpened by remember { mutableStateOf(false) }
+    var addPumpCleaningDialogOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
             when (event) {
-                DeviceDetailsViewModel.Event.NAVIGATE_UP -> {
-                    kwiatonomousAppState.navController.navigateUp()
-                }
-                DeviceDetailsViewModel.Event.OPEN_EDIT_USER_DEVICE_SCREEN -> {
-                    kwiatonomousAppState.navController.navigate(
-                        Screen.AddEditUserDevice.withOptionalArg(
-                            argName = Constants.NAV_ARG_DEVICE_ID,
-                            argValue = viewModel.state.value.userDevice!!.deviceId // it can't be null there
-                        )
+                DeviceDetailsViewModel.Event.NAVIGATE_UP -> kwiatonomousAppState.navController.navigateUp()
+                DeviceDetailsViewModel.Event.OPEN_EDIT_USER_DEVICE_SCREEN -> kwiatonomousAppState.navController.navigate(
+                    Screen.AddEditUserDevice.withOptionalArg(
+                        argName = Constants.NAV_ARG_DEVICE_ID,
+                        argValue = viewModel.state.value.userDevice!!.deviceId // it can't be null there
                     )
-                }
+                )
                 DeviceDetailsViewModel.Event.SHOW_DELETE_ALERT_DIALOG -> {
                     isDeleteDeviceAlertDialogOpened = true
                 }
@@ -125,6 +120,12 @@ fun DeviceDetailsScreen(
                         fillColor = MaterialTheme.colors.surface,
                         imageId = R.drawable.note,
                         onItemClick = { addNoteDialogOpened = !addNoteDialogOpened }
+                    ),
+                    ExpandableFloatingActionButtonItem(
+                        strokeColor = MaterialTheme.colors.secondary,
+                        fillColor = MaterialTheme.colors.surface,
+                        imageId = R.drawable.pump_cleaning, // TODO: replace with pump
+                        onItemClick = { addPumpCleaningDialogOpened = !addPumpCleaningDialogOpened }
                     )
                 )
             )
@@ -263,6 +264,17 @@ fun DeviceDetailsScreen(
                     viewModel.onAddWateringEventClicked()
                 },
                 onCancelClicked = { addWateringDialogOpened = false }
+            )
+        }
+        if (addPumpCleaningDialogOpened) {
+            AddWateringEventDialog( // TODO: AddPumpCleaningEventDialog or generic
+                dateTime = LocalDateTime.now(),
+                onDateTimeChange = {},
+                onAddClicked = {
+                    addPumpCleaningDialogOpened = false
+                    viewModel.onAddPumpCleaningEventClicked()
+                },
+                onCancelClicked = { addPumpCleaningDialogOpened = false }
             )
         }
         state.error?.let { error ->
@@ -513,7 +525,7 @@ private fun DeviceUpdatesSection(
 fun DeviceEventsSection(
     deviceEvents: List<DeviceEvent>,
     onScrolled: (Boolean) -> Unit,
-    onLongPressed: (DeviceEvent) -> Unit
+    onLongPressed: (DeviceEvent) -> Unit,
 ) {
     val scroll = rememberLazyListState()
     onScrolled(scroll.isScrolled)

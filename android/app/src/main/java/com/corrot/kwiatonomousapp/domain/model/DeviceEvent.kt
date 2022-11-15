@@ -39,6 +39,11 @@ sealed class DeviceEvent(
         timestamp,
         DeviceEventExtras.LowBattery(batteryLevel, batteryVoltage))
 
+    class PumpCleaning(
+        deviceId: String,
+        timestamp: LocalDateTime,
+    ) : DeviceEvent(deviceId, timestamp)
+
     fun toDeviceEventDto() = DeviceEventDto(
         timestamp = timestamp.toLong(),
         type = this.javaClass.simpleName,
@@ -69,6 +74,7 @@ sealed class DeviceEvent(
         ) = when (type) {
             Watering::class.simpleName -> Watering(deviceId, timestamp)
             ConfigurationChange::class.simpleName -> ConfigurationChange(deviceId, timestamp)
+            PumpCleaning::class.simpleName -> PumpCleaning(deviceId, timestamp)
             UserNote::class.simpleName -> {
                 val extras = Gson().fromJson(data, DeviceEventExtras.UserNote::class.java)
                 UserNote(deviceId = deviceId,

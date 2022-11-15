@@ -37,6 +37,7 @@
     <string name="humidity_abbr">Wilg.</string>
     <string name="id">ID</string>
     <string name="inactive">Nieaktywny</string>
+    <string name="last_pump_cleaning">Ostatnie czyszczenie pompy</string>
     <string name="last_update">Ostatnia aktualizacja</string>
     <string name="last_updates">Ostatnie aktualizacje</string>
     <string name="logged_in">Zalogowano</string>
@@ -59,6 +60,9 @@
     <string name="ok">OK</string>
     <string name="on_abbr">Wł.</string>
     <string name="password">Hasło</string>
+    <string name="postpone">Odłóż na później</string>
+    <string name="pump_cleaning_reminder_notification_title">Przypomnienie o czyszczeniu pompy w Kwiatonomousie</string>
+    <string name="pump_cleaning_reminder_notification_content">To czas na czyszczenie pompy w %s</string>
     <string name="register">Rejestracja</string>
     <string name="register_prompt">Psst…\nNie masz konta?\nKliknij tutaj aby stworzyć nowe</string>
     <string name="remove_devices_cache_warning_message">Czy na pewno chcesz usunąć pamięć podręczną wszystkich urządzeń?</string>

@@ -9,7 +9,7 @@ import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.domain.usecase.ClearDevicesCacheUseCase
-import com.corrot.kwiatonomousapp.KwiatonomousWorkManager
+import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

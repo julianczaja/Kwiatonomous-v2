@@ -51,6 +51,15 @@
                 android:resource="@xml/device_widget_provider" />
         </receiver>
 
+        <receiver
+            android:name=".domain.KwiatonomousBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="APP_SPECIFIC_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

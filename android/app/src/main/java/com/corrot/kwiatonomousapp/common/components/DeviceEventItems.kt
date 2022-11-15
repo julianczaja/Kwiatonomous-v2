@@ -50,8 +50,28 @@ fun DeviceEventItem(
                 is DeviceEvent.LowBattery -> LowBatteryEventItem(deviceEvent)
                 is DeviceEvent.UserNote -> UserNoteEventItem(deviceEvent)
                 is DeviceEvent.Watering -> WateringEventItem(deviceEvent)
+                is DeviceEvent.PumpCleaning -> PumpCleaningEventItem(deviceEvent)
             }
         }
+    }
+}
+
+@Composable
+fun PumpCleaningEventItem(deviceEvent: DeviceEvent.PumpCleaning) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.pump_cleaning),
+            contentDescription = null,
+            modifier = Modifier
+                .size(48.dp)
+                .padding(8.dp)
+        )
+        DeviceIdAndDateTime(deviceId = deviceEvent.deviceId, timestamp = deviceEvent.timestamp)
     }
 }
 
@@ -67,7 +87,7 @@ fun LowBatteryEventItem(deviceEvent: DeviceEvent.LowBattery) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.low_battery),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier
                 .size(48.dp)
                 .padding(8.dp)
@@ -101,7 +121,7 @@ private fun ConfigurationChangeEventItem(deviceEvent: DeviceEvent.ConfigurationC
     ) {
         Image(
             painter = painterResource(id = R.drawable.settings),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier
                 .size(48.dp)
                 .padding(8.dp)
@@ -122,7 +142,7 @@ private fun UserNoteEventItem(deviceEvent: DeviceEvent.UserNote) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.note),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier
                 .size(48.dp)
                 .padding(8.dp)
@@ -160,7 +180,7 @@ private fun WateringEventItem(deviceEvent: DeviceEvent.Watering) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.watering),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier
                 .size(48.dp)
                 .padding(8.dp)
@@ -187,28 +207,23 @@ private fun DeviceIdAndDateTime(deviceId: String, timestamp: LocalDateTime) {
     "ConfigurationChangeEventItemPreviewLight",
     showSystemUi = false,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
-    heightDp = 450
+    heightDp = 500
 )
 @Composable
 private fun ConfigurationChangeEventItemPreviewLight() {
     KwiatonomousAppTheme(darkTheme = false) {
         Surface {
-            Column(Modifier.fillMaxSize().padding(8.dp)) {
-                Divider(Modifier.height(8.dp))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+            ) {
                 DeviceEventItem(DeviceEvent.Watering("deviceId", LocalDateTime.now()), {})
-                Divider(Modifier.height(8.dp))
                 DeviceEventItem(DeviceEvent.ConfigurationChange("deviceId", LocalDateTime.now()), {})
-                Divider(Modifier.height(8.dp))
-                DeviceEventItem(DeviceEvent.UserNote(
-                    "userName",
-                    "title",
-                    "content",
-                    "deviceId",
-                    LocalDateTime.now()), {}
-                )
-                Divider(Modifier.height(8.dp))
+                DeviceEventItem(DeviceEvent.UserNote("userName", "title", "content", "deviceId", LocalDateTime.now()), {})
                 DeviceEventItem(DeviceEvent.LowBattery(75, 3.75f, "deviceId", LocalDateTime.now()), {})
-                Divider(Modifier.height(8.dp))
+                DeviceEventItem(DeviceEvent.PumpCleaning("deviceId", LocalDateTime.now()), {})
             }
         }
     }

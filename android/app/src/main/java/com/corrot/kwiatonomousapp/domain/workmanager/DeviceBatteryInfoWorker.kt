@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.domain.workmanager
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -6,7 +6,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.corrot.kwiatonomousapp.common.Constants.LOW_BATTERY_VOLTAGE_THRESHOLD
 import com.corrot.kwiatonomousapp.common.Constants.MAX_TIME_DIFF_HOURS
+import com.corrot.kwiatonomousapp.common.Result.*
 import com.corrot.kwiatonomousapp.data.remote.dto.toDeviceUpdate
+import com.corrot.kwiatonomousapp.domain.AuthManager
+import com.corrot.kwiatonomousapp.domain.NotificationsManager
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
@@ -38,46 +41,47 @@ class DeviceBatteryInfoWorker @AssistedInject constructor(
         try {
             if (!authManager.checkIfLoggedIn()) {
                 Timber.e("User not logged in")
-                return Result.retry()
+                throw Exception("User not logged in")
             }
+            userRepository.getCurrentUserFromDatabase().first()?.let { user ->
+                user.devices.forEach { userDevice ->
+
+                    if (!userDevice.notificationsOn) {
+                        return@forEach
+                    }
+
+                    val deviceUpdate = deviceUpdateRepository
+                        .fetchAllDeviceUpdates(userDevice.deviceId, 1)
+                        .first()
+                        .toDeviceUpdate()
+
+                    val hoursSinceLastUpdate = ChronoUnit.HOURS.between(deviceUpdate.updateTime, LocalDateTime.now())
+
+                    if (deviceUpdate.batteryVoltage < LOW_BATTERY_VOLTAGE_THRESHOLD && hoursSinceLastUpdate < MAX_TIME_DIFF_HOURS) {
+                        notificationsManager.sendBatteryNotification(
+                            context = applicationContext,
+                            deviceName = userDevice.deviceName,
+                            notificationId = userDevice.deviceId.hashCode()
+                        )
+                        addLowBatteryEvent(
+                            deviceId = userDevice.deviceId,
+                            batteryVoltage = deviceUpdate.batteryVoltage,
+                            batteryLevel = deviceUpdate.batteryLevel
+                        )
+                    }
+                }
+            }
+
+            return Result.success()
+
         } catch (e: Exception) {
             Timber.e(e.stackTraceToString())
-            return Result.retry()
-        }
-
-        userRepository.getCurrentUserFromDatabase().first()?.let { user ->
-            user.devices.forEach { userDevice ->
-
-                if (!userDevice.notificationsOn) {
-                    return@forEach
-                }
-
-                val deviceUpdate = deviceUpdateRepository
-                    .fetchAllDeviceUpdates(userDevice.deviceId, 1)
-                    .first()
-                    .toDeviceUpdate()
-
-                val timeDiffHours =
-                    ChronoUnit.HOURS.between(deviceUpdate.updateTime, LocalDateTime.now())
-
-                if (deviceUpdate.batteryVoltage < LOW_BATTERY_VOLTAGE_THRESHOLD
-                    && timeDiffHours < MAX_TIME_DIFF_HOURS
-                ) {
-                    notificationsManager.sendBatteryNotification(
-                        context = applicationContext,
-                        deviceName = userDevice.deviceName,
-                        notificationId = userDevice.deviceId.hashCode()
-                    )
-                    addLowBatteryEvent(
-                        userDevice.deviceId,
-                        deviceUpdate.batteryVoltage,
-                        deviceUpdate.batteryLevel
-                    )
-                }
+            return if (runAttemptCount < 10) {
+                Result.retry()
+            } else {
+                Result.failure()
             }
         }
-
-        return Result.success()
     }
 
     private suspend fun addLowBatteryEvent(
@@ -94,12 +98,9 @@ class DeviceBatteryInfoWorker @AssistedInject constructor(
         )
         addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
             when (ret) {
-                is com.corrot.kwiatonomousapp.common.Result.Loading ->
-                    Timber.d("addDeviceEventUseCase (Low battery) loading...")
-                is com.corrot.kwiatonomousapp.common.Result.Success ->
-                    Timber.d("addDeviceEventUseCase (Low battery) success")
-                is com.corrot.kwiatonomousapp.common.Result.Error ->
-                    Timber.e("addDeviceEventUseCase (Low battery) error (${ret.throwable.message})")
+                is Loading -> Timber.d("addDeviceEventUseCase (Low battery) loading...")
+                is Success -> Timber.d("addDeviceEventUseCase (Low battery) success")
+                is Error -> Timber.e("addDeviceEventUseCase (Low battery) error (${ret.throwable.message})")
             }
         }
     }

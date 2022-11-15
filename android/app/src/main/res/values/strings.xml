@@ -37,6 +37,7 @@
     <string name="humidity_abbr">Hum.</string>
     <string name="id">ID</string>
     <string name="inactive">Inactive</string>
+    <string name="last_pump_cleaning">Last pump cleaning</string>
     <string name="last_update">Last update</string>
     <string name="last_updates">Last updates</string>
     <string name="logged_in">Logged in</string>
@@ -59,6 +60,9 @@
     <string name="ok">OK</string>
     <string name="on_abbr">On</string>
     <string name="password">Password</string>
+    <string name="postpone">Postpone</string>
+    <string name="pump_cleaning_reminder_notification_title">Kwiatonomous pump cleaning reminder</string>
+    <string name="pump_cleaning_reminder_notification_content">It\'s time to clean pump in %s</string>
     <string name="register">Register</string>
     <string name="register_prompt">Psst…\nDon\'t have account?\nClick here to register</string>
     <string name="remove_devices_cache_warning_message">Are you sure that you want to remove all devices cache?</string>
@@ -93,4 +97,7 @@
     <string name="device_id_length_format" translatable="false">%d/10</string>
     <string name="humidity_format" translatable="false">%.1f %%</string>
     <string name="temperature_format" translatable="false">%.2f°C</string>
+
+    <!--  Other  -->
+    <string name="empty_dash" translatable="false">\u2012</string>
 </resources>

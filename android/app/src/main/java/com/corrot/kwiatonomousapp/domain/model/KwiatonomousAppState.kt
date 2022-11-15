@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.domain.model
 
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarDuration

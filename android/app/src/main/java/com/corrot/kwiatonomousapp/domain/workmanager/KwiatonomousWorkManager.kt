@@ -1,4 +1,4 @@
-package com.corrot.kwiatonomousapp
+package com.corrot.kwiatonomousapp.domain.workmanager
 
 import android.content.Context
 import androidx.work.*
@@ -13,8 +13,10 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
 
     fun setupWorkManager(notificationsSettings: NotificationsSettings) {
         val workManager = WorkManager.getInstance(applicationContext)
+
         if (notificationsSettings.notificationsOn) {
             setupBatteryWork(workManager, notificationsSettings.notificationsTime)
+            setupPumpCleaningReminderWork(workManager, notificationsSettings.notificationsTime)
         } else {
             workManager.cancelAllWork()
         }
@@ -26,16 +28,34 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
             .setRequiresBatteryNotLow(false)
             .build()
 
-        val work = PeriodicWorkRequestBuilder<DeviceBatteryInfoWorker>(1, TimeUnit.DAYS)
+        val workRequest = PeriodicWorkRequestBuilder<DeviceBatteryInfoWorker>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
             .addTag(DeviceBatteryInfoWorker.DEVICE_BATTERY_WORK_TAG)
             .setInitialDelay(getMinutesUntilLocalTime(toTime = notificationsTime), TimeUnit.MINUTES)
-            .build()
+
 
         workManager.enqueueUniquePeriodicWork(
             DeviceBatteryInfoWorker.DEVICE_BATTERY_WORK_NAME,
             ExistingPeriodicWorkPolicy.REPLACE,
-            work
+            workRequest.build()
+        )
+    }
+
+    private fun setupPumpCleaningReminderWork(workManager: WorkManager, notificationsTime: LocalTime) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(false)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<PumpCleaningWorker>(1, TimeUnit.DAYS)
+            .setConstraints(constraints)
+            .addTag(PumpCleaningWorker.PUMP_CLEANING_WORK_TAG)
+            .setInitialDelay(getMinutesUntilLocalTime(toTime = notificationsTime), TimeUnit.MINUTES)
+
+        workManager.enqueueUniquePeriodicWork(
+            PumpCleaningWorker.PUMP_CLEANING_WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            workRequest.build()
         )
     }
 
@@ -57,5 +77,4 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
         WorkManager.getInstance(applicationContext)
             .cancelUniqueWork(DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME)
     }
-
 }
