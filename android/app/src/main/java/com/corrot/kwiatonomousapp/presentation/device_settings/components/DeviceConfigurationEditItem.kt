@@ -22,7 +22,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
-
 @Composable
 fun DeviceConfigurationEditItem(
     deviceConfiguration: DeviceConfiguration,
@@ -73,13 +72,13 @@ fun DeviceConfigurationEditItem(
                 title = stringResource(R.string.sleep_time) + " (minutes)",
                 currentValue = deviceConfiguration.sleepTimeMinutes,
                 listOfValues = listOf(10, 30, 60),
-                onValueChange = { newSleepTime -> onSleepTimeChanged(newSleepTime) }
+                onValueChange = onSleepTimeChanged
             )
             DropdownableRow(
                 title = stringResource(R.string.time_zone),
                 currentValue = "UTC${deviceConfiguration.timeZoneOffset}",
                 listOfValues = getAllUTCZones(),
-                onValueChange = { newTimeZone -> onTimeZoneChanged(newTimeZone) }
+                onValueChange = onTimeZoneChanged
             )
             DropdownableRow(
                 title = stringResource(R.string.watering),
@@ -91,15 +90,13 @@ fun DeviceConfigurationEditItem(
                 title = stringResource(R.string.watering_interval) + " (days)",
                 currentValue = deviceConfiguration.wateringIntervalDays,
                 listOfValues = listOf(1, 2, 3, 4, 5, 6, 7, 14, 28),
-                onValueChange = { newWateringInterval ->
-                    onWateringIntervalDaysChanged(newWateringInterval)
-                }
+                onValueChange = onWateringIntervalDaysChanged
             )
             DropdownableRow(
                 title = stringResource(R.string.watering_amount) + " (ml)",
                 currentValue = deviceConfiguration.wateringAmount,
                 listOfValues = listOf(50, 100, 150, 250),
-                onValueChange = { newWateringAmount -> onWateringAmountChanged(newWateringAmount) }
+                onValueChange = onWateringAmountChanged
             )
             Row(
                 modifier = Modifier
@@ -109,15 +106,15 @@ fun DeviceConfigurationEditItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.watering_time)
-                            + ": ~${deviceConfiguration.wateringTime}",
+                    text = stringResource(R.string.watering_time) + ": ~${deviceConfiguration.wateringTime}",
                     style = MaterialTheme.typography.body1
                 )
                 OutlinedButton(
                     modifier = Modifier.width(150.dp),
                     onClick = {
                         wateringTimePickerDialogOpened = true
-                    }) {
+                    }
+                ) {
                     Text(stringResource(R.string.change))
                 }
             }
@@ -129,21 +126,22 @@ fun DeviceConfigurationEditItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.next_watering_date)
-                            + ": \n${nextWatering.format(DateTimeFormatter.ISO_DATE)}",
+                    text = stringResource(R.string.next_watering_date) + ": \n${nextWatering.format(DateTimeFormatter.ISO_DATE)}",
                     style = MaterialTheme.typography.body1
                 )
                 OutlinedButton(
                     modifier = Modifier.width(150.dp),
                     onClick = {
                         wateringDatePickerDialogOpened = true
-                    }) {
+                    }
+                ) {
                     Text(stringResource(R.string.change))
                 }
             }
         }
     }
 }
+
 @Preview(
     "DeviceConfigurationEditPreviewLight",
     heightDp = 500,
@@ -160,23 +158,23 @@ fun DeviceConfigurationEditPreviewLight() {
             ) {
                 item {
                     DeviceConfigurationEditItem(
-                        DeviceConfiguration(
-                            "test_id",
-                            30,
-                            ZoneOffset.ofHours(1),
-                            true,
-                            2,
-                            200,
-                            LocalTime.of(12, 30)
+                        deviceConfiguration = DeviceConfiguration(
+                            deviceId = "test_id",
+                            sleepTimeMinutes = 30,
+                            timeZoneOffset = ZoneOffset.ofHours(1),
+                            wateringOn = true,
+                            wateringIntervalDays = 2,
+                            wateringAmount = 200,
+                            wateringTime = LocalTime.of(12, 30)
                         ),
-                        LocalDateTime.now(),
+                        nextWatering = LocalDateTime.now(),
                         onSleepTimeChanged = {},
                         onTimeZoneChanged = {},
                         onWateringAmountChanged = {},
                         onWateringIntervalDaysChanged = {},
                         onWateringOnChanged = {},
-                        onWateringTimeChanged = { localTime -> },
-                        onWateringDateChanged = { year, month, day -> }
+                        onWateringTimeChanged = {},
+                        onWateringDateChanged = { _, _, _ -> }
                     )
                 }
             }

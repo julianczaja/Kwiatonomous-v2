@@ -1,19 +1,18 @@
 package com.corrot.kwiatonomousapp.presentation.device_settings
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.corrot.kwiatonomousapp.common.Constants
 import com.corrot.kwiatonomousapp.common.Result
+import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -32,31 +31,54 @@ class DeviceSettingsViewModel @Inject constructor(
 
     private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
 
-    private val _state = mutableStateOf(DeviceSettingsState())
-    val state: State<DeviceSettingsState> = _state
+    private val _state = MutableStateFlow(DeviceSettingsState())
+    val state: StateFlow<DeviceSettingsState> = _state
 
-    // mutableStateOf type to trigger isModified on value change
-    private var _originalDeviceConfiguration = mutableStateOf<DeviceConfiguration?>(null)
-    private var _originalNextWatering = mutableStateOf<LocalDateTime?>(null)
+    private var _originalDeviceConfiguration: DeviceConfiguration? = null
+    private var _originalNextWatering: LocalDateTime? = null
 
     val settingsChanged: Boolean
-        get() = _state.value.deviceConfiguration != _originalDeviceConfiguration.value
-                || _state.value.nextWatering != _originalNextWatering.value
+        get() = _state.value.deviceConfiguration != _originalDeviceConfiguration || _state.value.nextWatering != _originalNextWatering
 
     init {
-        refreshData()
-    }
-
-    fun refreshData() {
-        deviceId?.let {
-            getDeviceConfiguration(it)
-            getDeviceNextWatering(it)
+        if (deviceId.isNullOrEmpty()) {
+            _state.update { DeviceSettingsState(error = "Unknown error") }
+        } else {
+            getData(deviceId)
         }
     }
 
-    fun resetChanges() {
-        _state.value = _state.value.copy(
-            deviceConfiguration = _originalDeviceConfiguration.value,
+    private fun getData(deviceId: String) = viewModelScope.launch {
+        getDeviceConfigurationUseCase.execute(deviceId)
+            .combine(getDeviceUseCase.execute(deviceId)) { deviceConfiguration: Result<DeviceConfiguration>, device: Result<Device> ->
+
+                _state.update { it.copy(isLoading = deviceConfiguration is Result.Loading || device is Result.Loading) }
+
+                if (deviceConfiguration is Result.Error) {
+                    _state.update { it.copy(error = deviceConfiguration.throwable.message ?: "Unknown error") }
+                    return@combine
+                }
+                if (device is Result.Error) {
+                    _state.update { it.copy(error = device.throwable.message ?: "Unknown error") }
+                    return@combine
+                }
+
+                if (deviceConfiguration is Result.Success) {
+                    _state.update { it.copy(deviceConfiguration = deviceConfiguration.data, error = null) }
+                    _originalDeviceConfiguration = deviceConfiguration.data
+                }
+                if (device is Result.Success) {
+                    _state.update { it.copy(nextWatering = device.data.nextWatering) }
+                    _originalNextWatering = device.data.nextWatering
+                }
+            }
+            .collect()
+    }
+
+    fun resetChanges() = _state.update {
+        it.copy(
+            deviceConfiguration = _originalDeviceConfiguration,
+            nextWatering = _originalNextWatering,
             isLoading = false,
             error = null
         )
@@ -64,56 +86,27 @@ class DeviceSettingsViewModel @Inject constructor(
 
     fun saveNewDeviceConfiguration() = viewModelScope.launch(Dispatchers.IO) {
         try {
-            deviceId?.let {
-                updateDeviceConfiguration(it, _state.value.deviceConfiguration!!)
+            updateDeviceConfiguration(deviceId!!, _state.value.deviceConfiguration!!)
 
-                if (_state.value.nextWatering != _originalNextWatering.value) {
-                    updateNextWatering(it, _state.value.nextWatering!!)
-                }
-
-                addNewDeviceEvent(DeviceEvent.ConfigurationChange(it, LocalDateTime.now()))
+            if (_state.value.nextWatering != _originalNextWatering) {
+                updateNextWatering(deviceId, _state.value.nextWatering!!)
             }
+
+            addNewDeviceEvent(DeviceEvent.ConfigurationChange(deviceId, LocalDateTime.now()))
         } catch (e: Exception) {
             Timber.e(e)
-        }
-    }
-
-    private suspend fun addNewDeviceEvent(deviceEvent: DeviceEvent) {
-        addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
-            withContext(Dispatchers.Main) {
-                when (ret) {
-                    is Result.Loading -> _state.value = state.value.copy(
-                        isLoading = true,
-                        error = null
-                    )
-                    is Result.Success -> _state.value = state.value.copy(
-                        isLoading = false
-                    )
-                    is Result.Error -> _state.value = state.value.copy(
-                        isLoading = false,
-                        error = ret.throwable.message ?: "Unknown error"
-                    )
-                }
-            }
+            _state.update { it.copy(error = "Error occurred while applying changes. ${e.message}") }
         }
     }
 
     fun onDeviceConfigurationChanged(deviceConfiguration: DeviceConfiguration) {
-        _state.value = _state.value.copy(deviceConfiguration = deviceConfiguration)
+        _state.update { it.copy(deviceConfiguration = deviceConfiguration) }
     }
 
     fun onDeviceTimeZoneChanged(timeZoneString: String) {
-        val zoneOffset = if (timeZoneString == "UTC") {
-            ZoneOffset.UTC
-        } else {
-            ZoneOffset.of(timeZoneString.replace("UTC", ""))
-        }
+        fun String.toTimeZone() = if (this == "UTC") ZoneOffset.UTC else ZoneOffset.of(this.replace("UTC", ""))
 
-        // TODO: What should happen when time zone has changed?
-
-        onDeviceConfigurationChanged(
-            _state.value.deviceConfiguration!!.copy(timeZoneOffset = zoneOffset)
-        )
+        onDeviceConfigurationChanged(_state.value.deviceConfiguration!!.copy(timeZoneOffset = timeZoneString.toTimeZone()))
     }
 
     fun onDeviceWateringTimeChanged(localTime: LocalTime) {
@@ -127,11 +120,11 @@ class DeviceSettingsViewModel @Inject constructor(
                 .atOffset(currentZoneOffset)
                 .toLocalDateTime()
 
-            _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+            _state.update { it.copy(nextWatering = newWateringDateTime) }
+            onDeviceConfigurationChanged(_state.value.deviceConfiguration!!.copy(wateringTime = localTime))
         } else {
             // TODO: Handle exception
-            Timber
-                .tag("onDeviceWateringDateChanged")
+            Timber.tag("onDeviceWateringDateChanged")
                 .e("Can't update watering time, because the current zone offset is unknown (null)")
         }
     }
@@ -147,101 +140,48 @@ class DeviceSettingsViewModel @Inject constructor(
                 .atOffset(currentZoneOffset)
                 .toLocalDateTime()
 
-            _state.value = _state.value.copy(nextWatering = newWateringDateTime)
+            _state.update { it.copy(nextWatering = newWateringDateTime) }
         } else {
             // TODO: Handle exception
-            Timber
-                .tag("onDeviceWateringDateChanged")
+            Timber.tag("onDeviceWateringDateChanged")
                 .e("Can't update watering time, because the current zone offset is unknown (null)")
         }
     }
 
-    private fun getDeviceConfiguration(id: String) {
-        viewModelScope.launch {
-            getDeviceConfigurationUseCase.execute(id).collect { ret ->
-                when (ret) {
-                    is Result.Loading -> _state.value = _state.value.copy(
-                        isLoading = true,
-                        error = null
-                    )
-                    is Result.Success -> {
-                        _state.value = _state.value.copy(
-                            deviceConfiguration = ret.data,
-                            isLoading = false,
-                            error = null
-                        )
-                        _originalDeviceConfiguration.value = ret.data
-                    }
-                    is Result.Error -> _state.value = DeviceSettingsState(
-                        error = ret.throwable.message
-                    )
-                }
-            }
-        }
-    }
-
-    private fun getDeviceNextWatering(id: String) = viewModelScope.launch {
-        getDeviceUseCase.execute(id).collect { ret ->
+    private suspend fun updateDeviceConfiguration(deviceId: String, deviceConfiguration: DeviceConfiguration) {
+        updateDeviceConfigurationUseCase.execute(deviceId, deviceConfiguration).collect { ret ->
             when (ret) {
-                is Result.Loading -> _state.value = _state.value.copy(
-                    isLoading = true,
-                    error = null
-                )
+                is Result.Loading -> _state.update { it.copy(isLoading = true, error = null) }
                 is Result.Success -> {
-                    _state.value = _state.value.copy(
-                        nextWatering = ret.data.nextWatering,
-                        isLoading = false,
-                        error = null
-                    )
-                    _originalNextWatering.value = ret.data.nextWatering
+                    _state.update { it.copy(isLoading = false, error = null) }
+                    _originalDeviceConfiguration = deviceConfiguration
                 }
-                is Result.Error -> _state.value = DeviceSettingsState(
-                    error = ret.throwable.message
-                )
+                is Result.Error -> _state.update { DeviceSettingsState(error = ret.throwable.message ?: "Unknown error") }
             }
         }
     }
 
-    private suspend fun updateDeviceConfiguration(
-        id: String,
-        deviceConfiguration: DeviceConfiguration,
-    ) {
-        updateDeviceConfigurationUseCase.execute(id, deviceConfiguration).collect { ret ->
+    private suspend fun updateNextWatering(deviceId: String, newWateringTime: LocalDateTime) {
+        updateDeviceNextWateringUseCase.execute(deviceId, newWateringTime).collect { ret ->
             when (ret) {
-                is Result.Loading -> _state.value = _state.value.copy(
-                    isLoading = true,
-                    error = null
-                )
+                is Result.Loading -> _state.update { it.copy(isLoading = true, error = null) }
                 is Result.Success -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = null
-                    )
-                    refreshData()
+                    _state.update { it.copy(isLoading = false, error = null) }
+                    _originalNextWatering = newWateringTime
                 }
-                is Result.Error -> _state.value = DeviceSettingsState(
-                    isLoading = false,
-                    error = ret.throwable.message
-                )
+                is Result.Error -> _state.update {
+                    DeviceSettingsState(isLoading = false, error = ret.throwable.message ?: "Unknown error")
+                }
             }
         }
     }
 
-    private suspend fun updateNextWatering(id: String, newWateringTime: LocalDateTime) {
-        updateDeviceNextWateringUseCase.execute(id, newWateringTime).collect { ret ->
+    private suspend fun addNewDeviceEvent(deviceEvent: DeviceEvent) {
+        addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
             when (ret) {
-                is Result.Loading -> _state.value = _state.value.copy(
-                    isLoading = true,
-                    error = null
-                )
-                is Result.Success -> _state.value = _state.value.copy(
-                    isLoading = false,
-                    error = null
-                )
-                is Result.Error -> _state.value = DeviceSettingsState(
-                    isLoading = false,
-                    error = ret.throwable.message
-                )
+                is Result.Loading -> _state.update { it.copy(isLoading = true, error = null) }
+                is Result.Success -> _state.update { it.copy(isLoading = false, error = null) }
+                is Result.Error -> _state.update { it.copy(isLoading = false, error = ret.throwable.message ?: "Unknown error") }
             }
         }
     }
