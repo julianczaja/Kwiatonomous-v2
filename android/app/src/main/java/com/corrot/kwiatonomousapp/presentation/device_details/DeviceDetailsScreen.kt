@@ -204,7 +204,6 @@ fun DeviceDetailsScreen(
                         DeviceEventsSection(
                             deviceEvents = state.deviceEvents,
                             onScrolled = { isScrolled ->
-                                Timber.e("EVENTS SCROLLED $isScrolled")
                                 isEventsContentScrolled = isScrolled
                             },
                             onLongPressed = {

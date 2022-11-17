@@ -48,7 +48,7 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val state = viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     var isDeleteEventAlertDialogOpened by remember { mutableStateOf(false) }
 
@@ -70,9 +70,9 @@ fun DashboardScreen(
     ) { padding ->
         DashboardScreenContent(
             padding = padding,
-            isLoading = state.value.isLoading,
-            userName = state.value.user?.userName,
-            events = state.value.events,
+            isLoading = state.isLoading,
+            userName = state.user?.userName,
+            events = state.events,
             onRefreshEvents = viewModel::refreshDevicesEvents,
             onAllDevicesClicked = { kwiatonomousAppState.navController.navigate(Screen.Devices.route) },
             onAppSettingsClicked = { kwiatonomousAppState.navController.navigate(Screen.AppSettings.route) },
