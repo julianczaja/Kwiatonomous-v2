@@ -43,7 +43,7 @@ class DeviceUpdateRepositoryImpl @Inject constructor(
         deviceId: String,
         limit: Int
     ): Flow<List<DeviceUpdate>> {
-        return kwiatonomousDb.deviceUpdateDao().getAll(deviceId).map { deviceUpdates ->
+        return kwiatonomousDb.deviceUpdateDao().getAll(deviceId, limit).map { deviceUpdates ->
             deviceUpdates.map { it.toDeviceUpdate() }
         }
     }
