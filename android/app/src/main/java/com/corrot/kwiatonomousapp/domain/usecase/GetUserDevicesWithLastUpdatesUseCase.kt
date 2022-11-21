@@ -21,25 +21,27 @@ class GetUserDevicesWithLastUpdatesUseCase @Inject constructor(
     private val deviceUpdateRepository: DeviceUpdateRepository,
 ) {
     fun execute(): Flow<Result<List<Pair<UserDevice, DeviceUpdate?>>>> = flow {
-        try {
-            val user = userRepository.getCurrentUserFromDatabase().firstOrNull() ?: throw Exception("There is no logged in user")
-            val userDevicesWithEmptyLastUpdates = user.devices.map { userDevice ->
-                val lastUpdate = deviceUpdateRepository.getAllDeviceUpdatesFromDatabase(userDevice.deviceId, 1).firstOrNull()?.first()
-                Pair(userDevice, lastUpdate)
-            }
-            emit(Result.Loading(userDevicesWithEmptyLastUpdates))
+        userRepository.getCurrentUserFromDatabase().collect { user ->
+            try {
+                if (user == null) throw Exception("There is no logged in user")
+                val userDevicesWithEmptyLastUpdates = user.devices.map { userDevice ->
+                    val lastUpdate = deviceUpdateRepository.getAllDeviceUpdatesFromDatabase(userDevice.deviceId, 1).firstOrNull()?.first()
+                    Pair(userDevice, lastUpdate)
+                }
+                emit(Result.Loading(userDevicesWithEmptyLastUpdates))
 
-            val fetchedUpdates = mutableListOf<DeviceUpdateEntity>()
-            val userDevicesWithLastUpdates = userDevicesWithEmptyLastUpdates.map {
-                val userDevice = it.first
-                val lastUpdate = deviceUpdateRepository.fetchAllDeviceUpdates(userDevice.deviceId, 1).firstOrNull()?.toDeviceUpdate()
-                lastUpdate?.let { update -> fetchedUpdates.add(update.toDeviceUpdateEntity()) }
-                Pair(userDevice, if (isDeviceActive(lastUpdate)) lastUpdate else null)
+                val fetchedUpdates = mutableListOf<DeviceUpdateEntity>()
+                val userDevicesWithLastUpdates = userDevicesWithEmptyLastUpdates.map {
+                    val userDevice = it.first
+                    val lastUpdate = deviceUpdateRepository.fetchAllDeviceUpdates(userDevice.deviceId, 1).firstOrNull()?.toDeviceUpdate()
+                    lastUpdate?.let { update -> fetchedUpdates.add(update.toDeviceUpdateEntity()) }
+                    Pair(userDevice, if (isDeviceActive(lastUpdate)) lastUpdate else null)
+                }
+                deviceUpdateRepository.saveFetchedDeviceUpdates(fetchedUpdates)
+                emit(Result.Success(userDevicesWithLastUpdates))
+            } catch (e: Exception) {
+                emit(Result.Error(e))
             }
-            deviceUpdateRepository.saveFetchedDeviceUpdates(fetchedUpdates)
-            emit(Result.Success(userDevicesWithLastUpdates))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
         }
     }
 
