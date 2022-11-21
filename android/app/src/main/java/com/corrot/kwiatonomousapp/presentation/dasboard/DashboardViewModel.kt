@@ -59,6 +59,10 @@ class DashboardViewModel @Inject constructor(
                 return@flatMapLatest flowOf(DashboardState(error = "Can't find current user in database. Try logging again"))
             }
             else -> {
+                if (user.devices.isEmpty()) {
+                    return@flatMapLatest flowOf(uiState.value.copy(user = user))
+                }
+
                 val allDevicesEvents = mutableMapOf<String, List<DeviceEvent>>()
                 val deviceEventFlows = user.devices.map {
                     getAllDeviceEventsUseCase.execute(
