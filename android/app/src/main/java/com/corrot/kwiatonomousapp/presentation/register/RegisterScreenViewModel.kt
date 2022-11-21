@@ -1,17 +1,18 @@
 package com.corrot.kwiatonomousapp.presentation.register
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITHOUT_SPACE
 import com.corrot.kwiatonomousapp.common.Constants.REGEX_ALPHANUMERIC_WITH_SPACE
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +20,9 @@ class RegisterScreenViewModel @Inject constructor(
     val authManager: AuthManager,
 ) : ViewModel() {
 
-    val state = mutableStateOf(RegisterScreenState())
+    private val _state = MutableStateFlow(RegisterScreenState())
+    val state: StateFlow<RegisterScreenState> = _state
+
     val eventFlow = MutableSharedFlow<Event>()
 
     enum class Event {
@@ -27,57 +30,42 @@ class RegisterScreenViewModel @Inject constructor(
     }
 
     fun userNameChanged(newUserName: String) {
-        Timber.e(newUserName)
         if (newUserName.matches(REGEX_ALPHANUMERIC_WITH_SPACE)) {
-            state.value = state.value.copy(userName = newUserName)
+            _state.update { it.copy(userName = newUserName) }
         }
     }
 
     fun loginChanged(newLogin: String) {
         if (newLogin.matches(REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
-            state.value = state.value.copy(login = newLogin)
+            _state.update { it.copy(login = newLogin) }
         }
     }
 
     fun passwordChanged(newPassword: String) {
         if (newPassword.matches(REGEX_ALPHANUMERIC_WITHOUT_SPACE)) {
-            state.value = state.value.copy(password = newPassword)
+            _state.update { it.copy(password = newPassword) }
         }
     }
 
     fun registerClicked() {
-        state.value = state.value.copy(isLoading = true)
+        _state.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
             try {
-                authManager.tryToRegister(
-                    state.value.userName,
-                    state.value.login,
-                    state.value.password
-                )
+                authManager.tryToRegister(_state.value.userName, _state.value.login, _state.value.password)
                 onRegistered()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    state.value = state.value.copy(
-                        error = e.message ?: "Unknown error",
-                        isLoading = false
-                    )
+                    _state.update { it.copy(error = e.message ?: "Unknown error", isLoading = false) }
                 }
             }
         }
     }
 
-    fun confirmError() {
-        state.value = state.value.copy(error = null)
+    private fun onRegistered() {
+        _state.update { it.copy(error = null, isLoading = false) }
+        viewModelScope.launch { eventFlow.emit(Event.REGISTERED) }
     }
 
-    private fun onRegistered() {
-        state.value = state.value.copy(
-            error = null,
-            isLoading = false
-        )
-        viewModelScope.launch {
-            eventFlow.emit(Event.REGISTERED)
-        }
-    }
+    fun confirmError() = _state.update { it.copy(error = null) }
 }
