@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -22,23 +23,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.corrot.kwiatonomousapp.R
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
-import com.corrot.kwiatonomousapp.presentation.Screen
-import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
+import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.login.LoginScreenViewModel.Event.LOGGED_IN
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 
 @Composable
+@ExperimentalLifecycleComposeApi
 fun LoginScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: LoginScreenViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
         viewModel.eventFlow.collect { event ->
@@ -79,7 +83,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 ErrorBoxCancel(
-                    message = state.error,
+                    message = state.error ?: "Unknown error",
                     onCancel = { viewModel.confirmError() }
                 )
             }
