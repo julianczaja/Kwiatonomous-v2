@@ -13,6 +13,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +38,6 @@ import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.dasboard.components.DashboardCardItem
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -115,47 +116,46 @@ fun DashboardScreenContent(
     onLongPressed: (DeviceEvent) -> Unit,
     getDeviceName: (DeviceEvent) -> String?,
 ) {
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-    ) {
-        Row(
+    val refreshState = rememberPullRefreshState(isLoading, onRefreshEvents)
+
+    Box(modifier = Modifier.pullRefresh(refreshState)) {
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
+                .fillMaxSize()
+                .padding(padding)
         ) {
-            Text(
-                text = stringResource(id = R.string.hello_user_format).format(userName),
-                style = MaterialTheme.typography.caption,
-                textAlign = TextAlign.Center,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        RoundedCornerShape(CornerSize(8.dp))
-                    )
+                    .padding(12.dp)
             ) {
-                events?.let {
-                    SwipeRefresh(
-                        state = rememberSwipeRefreshState(isLoading),
-                        onRefresh = onRefreshEvents
-                    ) {
+                Text(
+                    text = stringResource(id = R.string.hello_user_format).format(userName),
+                    style = MaterialTheme.typography.caption,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black,
+                            RoundedCornerShape(CornerSize(8.dp))
+                        )
+                ) {
+                    events?.let {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -177,41 +177,46 @@ fun DashboardScreenContent(
                     }
                 }
             }
-        }
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            contentPadding = PaddingValues(8.dp),
-        ) {
-            item {
-                DashboardCardItem(
-                    text = stringResource(R.string.all_devices),
-                    onClicked = onAllDevicesClicked,
-                    testTag = "allDevicesButton"
-                )
-            }
-            item {
-                DashboardCardItem(
-                    stringResource(R.string.application_settings),
-                    onClicked = onAppSettingsClicked,
-                    testTag = "settingsButton"
-                )
-            }
-            item {
-                DashboardCardItem(
-                    text = "",
-                    onClicked = onPlaceholderClicked,
-                    testTag = ""
-                )
-            }
-            item {
-                DashboardCardItem(
-                    stringResource(R.string.log_out),
-                    onClicked = onLogoutClicked,
-                    testTag = "logOutButton"
-                )
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(150.dp),
+                contentPadding = PaddingValues(8.dp),
+            ) {
+                item {
+                    DashboardCardItem(
+                        text = stringResource(R.string.all_devices),
+                        onClicked = onAllDevicesClicked,
+                        testTag = "allDevicesButton"
+                    )
+                }
+                item {
+                    DashboardCardItem(
+                        stringResource(R.string.application_settings),
+                        onClicked = onAppSettingsClicked,
+                        testTag = "settingsButton"
+                    )
+                }
+                item {
+                    DashboardCardItem(
+                        text = "",
+                        onClicked = onPlaceholderClicked,
+                        testTag = ""
+                    )
+                }
+                item {
+                    DashboardCardItem(
+                        stringResource(R.string.log_out),
+                        onClicked = onLogoutClicked,
+                        testTag = "logOutButton"
+                    )
+                }
             }
         }
+        PullRefreshIndicator(
+            refreshing = isLoading,
+            state = refreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -231,11 +236,7 @@ private fun DashboardPreviewPreviewLight() {
                 userName = "Username",
                 events = listOf(
                     DeviceEvent.Watering("deviceId", LocalDateTime.now()),
-                    DeviceEvent.UserNote("username",
-                        "title",
-                        "content",
-                        "deviceId",
-                        LocalDateTime.now()),
+                    DeviceEvent.UserNote("username", "title", "content", "deviceId", LocalDateTime.now()),
                     DeviceEvent.LowBattery(55, 3.6f, "deviceId", LocalDateTime.now()),
                 ),
                 onRefreshEvents = {},

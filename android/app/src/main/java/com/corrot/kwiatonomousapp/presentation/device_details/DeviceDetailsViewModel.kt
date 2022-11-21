@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.presentation.device_details
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +16,7 @@ import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.corrot.kwiatonomousapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -49,14 +45,15 @@ class DeviceDetailsViewModel @Inject constructor(
     }
 
     private val deviceId = savedStateHandle.get<String>(Constants.NAV_ARG_DEVICE_ID)
-    val state = mutableStateOf(DeviceDetailsState())
+    private val _state = MutableStateFlow(DeviceDetailsState(selectedDateRange = calculateDateRange(LineChartDateType.DAY)))
+    val state: StateFlow<DeviceDetailsState> = _state
     val eventFlow = MutableSharedFlow<Event>()
     val currentAppTheme = appPreferencesRepository.getAppTheme()
     val currentChartSettings = appPreferencesRepository.getChartSettings()
 
     // Keep track of jobs to cancel it first when refreshData() is triggered
     // otherwise there will be multiple coroutines in background
-    // TODO: is that a good approach
+    // TODO: is that a good approach ?
     private var getDeviceJob: Job? = null
     private var getDeviceUpdatesJob: Job? = null
     private var getDeviceConfigurationJob: Job? = null
@@ -65,193 +62,122 @@ class DeviceDetailsViewModel @Inject constructor(
     private var selectedDeviceEvent: DeviceEvent? = null
 
     val isLoading: Boolean
-        get() = state.value.isUserDeviceLoading
-                || state.value.isDeviceLoading
-                || state.value.isDeviceUpdatesLoading
-                || state.value.isDeviceConfigurationLoading
-                || state.value.isDeviceEventsLoading
+        get() = _state.value.isUserDeviceLoading
+                || _state.value.isDeviceLoading
+                || _state.value.isDeviceUpdatesLoading
+                || _state.value.isDeviceConfigurationLoading
+                || _state.value.isDeviceEventsLoading
 
     init {
-        state.value = state.value.copy(
-            selectedDateRange = calculateDateRange(LineChartDateType.DAY)
-        )
         deviceId?.let { getUserDevice(it) }
         refreshData()
     }
 
     fun refreshData() {
-        deviceId?.let {
-            getDevice(it)
-            getDeviceConfiguration(it)
+        if (deviceId.isNullOrEmpty()) {
+            _state.update { DeviceDetailsState(error = "Unknown error") }
+        } else {
+            getDevice(deviceId)
+            getDeviceConfiguration(deviceId)
             getDeviceUpdates(
-                id = it,
-                from = state.value.selectedDateRange.first,
-                to = state.value.selectedDateRange.second
+                deviceId = deviceId,
+                from = _state.value.selectedDateRange.first,
+                to = _state.value.selectedDateRange.second
             )
-            getDeviceEvents(it)
+            getDeviceEvents(deviceId)
         }
     }
 
-    fun confirmError() {
-        state.value = state.value.copy(error = null)
-    }
+    fun confirmError() = _state.update { it.copy(error = null) }
 
-
-    fun toggleDeviceNotifications() = viewModelScope.launch(ioDispatcher) {
-        state.value.userDevice.let { currentUserDevice ->
-            if (currentUserDevice != null) {
-                updateUserDeviceUseCase.execute(
-                    currentUserDevice.copy(notificationsOn = !currentUserDevice.notificationsOn)
-                ).collect { ret ->
-                    withContext(Dispatchers.Main) {
+    fun toggleDeviceNotifications() = _state.value.userDevice.let { currentUserDevice ->
+        if (currentUserDevice != null) {
+            viewModelScope.launch(ioDispatcher) {
+                updateUserDeviceUseCase.execute(currentUserDevice.copy(notificationsOn = !currentUserDevice.notificationsOn))
+                    .collect { ret ->
                         when (ret) {
-                            is Result.Loading -> {
-                                state.value = state.value.copy(isUserDeviceLoading = true)
-                            }
-                            is Result.Success -> {
-                                state.value = state.value.copy(isUserDeviceLoading = false)
-                            }
-                            is Result.Error -> {
-                                state.value = state.value.copy(
-                                    isUserDeviceLoading = false,
-                                    error = ret.throwable.message ?: "Unknown error"
-                                )
+                            is Result.Loading -> _state.update { it.copy(isUserDeviceLoading = true) }
+                            is Result.Success -> _state.update { it.copy(isUserDeviceLoading = false) }
+                            is Result.Error -> _state.update {
+                                it.copy(isUserDeviceLoading = false, error = ret.throwable.message ?: "Unknown error")
                             }
                         }
                     }
-                }
-            } else {
-                state.value = state.value.copy(
-                    isUserDeviceLoading = false,
-                    error = "Unknown error"
-                )
             }
+        } else {
+            _state.update { it.copy(isUserDeviceLoading = false, error = "Unknown error") }
         }
     }
 
+
     fun onUserDeviceAction(action: UserDeviceAction) = viewModelScope.launch(ioDispatcher) {
         when (action) {
-            UserDeviceAction.EDIT -> {
-                eventFlow.emit(Event.OPEN_EDIT_USER_DEVICE_SCREEN)
-            }
-            UserDeviceAction.DELETE -> {
-                eventFlow.emit(Event.SHOW_DELETE_ALERT_DIALOG)
-            }
+            UserDeviceAction.EDIT -> eventFlow.emit(Event.OPEN_EDIT_USER_DEVICE_SCREEN)
+            UserDeviceAction.DELETE -> eventFlow.emit(Event.SHOW_DELETE_ALERT_DIALOG)
         }
     }
 
     fun deleteUserDevice() = viewModelScope.launch(ioDispatcher) {
         deleteUserDeviceUseCase.execute(state.value.userDevice!!).collect { ret ->
-            withContext(Dispatchers.Main) {
-                when (ret) {
-                    is Result.Loading -> {
-                        state.value = state.value.copy(isUserDeviceLoading = true)
-                    }
-                    is Result.Success -> {
-                        eventFlow.emit(Event.NAVIGATE_UP)
-                    }
-                    is Result.Error -> {
-                        state.value = state.value.copy(
-                            isUserDeviceLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
-                    }
-                }
+            when (ret) {
+                is Result.Loading -> _state.update { it.copy(isUserDeviceLoading = true, userDevice = ret.data) }
+                is Result.Success -> eventFlow.emit(Event.NAVIGATE_UP)
+                is Result.Error -> _state.update { it.copy(isUserDeviceLoading = false, error = ret.throwable.message ?: "Unknown error") }
             }
         }
     }
 
     private fun getUserDevice(deviceId: String) = viewModelScope.launch(ioDispatcher) {
         getUserDeviceUseCase.execute(deviceId).collect { ret ->
-            withContext(Dispatchers.Main) {
-                when (ret) {
-                    is Result.Loading -> {
-                        state.value = state.value.copy(isUserDeviceLoading = true)
-                    }
-                    is Result.Success -> {
-                        state.value = state.value.copy(
-                            isUserDeviceLoading = false,
-                            userDevice = ret.data
-                        )
-                    }
-                    is Result.Error -> {
-                        state.value = state.value.copy(
-                            isUserDeviceLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
-                    }
-                }
+            when (ret) {
+                is Result.Loading -> _state.update { it.copy(isUserDeviceLoading = true, userDevice = ret.data) }
+                is Result.Success -> _state.update { it.copy(isUserDeviceLoading = false, userDevice = ret.data) }
+                is Result.Error -> _state.update { it.copy(isUserDeviceLoading = false, error = ret.throwable.message ?: "Unknown error") }
             }
         }
     }
 
-    private fun getDevice(id: String) = viewModelScope.launch(ioDispatcher) {
+    private fun getDevice(deviceId: String) = viewModelScope.launch(ioDispatcher) {
         getDeviceJob?.cancelAndJoin()
         getDeviceJob = viewModelScope.launch(ioDispatcher) {
-            getDeviceUseCase.execute(id).collect { ret ->
+            getDeviceUseCase.execute(deviceId).collect { ret ->
                 withContext(Dispatchers.Main) {
                     when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceLoading = true,
-                            device = ret.data
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceLoading = false,
-                            device = ret.data/*, error = null*/
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getDeviceUpdates(id: String, from: Long, to: Long) =
-        viewModelScope.launch(ioDispatcher) {
-            getDeviceUpdatesJob?.cancelAndJoin()
-            getDeviceUpdatesJob = viewModelScope.launch(ioDispatcher) {
-                getDeviceUpdatesByDateUseCase.execute(id, from, to).collect { ret ->
-                    withContext(Dispatchers.Main) {
-                        when (ret) {
-                            is Result.Loading -> state.value = state.value.copy(
-                                isDeviceUpdatesLoading = true,
-                                deviceUpdates = ret.data
-                            )
-                            is Result.Success -> state.value = state.value.copy(
-                                isDeviceUpdatesLoading = false,
-                                deviceUpdates = ret.data/*, error = null*/
-                            )
-                            is Result.Error -> state.value = state.value.copy(
-                                isDeviceUpdatesLoading = false,
-                                error = ret.throwable.message ?: "Unknown error"
-                            )
+                        is Result.Loading -> _state.update { it.copy(isDeviceLoading = true, device = ret.data) }
+                        is Result.Success -> _state.update { it.copy(isDeviceLoading = false, device = ret.data) }
+                        is Result.Error -> _state.update {
+                            it.copy(isDeviceLoading = false, error = ret.throwable.message ?: "Unknown error")
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun getDeviceUpdates(deviceId: String, from: Long, to: Long) = viewModelScope.launch(ioDispatcher) {
+        getDeviceUpdatesJob?.cancelAndJoin()
+        getDeviceUpdatesJob = viewModelScope.launch(ioDispatcher) {
+            getDeviceUpdatesByDateUseCase.execute(deviceId, from, to).collect { ret ->
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isDeviceUpdatesLoading = true, deviceUpdates = ret.data) }
+                    is Result.Success -> _state.update { it.copy(isDeviceUpdatesLoading = false, deviceUpdates = ret.data) }
+                    is Result.Error -> _state.update {
+                        it.copy(isDeviceUpdatesLoading = false, error = ret.throwable.message ?: "Unknown error")
+                    }
+                }
+            }
+        }
+    }
 
     private fun getDeviceConfiguration(id: String) = viewModelScope.launch(ioDispatcher) {
         getDeviceConfigurationJob?.cancelAndJoin()
         getDeviceConfigurationJob = viewModelScope.launch(ioDispatcher) {
             getDeviceConfigurationUseCase.execute(id).collect { ret ->
-                withContext(Dispatchers.Main) {
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceConfigurationLoading = true,
-                            deviceConfiguration = ret.data
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceConfigurationLoading = false,
-                            deviceConfiguration = ret.data/*, error = null*/
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceConfigurationLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isDeviceConfigurationLoading = true, deviceConfiguration = ret.data) }
+                    is Result.Success -> _state.update { it.copy(isDeviceConfigurationLoading = false, deviceConfiguration = ret.data) }
+                    is Result.Error -> _state.update {
+                        it.copy(isDeviceConfigurationLoading = false, error = ret.throwable.message ?: "Unknown error")
                     }
                 }
             }
@@ -262,20 +188,13 @@ class DeviceDetailsViewModel @Inject constructor(
         getDeviceEventsJob?.cancelAndJoin()
         getDeviceEventsJob = viewModelScope.launch(ioDispatcher) {
             getAllDeviceEventsUseCase.execute(deviceId, 100).collect { ret ->
-                withContext(Dispatchers.Main) {
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceEventsLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            deviceEvents = ret.data.sortedByDescending { it.timestamp },
-                            isDeviceEventsLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true, deviceEvents = ret.data) }
+                    is Result.Success -> _state.update {
+                        it.copy(deviceEvents = ret.data.sortedByDescending { event -> event.timestamp }, isDeviceEventsLoading = false)
+                    }
+                    is Result.Error -> _state.update {
+                        it.copy(isDeviceEventsLoading = false, error = ret.throwable.message ?: "Unknown error")
                     }
                 }
             }
@@ -284,45 +203,28 @@ class DeviceDetailsViewModel @Inject constructor(
 
     fun onChartDateTypeSelected(dateType: LineChartDateType) = viewModelScope.launch(ioDispatcher) {
         when {
-            dateType.ordinal < state.value.selectedChartDateType.ordinal -> {
-                state.value.deviceUpdates?.let { oldDeviceUpdates ->
+            dateType.ordinal < _state.value.selectedChartDateType.ordinal -> {
+                _state.value.deviceUpdates?.let { oldDeviceUpdates ->
                     val newDataRange = calculateDateRange(dateType)
                     val newDeviceUpdates = oldDeviceUpdates.filter {
                         it.updateTime.toLong() in newDataRange.first..newDataRange.second
                     }
-                    withContext(Dispatchers.Main) {
-                        state.value = state.value.copy(
-                            deviceUpdates = newDeviceUpdates,
-                            selectedChartDateType = dateType,
-                            selectedDateRange = newDataRange
-                        )
+                    _state.update {
+                        it.copy(deviceUpdates = newDeviceUpdates, selectedChartDateType = dateType, selectedDateRange = newDataRange)
                     }
                 }
             }
-            dateType.ordinal > state.value.selectedChartDateType.ordinal -> {
+            dateType.ordinal > _state.value.selectedChartDateType.ordinal -> {
                 val newDataRange = calculateDateRange(dateType)
-                deviceId?.let {
-                    getDeviceUpdates(
-                        id = it,
-                        from = newDataRange.first,
-                        to = newDataRange.second
-                    )
-                }
-                withContext(Dispatchers.Main) {
-                    state.value = state.value.copy(
-                        selectedChartDateType = dateType,
-                        selectedDateRange = newDataRange
-                    )
-                }
+                getDeviceUpdates(deviceId = deviceId!!, from = newDataRange.first, to = newDataRange.second)
+                _state.update { it.copy(selectedChartDateType = dateType, selectedDateRange = newDataRange) }
             }
-            dateType.ordinal == state.value.selectedChartDateType.ordinal -> {}
+            dateType.ordinal == _state.value.selectedChartDateType.ordinal -> {}
         }
     }
 
 
-    fun onChartDataTypeSelected(dataType: LineChartDataType) {
-        state.value = state.value.copy(selectedChartDataType = dataType)
-    }
+    fun onChartDataTypeSelected(dataType: LineChartDataType) = _state.update { it.copy(selectedChartDataType = dataType) }
 
     private fun calculateDateRange(dateType: LineChartDateType): Pair<Long, Long> {
         val from: Long
@@ -352,98 +254,61 @@ class DeviceDetailsViewModel @Inject constructor(
         return Pair(from, to)
     }
 
-    fun onNoteTitleChanged(newNoteTitle: String) {
-        state.value = state.value.copy(noteTitle = newNoteTitle)
-    }
+    fun onNoteTitleChanged(newNoteTitle: String) = _state.update { it.copy(noteTitle = newNoteTitle) }
 
-    fun onNoteContentChanged(newNoteContent: String) {
-        state.value = state.value.copy(noteContent = newNoteContent)
-    }
+    fun onNoteContentChanged(newNoteContent: String) = _state.update { it.copy(noteContent = newNoteContent) }
 
-    fun onAddNoteClicked() {
-        deviceId?.let { deviceId ->
-            viewModelScope.launch(ioDispatcher) {
-                val user = userRepository.getCurrentUserFromDatabase().first()
-                    ?: throw Exception("There is no logged in user")
+    fun addNote() {
+        viewModelScope.launch(ioDispatcher) {
+            val user = userRepository.getCurrentUserFromDatabase().first() ?: throw Exception("There is no logged in user")
 
-                val deviceEvent = DeviceEvent.UserNote(
-                    userName = user.userName,
-                    title = state.value.noteTitle,
-                    content = state.value.noteContent,
-                    deviceId = deviceId,
-                    timestamp = LocalDateTime.now()
-                )
-                addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceEventsLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
+            val deviceEvent = DeviceEvent.UserNote(
+                userName = user.userName,
+                title = state.value.noteTitle,
+                content = state.value.noteContent,
+                deviceId = deviceId!!,
+                timestamp = LocalDateTime.now()
+            )
+            addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true) }
+                    is Result.Success -> _state.update { it.copy(isDeviceEventsLoading = false) }
+                    is Result.Error -> _state.update {
+                        it.copy(isDeviceEventsLoading = false, error = ret.throwable.message ?: "Unknown error")
                     }
                 }
             }
         }
     }
 
-    fun onAddWateringEventClicked() {
-        deviceId?.let { deviceId ->
-            viewModelScope.launch(ioDispatcher) {
-                val deviceEvent = DeviceEvent.Watering(
-                    deviceId = deviceId,
-                    timestamp = LocalDateTime.now()
-                )
-                addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceEventsLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
-                    }
+    fun addWateringEvent() = viewModelScope.launch(ioDispatcher) {
+        val deviceEvent = DeviceEvent.Watering(deviceId = deviceId!!, timestamp = LocalDateTime.now())
+
+        addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
+            when (ret) {
+                is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true) }
+                is Result.Success -> _state.update { it.copy(isDeviceEventsLoading = false) }
+                is Result.Error -> _state.update {
+                    it.copy(isDeviceEventsLoading = false, error = ret.throwable.message ?: "Unknown error")
                 }
             }
         }
     }
 
-    fun onAddPumpCleaningEventClicked() {
-        deviceId?.let { deviceId ->
-            viewModelScope.launch(ioDispatcher) {
-                // TODO: Combine these 2 usecases
-                updateDeviceLastPumpCleaningUseCase.execute(deviceId, LocalDateTime.now())
-                    .onEach { if (it is Result.Error) throw it.throwable }
-                    .collect()
+    fun addPumpCleaningEvent() = viewModelScope.launch(ioDispatcher) {
+        // TODO: Combine these 2 use-cases
+        updateDeviceLastPumpCleaningUseCase.execute(deviceId = deviceId!!, lastPumpCleaning = LocalDateTime.now())
+            .onEach { if (it is Result.Error) throw it.throwable }
+            .collect()
 
-                val deviceEvent = DeviceEvent.PumpCleaning(
-                    deviceId = deviceId,
-                    timestamp = LocalDateTime.now()
-                )
-                addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceEventsLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
-                    }
+        val deviceEvent = DeviceEvent.PumpCleaning(deviceId = deviceId, timestamp = LocalDateTime.now())
+
+        addDeviceEventUseCase.execute(deviceEvent).collect { ret ->
+            when (ret) {
+                is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true) }
+                is Result.Success -> _state.update { it.copy(isDeviceEventsLoading = false) }
+                is Result.Error -> _state.update {
+                    it.copy(isDeviceEventsLoading = false, error = ret.throwable.message ?: "Unknown error")
                 }
             }
         }
@@ -456,30 +321,17 @@ class DeviceDetailsViewModel @Inject constructor(
     fun deleteSelectedUserEvent() = viewModelScope.launch(ioDispatcher) {
         if (selectedDeviceEvent != null) {
             deleteDeviceEventUseCase.execute(selectedDeviceEvent!!).collect { ret ->
-                withContext(Dispatchers.Main) {
-                    when (ret) {
-                        is Result.Loading -> state.value = state.value.copy(
-                            isDeviceEventsLoading = true,
-                            error = null
-                        )
-                        is Result.Success -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false
-                        )
-                        is Result.Error -> state.value = state.value.copy(
-                            isDeviceEventsLoading = false,
-                            error = ret.throwable.message ?: "Unknown error"
-                        )
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true) }
+                    is Result.Success -> _state.update { it.copy(isDeviceEventsLoading = false) }
+                    is Result.Error -> _state.update {
+                        it.copy(isDeviceEventsLoading = false, error = ret.throwable.message ?: "Unknown error")
                     }
-                    selectedDeviceEvent = null
                 }
+                selectedDeviceEvent = null
             }
         } else {
-            withContext(Dispatchers.Main) {
-                state.value = state.value.copy(
-                    error = "There is no selected event" // FIXME
-                )
-            }
+            _state.update { it.copy(error = "There is no selected event") }
         }
     }
 }
-
