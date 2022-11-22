@@ -9,6 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 import com.corrot.kwiatonomousapp.domain.NotificationsManager
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi
+    @ExperimentalLifecycleComposeApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
