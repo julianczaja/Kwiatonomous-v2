@@ -17,8 +17,7 @@ data class DeviceConfigurationEntity(
     val wateringOn: Boolean,
     val wateringIntervalDays: Int,
     val wateringAmount: Int,
-    val wateringTime: LocalTime,
-    val lastUpdated: Long = System.currentTimeMillis()
+    val wateringTime: LocalTime
 )
 
 fun DeviceConfigurationEntity.toDeviceConfiguration() = DeviceConfiguration(

@@ -1,0 +1,254 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 8,
+    "identityHash": "64ced2a173f6d596d4879942584602f5",
+    "entities": [
+      {
+        "tableName": "user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` TEXT NOT NULL, `userName` TEXT NOT NULL DEFAULT 'user name', `devices` TEXT NOT NULL, `registrationTimestamp` INTEGER NOT NULL, `lastActivityTimestamp` INTEGER NOT NULL, `isLoggedIn` INTEGER NOT NULL, PRIMARY KEY(`userId`))",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userName",
+            "columnName": "userName",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'user name'"
+          },
+          {
+            "fieldPath": "devices",
+            "columnName": "devices",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registrationTimestamp",
+            "columnName": "registrationTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastActivityTimestamp",
+            "columnName": "lastActivityTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isLoggedIn",
+            "columnName": "isLoggedIn",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "userId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "device",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deviceId` TEXT NOT NULL, `birthday` INTEGER NOT NULL, `lastPumpCleaning` INTEGER NOT NULL DEFAULT 0, `lastUpdate` INTEGER NOT NULL, `nextWatering` INTEGER NOT NULL, PRIMARY KEY(`deviceId`))",
+        "fields": [
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "birthday",
+            "columnName": "birthday",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastPumpCleaning",
+            "columnName": "lastPumpCleaning",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextWatering",
+            "columnName": "nextWatering",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "deviceId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "device_update",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deviceId` TEXT NOT NULL, `updateTime` INTEGER NOT NULL, `batteryLevel` INTEGER NOT NULL, `batteryVoltage` REAL NOT NULL, `temperature` REAL NOT NULL, `humidity` REAL NOT NULL, PRIMARY KEY(`updateTime`))",
+        "fields": [
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updateTime",
+            "columnName": "updateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "batteryLevel",
+            "columnName": "batteryLevel",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "batteryVoltage",
+            "columnName": "batteryVoltage",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperature",
+            "columnName": "temperature",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "humidity",
+            "columnName": "humidity",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "updateTime"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "device_configuration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deviceId` TEXT NOT NULL, `sleepTimeMinutes` INTEGER NOT NULL, `timeZoneOffset` INTEGER NOT NULL, `wateringOn` INTEGER NOT NULL, `wateringIntervalDays` INTEGER NOT NULL, `wateringAmount` INTEGER NOT NULL, `wateringTime` TEXT NOT NULL, PRIMARY KEY(`deviceId`))",
+        "fields": [
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sleepTimeMinutes",
+            "columnName": "sleepTimeMinutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeZoneOffset",
+            "columnName": "timeZoneOffset",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wateringOn",
+            "columnName": "wateringOn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wateringIntervalDays",
+            "columnName": "wateringIntervalDays",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wateringAmount",
+            "columnName": "wateringAmount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wateringTime",
+            "columnName": "wateringTime",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "deviceId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "device_event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deviceId` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `type` TEXT NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`timestamp`))",
+        "fields": [
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "timestamp"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '64ced2a173f6d596d4879942584602f5')"
+    ]
+  }
+}

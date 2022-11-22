@@ -17,8 +17,7 @@ data class DeviceEntity(
     @ColumnInfo(defaultValue = LOCAL_DATE_TIME_MIN_STRING)
     val lastPumpCleaning: LocalDateTime = LocalDateTime.MIN,
     val lastUpdate: LocalDateTime,
-    var nextWatering: LocalDateTime,
-    val lastUpdated: LocalDateTime = LocalDateTime.now(),
+    var nextWatering: LocalDateTime
 )
 
 fun DeviceEntity.toDevice() = Device(
