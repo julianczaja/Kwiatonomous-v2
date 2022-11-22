@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,14 +33,13 @@ class DevicesViewModel @Inject constructor(
     fun refreshData() = viewModelScope.launch(ioDispatcher) {
         getDataJob?.cancelAndJoin()
         getDataJob = viewModelScope.launch(ioDispatcher) {
-            getUserDevicesWithLastUpdatesUseCase.execute()
-                .collect { ret ->
-                    when (ret) {
-                        is Result.Loading -> _state.update { it.copy(isLoading = true, userDevicesWithLastUpdates = ret.data) }
-                        is Result.Success -> _state.update { it.copy(isLoading = false, userDevicesWithLastUpdates = ret.data) }
-                        is Result.Error -> _state.update { it.copy(isLoading = false, error = ret.throwable.message ?: "Unknown error") }
-                    }
+            getUserDevicesWithLastUpdatesUseCase.execute().cancellable().collect { ret ->
+                when (ret) {
+                    is Result.Loading -> _state.update { it.copy(isLoading = true, userDevicesWithLastUpdates = ret.data) }
+                    is Result.Success -> _state.update { it.copy(isLoading = false, userDevicesWithLastUpdates = ret.data) }
+                    is Result.Error -> _state.update { it.copy(isLoading = false, error = ret.throwable.message ?: "Unknown error") }
                 }
+            }
         }
     }
 

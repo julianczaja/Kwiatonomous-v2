@@ -140,7 +140,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDevice(deviceId: String) = viewModelScope.launch(ioDispatcher) {
         getDeviceJob?.cancelAndJoin()
         getDeviceJob = viewModelScope.launch(ioDispatcher) {
-            getDeviceUseCase.execute(deviceId).collect { ret ->
+            getDeviceUseCase.execute(deviceId).cancellable().collect { ret ->
                 withContext(Dispatchers.Main) {
                     when (ret) {
                         is Result.Loading -> _state.update { it.copy(isDeviceLoading = true, device = ret.data) }
@@ -157,7 +157,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDeviceUpdates(deviceId: String, from: Long, to: Long) = viewModelScope.launch(ioDispatcher) {
         getDeviceUpdatesJob?.cancelAndJoin()
         getDeviceUpdatesJob = viewModelScope.launch(ioDispatcher) {
-            getDeviceUpdatesByDateUseCase.execute(deviceId, from, to).collect { ret ->
+            getDeviceUpdatesByDateUseCase.execute(deviceId, from, to).cancellable().collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.update { it.copy(isDeviceUpdatesLoading = true, deviceUpdates = ret.data) }
                     is Result.Success -> _state.update { it.copy(isDeviceUpdatesLoading = false, deviceUpdates = ret.data) }
@@ -172,7 +172,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDeviceConfiguration(id: String) = viewModelScope.launch(ioDispatcher) {
         getDeviceConfigurationJob?.cancelAndJoin()
         getDeviceConfigurationJob = viewModelScope.launch(ioDispatcher) {
-            getDeviceConfigurationUseCase.execute(id).collect { ret ->
+            getDeviceConfigurationUseCase.execute(id).cancellable().collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.update { it.copy(isDeviceConfigurationLoading = true, deviceConfiguration = ret.data) }
                     is Result.Success -> _state.update { it.copy(isDeviceConfigurationLoading = false, deviceConfiguration = ret.data) }
@@ -187,7 +187,7 @@ class DeviceDetailsViewModel @Inject constructor(
     private fun getDeviceEvents(deviceId: String) = viewModelScope.launch(ioDispatcher) {
         getDeviceEventsJob?.cancelAndJoin()
         getDeviceEventsJob = viewModelScope.launch(ioDispatcher) {
-            getAllDeviceEventsUseCase.execute(deviceId, 100).collect { ret ->
+            getAllDeviceEventsUseCase.execute(deviceId, 100).cancellable().collect { ret ->
                 when (ret) {
                     is Result.Loading -> _state.update { it.copy(isDeviceEventsLoading = true, deviceEvents = ret.data) }
                     is Result.Success -> _state.update {
