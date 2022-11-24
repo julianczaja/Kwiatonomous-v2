@@ -12,6 +12,8 @@ interface DeviceEventRepository {
 
     suspend fun fetchAllDeviceEvents(deviceId: String, limit: Int): List<DeviceEventDto>
 
+    suspend fun updateAllDeviceEvents(deviceId: String, limit: Int)
+
     suspend fun fetchDeviceEventsByDate(
         deviceId: String,
         from: Long,

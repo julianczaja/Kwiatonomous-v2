@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -155,23 +156,19 @@ fun DashboardScreenContent(
                             RoundedCornerShape(CornerSize(8.dp))
                         )
                 ) {
-                    events?.let {
+                    events?.let { eventsList ->
                         LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(8.dp)
                         ) {
-                            it.forEachIndexed { index, event ->
-                                item {
-                                    DeviceEventItem(
-                                        deviceName = getDeviceName(event),
-                                        deviceEvent = event,
-                                        onLongPressed = { onLongPressed(event) }
-                                    )
-                                }
-                                if (index < it.size - 1) {
-                                    item { Spacer(modifier = Modifier.height(8.dp)) }
-                                }
+                            items(eventsList, key = { e -> e.timestamp }) { event ->
+                                DeviceEventItem(
+                                    deviceName = getDeviceName(event),
+                                    deviceEvent = event,
+                                    onLongPressed = { onLongPressed(event) }
+                                )
                             }
                         }
                     }

@@ -11,7 +11,7 @@ import com.corrot.kwiatonomousapp.domain.model.toDeviceUpdateEntity
 import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -25,7 +25,7 @@ class GetUserDevicesWithLastUpdatesUseCase @Inject constructor(
             try {
                 if (user == null) throw Exception("There is no logged in user")
                 val userDevicesWithEmptyLastUpdates = user.devices.map { userDevice ->
-                    val lastUpdate = deviceUpdateRepository.getAllDeviceUpdatesFromDatabase(userDevice.deviceId, 1).firstOrNull()?.first()
+                    val lastUpdate = deviceUpdateRepository.getAllDeviceUpdatesFromDatabase(userDevice.deviceId, 1).first().firstOrNull()
                     Pair(userDevice, lastUpdate)
                 }
                 emit(Result.Loading(userDevicesWithEmptyLastUpdates))

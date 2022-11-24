@@ -3,17 +3,18 @@ package com.corrot.kwiatonomousapp.presentation.dasboard
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.common.Result
+import com.corrot.kwiatonomousapp.domain.AuthManager
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.model.User
+import com.corrot.kwiatonomousapp.domain.repository.DeviceEventRepository
 import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.corrot.kwiatonomousapp.domain.usecase.DeleteDeviceEventUseCase
-import com.corrot.kwiatonomousapp.domain.usecase.GetAllDeviceEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,19 +22,22 @@ class DashboardViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     val userRepository: UserRepository,
     val authManager: AuthManager,
-    private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase,
+    private val deviceEventRepository: DeviceEventRepository,
     private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private companion object {
-        const val EVENTS_LIMIT_PER_DEVICE = 3
+        const val EVENTS_LIMIT_PER_DEVICE = 5
         const val USER_KEY = "user"
     }
 
     private var selectedDeviceEvent: DeviceEvent? = null
     private val userFlow = savedStateHandle.getStateFlow<User?>(USER_KEY, null)
     val eventFlow = MutableSharedFlow<Event>()
+
+    private val isError = MutableStateFlow<String?>(null)
+    private val isLoading = MutableStateFlow(false)
 
     val uiState: StateFlow<DashboardState> = uiStateStream()
         .stateIn(
@@ -52,68 +56,59 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun uiStateStream(): Flow<DashboardState> = userFlow.flatMapLatest { user ->
+    private fun devicesEventsStream(): Flow<List<DeviceEvent>> = userFlow.flatMapLatest { user ->
+        if (user == null) {
+            return@flatMapLatest emptyFlow()
+        } else {
+            val allDevicesEvents = mutableMapOf<String, List<DeviceEvent>>()
+            return@flatMapLatest user.devices
+                .map {
+                    deviceEventRepository
+                        .getAllDeviceEventsFromDatabase(it.deviceId, EVENTS_LIMIT_PER_DEVICE)
+                        .distinctUntilChanged(::checkIfTwoDeviceEventsListsAreTheEquivalent)
+                }
+                .merge()
+                .onStart { refreshDevicesEvents() }
+                .mapLatest { events ->
+                    if (events.isNotEmpty()) {
+                        allDevicesEvents[events.first().deviceId] = events
+                    }
+                    return@mapLatest allDevicesEvents.flatMap { it.value }.sortedByDescending { it.timestamp }
+                }
+        }
+    }
+
+    private fun uiStateStream(): Flow<DashboardState> = combine(
+        userFlow,
+        devicesEventsStream(),
+        isLoading,
+        isError
+    ) { user, devicesEvents, isLoading, error ->
         when (user) {
             null -> {
                 logOut()
-                return@flatMapLatest flowOf(DashboardState(error = "Can't find current user in database. Try logging again"))
+                DashboardState(error = "Can't find current user in database. Try logging again")
             }
-            else -> {
-                if (user.devices.isEmpty()) {
-                    return@flatMapLatest flowOf(uiState.value.copy(user = user))
-                }
-
-                val allDevicesEvents = mutableMapOf<String, List<DeviceEvent>>()
-                val deviceEventFlows = user.devices.map {
-                    getAllDeviceEventsUseCase.execute(
-                        deviceId = it.deviceId,
-                        limit = EVENTS_LIMIT_PER_DEVICE
-                    )
-                }
-                // FIXME: When fetching 2 devices' events, the `Result.Success` is emmited 3 times for some reason
-                deviceEventFlows
-                    .merge()
-                    .mapLatest { events ->
-                        when (events) {
-                            is Result.Loading -> {
-                                return@mapLatest uiState.value.copy(
-                                    user = user,
-                                    isLoading = true,
-                                    error = null
-                                )
-                            }
-                            is Result.Success -> {
-                                if (events.data.isNotEmpty()) {
-                                    allDevicesEvents[events.data.first().deviceId] = events.data
-                                }
-                                return@mapLatest uiState.value.copy(
-                                    user = user,
-                                    isLoading = false,
-                                    events = allDevicesEvents.flatMap { it.value }.sortedByDescending { it.timestamp }
-                                )
-                            }
-                            is Result.Error -> {
-                                return@mapLatest uiState.value.copy(
-                                    user = user,
-                                    isLoading = false,
-                                    error = events.throwable.message ?: "Unknown error"
-                                )
-                            }
-                        }
-                    }
-            }
+            else -> DashboardState(
+                user = user,
+                isLoading = isLoading,
+                events = devicesEvents,
+                error = error
+            )
         }
-            .distinctUntilChanged()
     }
 
-
-    fun refreshDevicesEvents() = viewModelScope.launch {
+    fun refreshDevicesEvents() = viewModelScope.launch(ioDispatcher) {
         userFlow.value?.let { user ->
+            isLoading.emit(true)
             user.devices.forEach { userDevice ->
-                getAllDeviceEventsUseCase.execute(
-                    deviceId = userDevice.deviceId,
-                    limit = EVENTS_LIMIT_PER_DEVICE
-                ).collect()
+                try {
+                    deviceEventRepository.updateAllDeviceEvents(userDevice.deviceId, EVENTS_LIMIT_PER_DEVICE)
+                } catch (e: Exception) {
+                    isError.emit(e.message ?: "Unknown error")
+                } finally {
+                    isLoading.emit(false)
+                }
             }
         }
     }
@@ -141,15 +136,23 @@ class DashboardViewModel @Inject constructor(
     fun deleteSelectedUserEvent() = viewModelScope.launch(ioDispatcher) {
         selectedDeviceEvent?.let {
             deleteDeviceEventUseCase.execute(it).collect { ret ->
-                withContext(Dispatchers.Main) {
-                    when (ret) { // FIXME: Connect loading/error to uiState somehow
-                        is Result.Loading -> Timber.e("Loading")
-                        is Result.Success -> Timber.e("Success")
-                        is Result.Error -> Timber.e("Error: ${ret.throwable}")
+                when (ret) {
+                    is Result.Loading -> isLoading.emit(true)
+                    is Result.Success -> isLoading.emit(false)
+                    is Result.Error -> {
+                        isLoading.emit(false)
+                        isError.emit(ret.throwable.message ?: "Unknown error")
                     }
-                    selectedDeviceEvent = null
                 }
+                selectedDeviceEvent = null
             }
         }
     }
+
+    private fun checkIfTwoDeviceEventsListsAreTheEquivalent(old: List<DeviceEvent>, new: List<DeviceEvent>) =
+        if (old.isNotEmpty() && new.isNotEmpty()) {
+            old.map { it.timestamp } == new.map { it.timestamp }
+        } else {
+            old.size == new.size
+        }
 }
