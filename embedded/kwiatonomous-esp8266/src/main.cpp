@@ -19,10 +19,11 @@
 #define PUMP_PIN 12
 #define BATTERY_VOLTAGE_PIN A0
 
-#define SLEEP_CORRECTION_TIME 25e5   // us
-#define SLEEP_TIME_DEFAULT 30 * 60e6 // us
-#define WIFI_CONNECTION_TIMEOUT 15e3 // ms
-#define NTP_TIMEOUT 10e3             // ms
+#define BATTERY_LOW_THRESHOLD_VOLTAGE 3.3 // V
+#define SLEEP_CORRECTION_TIME 25e5        // us
+#define SLEEP_TIME_DEFAULT 30 * 60e6      // us
+#define WIFI_CONNECTION_TIMEOUT 15e3      // ms
+#define NTP_TIMEOUT 10e3                  // ms
 
 #define DEVICE_ID "testid"
 
@@ -53,15 +54,25 @@ void setup()
   batteryManager.init();
   wateringManager.init();
   dataManager.init();
-  delay(100);
+  delay(500);
 
   Serial.print("Failure count: ");
   Serial.println(dataManager.getFailuresCount());
 
   // Get battery status before Wi-Fi is on
-  ledInfo.on(2);
+  // If battery too low just go to sleep for max time
   batteryManager.update();
-  ledInfo.off();
+  float currentVoltage = batteryManager.getBatteryVoltage();
+  Serial.print("Current voltage: ");
+  Serial.println(currentVoltage);
+  Serial.print("Current battery level: ");
+  Serial.println(batteryManager.getBatteryLevel());
+  if (currentVoltage <= BATTERY_LOW_THRESHOLD_VOLTAGE)
+  {
+    ledInfo.signalizeLowBattery();
+    goToSleep(ESP.deepSleepMax());
+    return;
+  }
 
   // Connect to Wi-Fi
   WiFiConfiguration wifiConfiguration = WiFiConfiguration();
@@ -120,7 +131,7 @@ void setup()
       // be watered on each wake up
       //
       // Maybe save info about failure to EEPROM?
-    } 
+    }
     else
     {
       kwiatonomousApi.sendWateringEvent(deviceUpdate.epochTime);

@@ -19,7 +19,7 @@ private:
     uint8_t _dividerPin;
     uint8_t _samplesCount;
     uint8_t _lowBatteryLevel;
-    unsigned long _lastCallbackTime = 0; 
+    unsigned long _lastCallbackTime = 0;
     void (*lowBatteryCallback)();
     int8_t _batteryLevel = 0;
     float _batteryVoltage = 0;
@@ -27,6 +27,7 @@ private:
 
     void voltageDividerOn();
     void voltageDividerOff();
+    int8_t getBatteryLevelInternal(float adcMean);
 };
 
 #endif

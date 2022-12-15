@@ -12,7 +12,9 @@
 // #define SERVER_NAME "http://192.168.1.11:8015/kwiatonomous/esp" // FOR LOCAL TESTS
 #define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
 #define POST_WATERING_EVENT_FORMAT "{\"timestamp\":%lu,\"type\":\"Watering\",\"data\":\"\"}"
+#define POST_LOW_BATTERY_EVENT_FORMAT "{\"timestamp\":%lu,\"type\":\"Low battery\",\"data\":\"{\"batteryLevel\":%d,\"batteryVoltage\":%g}\"}"
 #define GET_CONFIGURATION_FORMAT "{\"sleepTimeMinutes\":%d,\"timeZoneOffset\":%d,\"wateringOn\":%d,\"wateringIntervalDays\":%d,\"wateringAmount\":%d,\"wateringTime\":%s}"
+
 class KwiatonomousApi
 {
 public:
@@ -24,6 +26,7 @@ public:
     bool updateNextWatering(unsigned long newNextWatering);
     bool sendUpdate(DeviceUpdate *deviceUpdate);
     bool sendWateringEvent(unsigned long timestamp);
+    bool sendLowBatteryEvent(unsigned long epochTime, int8_t batteryLevel,  float batteryVoltage);
     void end();
 
 private:
