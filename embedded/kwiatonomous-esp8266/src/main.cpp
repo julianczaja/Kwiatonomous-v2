@@ -20,10 +20,9 @@
 #define BATTERY_VOLTAGE_PIN A0
 
 #define BATTERY_LOW_THRESHOLD_VOLTAGE 3.3 // V
-#define SLEEP_CORRECTION_TIME 25e5        // us
 #define SLEEP_TIME_DEFAULT 30 * 60e6      // us
 #define WIFI_CONNECTION_TIMEOUT 15e3      // ms
-#define NTP_TIMEOUT 10e3                  // ms
+#define NTP_TIMEOUT 5e3                   // ms
 
 #define DEVICE_ID "testid"
 
@@ -49,18 +48,20 @@ void setup()
   Serial.begin(115200);
   Serial.println("\nHello world!\n\n");
 
-  ledBuiltin.init(true);
+  ledBuiltin.init(false);
+  ledBuiltin.on(1);
   ledInfo.init(false);
+  ledInfo.on(5);
   batteryManager.init();
   wateringManager.init();
   dataManager.init();
-  delay(500);
+  delay(250);
 
   Serial.print("Failure count: ");
   Serial.println(dataManager.getFailuresCount());
 
   // Get battery status before Wi-Fi is on
-  // If battery too low just go to sleep for max time
+  // If battery too low just go to sleep for max time (soft safeguard)
   batteryManager.update();
   float currentVoltage = batteryManager.getBatteryVoltage();
   Serial.print("Current voltage: ");
@@ -74,12 +75,23 @@ void setup()
     return;
   }
 
+  // Get temperature and humidity from AHT sensor
+  Adafruit_AHTX0 aht;
+  sensors_event_t sensor_temperature, sensor_humidity;
+  if (aht.begin())
+  {
+    aht.getEvent(&sensor_humidity, &sensor_temperature);
+  }
+  else
+  {
+    onError((char *)"Couldn't find AHT. Check wiring!");
+  }
+
   // Connect to Wi-Fi
   WiFiConfiguration wifiConfiguration = WiFiConfiguration();
   dataManager.getWiFiConfiguration(&wifiConfiguration);
   connectToWifi(&wifiConfiguration);
 
-  ledInfo.on(2);
   kwiatonomousApi.init((char *)DEVICE_ID);
 
   // Get device configuration
@@ -104,20 +116,8 @@ void setup()
   deviceUpdate.epochTime = getEpochTime(configuration.timeZoneOffset * 3600);
   deviceUpdate.batteryLevel = batteryManager.getBatteryLevel();
   deviceUpdate.batteryVoltage = batteryManager.getBatteryVoltage();
-
-  // Get temperature and humidity from AHT sensor
-  Adafruit_AHTX0 aht;
-  if (aht.begin())
-  {
-    sensors_event_t sensor_temperature, sensor_humidity;
-    aht.getEvent(&sensor_humidity, &sensor_temperature);
-    deviceUpdate.temperature = sensor_temperature.temperature;
-    deviceUpdate.humidity = sensor_humidity.relative_humidity;
-  }
-  else
-  {
-    Serial.println("Couldn't find AHT. Check wiring!");
-  }
+  deviceUpdate.temperature = sensor_temperature.temperature;
+  deviceUpdate.humidity = sensor_humidity.relative_humidity;
 
   // Update watering manager
   wateringManager.update(configuration, deviceUpdate.epochTime);
@@ -145,12 +145,11 @@ void setup()
   }
 
   // Finish http connection
-  delay(500);
+  delay(200);
   kwiatonomousApi.end();
-  delay(500);
+  delay(100);
 
   // Everything done, go to sleep
-  ledInfo.off();
   unsigned long sleepTimeMicros = configuration.sleepTimeMinutes * 60e6;
   goToSleep(sleepTimeMicros);
 }
@@ -160,12 +159,13 @@ void loop() {}
 void connectToWifi(WiFiConfiguration *wifiConfiguration)
 {
   Serial.println("Connecting to Wi-Fi...");
-  ledBuiltin.on(2);
 
   unsigned long *startConnection = (unsigned long *)malloc(sizeof(unsigned long));
   *startConnection = millis();
 
   WiFi.begin(wifiConfiguration->ssid, wifiConfiguration->password);
+  WiFi.setOutputPower(20.5f);
+  WiFi.setPhyMode(WIFI_PHY_MODE_11B);
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -174,14 +174,14 @@ void connectToWifi(WiFiConfiguration *wifiConfiguration)
       onError((char *)"Can't connect to Wi-Fi");
     }
     Serial.print(".");
-    delay(100);
+    ledInfo.dim(1000);
   }
   free(startConnection);
 
   Serial.print("\nConnected with IP: ");
   Serial.println(WiFi.localIP());
 
-  ledBuiltin.off();
+  ledInfo.on(5);
 }
 
 unsigned long getEpochTime(int16_t timeZoneOffset)
@@ -266,7 +266,8 @@ void goToSleep(unsigned long sleepTimeMicros)
   Serial.println(" minutes!");
   Serial.flush();
   Serial.end();
+  ledInfo.off();
+  ledBuiltin.off();
 
   ESP.deepSleepInstant(sleepTimeMicros - micros(), RF_NO_CAL);
-  // ESP.deepSleepInstant(sleepTimeMicros - micros() + SLEEP_CORRECTION_TIME, RF_NO_CAL);
 }
