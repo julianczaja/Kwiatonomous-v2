@@ -3,7 +3,6 @@ package com.corrot.kwiatonomousapp.presentation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +25,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
-@ExperimentalLifecycleComposeApi
 @Composable
 fun KwiatonomousNavHost(
     kwiatonomousAppState: KwiatonomousAppState,

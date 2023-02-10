@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
@@ -37,7 +36,6 @@ import com.corrot.kwiatonomousapp.presentation.Screen
 
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
-@ExperimentalLifecycleComposeApi
 @Composable
 fun DevicesScreen(
     kwiatonomousAppState: KwiatonomousAppState,

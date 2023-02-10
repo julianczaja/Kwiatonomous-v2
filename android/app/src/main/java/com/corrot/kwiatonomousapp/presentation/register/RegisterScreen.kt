@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
@@ -31,7 +30,6 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 import kotlinx.coroutines.runBlocking
 
 
-@ExperimentalLifecycleComposeApi
 @Composable
 fun RegisterScreen(
     kwiatonomousAppState: KwiatonomousAppState,

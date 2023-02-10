@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
@@ -36,7 +35,6 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
 
 @Composable
-@ExperimentalLifecycleComposeApi
 fun LoginScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: LoginScreenViewModel = hiltViewModel(),

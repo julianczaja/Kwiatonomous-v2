@@ -156,7 +156,7 @@ class AddEditUserDeviceViewModel @Inject constructor(
     }
 
     // TODO: Move validation layer below (???)
-    private fun isDeviceIdValid(deviceId: String) = deviceId.matches(Regex("^[A-Za-z]{10}\$"))
+    private fun isDeviceIdValid(deviceId: String) = true//deviceId.matches(Regex("^[A-Za-z]{10}\$"))
 
     private fun isDeviceNameValid(deviceName: String) = deviceName.length in 1..24
 

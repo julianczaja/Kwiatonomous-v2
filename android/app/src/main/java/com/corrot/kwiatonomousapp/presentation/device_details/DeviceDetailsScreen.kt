@@ -23,7 +23,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.Constants
@@ -41,7 +40,6 @@ import com.corrot.kwiatonomousapp.presentation.device_details.components.*
 import java.time.LocalDateTime
 
 @Composable
-@OptIn(ExperimentalLifecycleComposeApi::class)
 fun DeviceDetailsScreen(
     kwiatonomousAppState: KwiatonomousAppState,
     viewModel: DeviceDetailsViewModel = hiltViewModel(),
