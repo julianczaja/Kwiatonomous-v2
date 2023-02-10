@@ -10,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,6 +37,16 @@ class KwiatonomousAppState(
     ) {
         snackbarScope.launch {
             scaffoldState.snackbarHostState.showSnackbar(message = message, duration = duration)
+        }
+
+        // Manually dismiss to fix bug with snackbars persisting when changing screens
+        snackbarScope.launch {
+            val delayMillis = when (duration) {
+                SnackbarDuration.Short -> 4000L
+                else -> 10000L
+            }
+            delay(delayMillis)
+            scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
         }
     }
 }
