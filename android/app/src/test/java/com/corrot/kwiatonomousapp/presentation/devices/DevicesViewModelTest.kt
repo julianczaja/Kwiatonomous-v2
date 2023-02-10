@@ -1,6 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.devices
 
 import com.corrot.kwiatonomousapp.MainCoroutineRule
+import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.usecase.GetUserDevicesWithLastUpdatesUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
@@ -33,10 +34,12 @@ class DevicesViewModelTest {
         // GIVEN
         every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(
             flowOf(
-                listOf(
-                    Pair(mockk(), mockk()),
-                    Pair(mockk(), mockk()),
-                    Pair(mockk(), mockk()),
+                Result.Success(
+                    listOf(
+                        Pair(mockk(), mockk()),
+                        Pair(mockk(), mockk()),
+                        Pair(mockk(), mockk()),
+                    )
                 )
             )
         )
@@ -55,7 +58,9 @@ class DevicesViewModelTest {
     @Test
     fun test_no_devices_found() = coroutineRule.runBlockingTest {
         // GIVEN
-        every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(flowOf(emptyList()))
+        every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(
+            flowOf(Result.Success(emptyList()))
+        )
         val devicesViewModel = DevicesViewModel(
             getUserDevicesWithLastUpdatesUseCase, coroutineRule.dispatcher
         )

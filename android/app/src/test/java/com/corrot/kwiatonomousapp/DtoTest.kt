@@ -1,6 +1,11 @@
 package com.corrot.kwiatonomousapp
 
-import com.corrot.kwiatonomousapp.data.remote.dto.*
+import com.corrot.kwiatonomousapp.data.remote.dto.DeviceConfigurationDto
+import com.corrot.kwiatonomousapp.data.remote.dto.DeviceDto
+import com.corrot.kwiatonomousapp.data.remote.dto.DeviceUpdateDto
+import com.corrot.kwiatonomousapp.data.remote.dto.toDevice
+import com.corrot.kwiatonomousapp.data.remote.dto.toDeviceConfiguration
+import com.corrot.kwiatonomousapp.data.remote.dto.toDeviceUpdate
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
@@ -75,10 +80,11 @@ class DtoTest {
     fun deviceDtoToDevice() {
         // GIVEN
         val deviceDto = DeviceDto(
-            "id",
-            1639751250L,
-            1639837650L,
-            1639123456L
+            deviceId = "id",
+            birthday = 1676029938,
+            nextWatering = 1676029939,
+            lastPumpCleaning = 1676029940,
+            lastUpdate = 1676029941
         )
 
         // WHEN
@@ -88,9 +94,10 @@ class DtoTest {
         assertThat(result).isEqualTo(
             Device(
                 deviceId = "id",
-                birthday = LocalDateTime.of(2021, 12, 17, 14, 27, 30),
-                lastUpdate = LocalDateTime.of(2021, 12, 18, 14, 27, 30),
-                nextWatering = LocalDateTime.of(2021, 12, 10, 8, 4, 16)
+                birthday = LocalDateTime.of(2023, 2, 10, 11, 52, 18),
+                nextWatering = LocalDateTime.of(2023, 2, 10, 11, 52, 19),
+                lastPumpCleaning = LocalDateTime.of(2023, 2, 10, 11, 52, 20),
+                lastUpdate = LocalDateTime.of(2023, 2, 10, 11, 52, 21),
             )
         )
     }
@@ -99,13 +106,13 @@ class DtoTest {
     fun deviceUpdateDtoToDeviceUpdate() {
         // GIVEN
         val deviceUpdateDto = DeviceUpdateDto(
-            5,
-            "id",
-            1639751250L,
-            55,
-            3.65f,
-            23.5f,
-            64.5f
+            updateId = 5,
+            deviceId = "id",
+            timestamp = 1639751250L,
+            batteryLevel = 55,
+            batteryVoltage = 3.65f,
+            temperature = 23.5f,
+            humidity = 64.5f
         )
 
         // WHEN
@@ -114,12 +121,12 @@ class DtoTest {
         // THEN
         assertThat(result).isEqualTo(
             DeviceUpdate(
-                "id",
-                LocalDateTime.of(2021, 12, 17, 14, 27, 30),
-                55,
-                3.65f,
-                23.5f,
-                64.5f
+                deviceId = "id",
+                updateTime = LocalDateTime.of(2021, 12, 17, 14, 27, 30),
+                batteryLevel = 55,
+                batteryVoltage = 3.65f,
+                temperature = 23.5f,
+                humidity = 64.5f
             )
         )
     }

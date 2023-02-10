@@ -16,10 +16,10 @@ import java.time.LocalDateTime
 
 class FakeDeviceRepository : DeviceRepository {
 
-    private val backendDevices = listOf(
-        DeviceDto("id1", 1640174451L, 1640174451L, 1640174451L),
-        DeviceDto("id2", 1640174452L, 1640174452L, 1640174452L),
-        DeviceDto("id3", 1640174453L, 1640174453L, 1640174453L),
+    private val backendDevices = mutableListOf(
+        DeviceDto("id1", 1640174451L, 1640174451L, 1640174451L, 1640174451L),
+        DeviceDto("id2", 1640174452L, 1640174452L, 1640174452L, 1640174452L),
+        DeviceDto("id3", 1640174453L, 1640174453L, 1640174453L, 1640174453L),
     )
 
     private val databaseDevices = mutableListOf<DeviceEntity>()
@@ -43,9 +43,25 @@ class FakeDeviceRepository : DeviceRepository {
     }
 
     override suspend fun updateNextWateringByDeviceId(id: String, nextWatering: LocalDateTime) {
+
         backendDevices.find { it.deviceId == id }.let { device ->
             if (device != null) {
-                device.nextWatering = nextWatering.toLong()
+                backendDevices.remove(device)
+                backendDevices.add(device.copy(nextWatering = nextWatering.toLong()))
+            } else {
+                throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
+            }
+        }
+    }
+
+    override suspend fun updateLastPumpCleaningByDeviceIdRemote(
+        id: String,
+        lastPumpCleaning: LocalDateTime,
+    ) {
+        backendDevices.find { it.deviceId == id }.let { device ->
+            if (device != null) {
+                backendDevices.remove(device)
+                backendDevices.add(device.copy(lastPumpCleaning = lastPumpCleaning.toLong()))
             } else {
                 throw HttpException(Response.error<String>(404, EMPTY_RESPONSE))
             }

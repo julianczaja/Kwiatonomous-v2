@@ -9,7 +9,7 @@ data class DeviceDto(
     val birthday: Long,
     val lastPumpCleaning: Long,
     val lastUpdate: Long,
-    var nextWatering: Long
+    val nextWatering: Long
 )
 
 

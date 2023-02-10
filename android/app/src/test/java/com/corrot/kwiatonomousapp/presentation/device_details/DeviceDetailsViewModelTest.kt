@@ -8,8 +8,21 @@ import com.corrot.kwiatonomousapp.domain.model.AppTheme
 import com.corrot.kwiatonomousapp.domain.model.ChartSettings
 import com.corrot.kwiatonomousapp.domain.model.DeviceEvent
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
-import com.corrot.kwiatonomousapp.domain.repository.*
-import com.corrot.kwiatonomousapp.domain.usecase.*
+import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
+import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
+import com.corrot.kwiatonomousapp.domain.repository.UserRepository
+import com.corrot.kwiatonomousapp.domain.usecase.AddDeviceEventUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.DeleteDeviceEventUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.DeleteUserDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetAllDeviceEventsUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceConfigurationUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUpdatesByDateUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.GetUserDeviceUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.UpdateDeviceLastPumpCleaningUseCase
+import com.corrot.kwiatonomousapp.domain.usecase.UpdateUserDeviceUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -41,6 +54,7 @@ class DeviceDetailsViewModelTest {
     private val getAllDeviceEventsUseCase: GetAllDeviceEventsUseCase = mockk()
     private val addDeviceEventUseCase: AddDeviceEventUseCase = mockk()
     private val deleteDeviceEventUseCase: DeleteDeviceEventUseCase = mockk()
+    private val updateDeviceLastPumpCleaningUseCase: UpdateDeviceLastPumpCleaningUseCase = mockk()
 
     @Before
     fun setup() {
@@ -94,9 +108,13 @@ class DeviceDetailsViewModelTest {
         // Mock addDeviceEventUseCase
         coEvery { addDeviceEventUseCase.execute(any()) }
             .returns(flowOf(Result.Success(null)))
-        // Mock deleteDeviceEventUseCase
 
+        // Mock deleteDeviceEventUseCase
         coEvery { deleteDeviceEventUseCase.execute(any()) }
+            .returns(flowOf(Result.Success(null)))
+
+        // Mock updateDeviceLastPumpCleaningUseCase
+        coEvery { updateDeviceLastPumpCleaningUseCase.execute(any(), any()) }
             .returns(flowOf(Result.Success(null)))
 
         val deviceDetailsViewModel = DeviceDetailsViewModel(
@@ -112,7 +130,8 @@ class DeviceDetailsViewModelTest {
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
             addDeviceEventUseCase = addDeviceEventUseCase,
-            deleteDeviceEventUseCase = deleteDeviceEventUseCase
+            deleteDeviceEventUseCase = deleteDeviceEventUseCase,
+            updateDeviceLastPumpCleaningUseCase = updateDeviceLastPumpCleaningUseCase
         )
 
         println(deviceDetailsViewModel.state.value.error)
@@ -173,6 +192,10 @@ class DeviceDetailsViewModelTest {
         coEvery { deleteDeviceEventUseCase.execute(any()) }
             .returns(flowOf(Result.Success(null)))
 
+        // Mock updateDeviceLastPumpCleaningUseCase
+        coEvery { updateDeviceLastPumpCleaningUseCase.execute(any(), any()) }
+            .returns(flowOf(Result.Success(null)))
+
         val deviceDetailsViewModel = DeviceDetailsViewModel(
             savedStateHandle = SavedStateHandle().apply { set(NAV_ARG_DEVICE_ID, deviceId) },
             appPreferencesRepository = appPreferencesRepository,
@@ -186,7 +209,8 @@ class DeviceDetailsViewModelTest {
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
             addDeviceEventUseCase = addDeviceEventUseCase,
-            deleteDeviceEventUseCase = deleteDeviceEventUseCase
+            deleteDeviceEventUseCase = deleteDeviceEventUseCase,
+            updateDeviceLastPumpCleaningUseCase = updateDeviceLastPumpCleaningUseCase
         )
 
         assertThat(deviceDetailsViewModel.isLoading).isFalse()
