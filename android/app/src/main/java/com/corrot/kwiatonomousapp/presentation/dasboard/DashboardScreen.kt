@@ -3,7 +3,16 @@ package com.corrot.kwiatonomousapp.presentation.dasboard
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,9 +26,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -117,101 +132,98 @@ fun DashboardScreenContent(
 ) {
     val refreshState = rememberPullRefreshState(isLoading, onRefreshEvents)
 
-    Box(modifier = Modifier.pullRefresh(refreshState)) {
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+    ) {
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
-            Row(
+            Text(
+                text = stringResource(id = R.string.hello_user_format).format(userName),
+                style = MaterialTheme.typography.caption,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.hello_user_format).format(userName),
-                    style = MaterialTheme.typography.caption,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
+                    .padding(top = 8.dp)
+            )
+        }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .fillMaxSize()
+                .weight(1f)
+                .clipToBounds() // to avoid PullRefreshIndicator overlapping
+                .border(
+                    width = 1.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(CornerSize(8.dp))
                 )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
+        ) {
+            events?.let { eventsList ->
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier
                         .fillMaxSize()
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black,
-                            RoundedCornerShape(CornerSize(8.dp))
-                        )
+                        .padding(horizontal = 8.dp)
+                        .pullRefresh(refreshState)
                 ) {
-                    events?.let { eventsList ->
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp)
-                        ) {
-                            items(eventsList, key = { e -> e.timestamp }) { event ->
-                                DeviceEventItem(
-                                    deviceName = getDeviceName(event),
-                                    deviceEvent = event,
-                                    onLongPressed = { onLongPressed(event) }
-                                )
-                            }
-                        }
+                    item { Spacer(modifier = Modifier.height(4.dp)) }
+                    items(eventsList, key = { e -> e.timestamp }) { event ->
+                        DeviceEventItem(
+                            deviceName = getDeviceName(event),
+                            deviceEvent = event,
+                            onLongPressed = { onLongPressed(event) }
+                        )
                     }
+                    item { Spacer(modifier = Modifier.height(4.dp)) }
                 }
             }
+            PullRefreshIndicator(
+                refreshing = isLoading,
+                state = refreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
 
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(150.dp),
-                contentPadding = PaddingValues(8.dp),
-            ) {
-                item {
-                    DashboardCardItem(
-                        text = stringResource(R.string.all_devices),
-                        onClicked = onAllDevicesClicked,
-                        testTag = "allDevicesButton"
-                    )
-                }
-                item {
-                    DashboardCardItem(
-                        stringResource(R.string.application_settings),
-                        onClicked = onAppSettingsClicked,
-                        testTag = "settingsButton"
-                    )
-                }
-                item {
-                    DashboardCardItem(
-                        text = "",
-                        onClicked = onPlaceholderClicked,
-                        testTag = ""
-                    )
-                }
-                item {
-                    DashboardCardItem(
-                        stringResource(R.string.log_out),
-                        onClicked = onLogoutClicked,
-                        testTag = "logOutButton"
-                    )
-                }
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(150.dp),
+            contentPadding = PaddingValues(8.dp),
+        ) {
+            item {
+                DashboardCardItem(
+                    text = stringResource(R.string.all_devices),
+                    onClicked = onAllDevicesClicked,
+                    testTag = "allDevicesButton"
+                )
+            }
+            item {
+                DashboardCardItem(
+                    stringResource(R.string.application_settings),
+                    onClicked = onAppSettingsClicked,
+                    testTag = "settingsButton"
+                )
+            }
+            item {
+                DashboardCardItem(
+                    text = "",
+                    onClicked = onPlaceholderClicked,
+                    testTag = ""
+                )
+            }
+            item {
+                DashboardCardItem(
+                    stringResource(R.string.log_out),
+                    onClicked = onLogoutClicked,
+                    testTag = "logOutButton"
+                )
             }
         }
-        PullRefreshIndicator(
-            refreshing = isLoading,
-            state = refreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )
     }
 }
 
@@ -231,7 +243,13 @@ private fun DashboardPreviewPreviewLight() {
                 userName = "Username",
                 events = listOf(
                     DeviceEvent.Watering("deviceId", LocalDateTime.now()),
-                    DeviceEvent.UserNote("username", "title", "content", "deviceId", LocalDateTime.now()),
+                    DeviceEvent.UserNote(
+                        "username",
+                        "title",
+                        "content",
+                        "deviceId",
+                        LocalDateTime.now()
+                    ),
                     DeviceEvent.LowBattery(55, 3.6f, "deviceId", LocalDateTime.now()),
                 ),
                 onRefreshEvents = {},
