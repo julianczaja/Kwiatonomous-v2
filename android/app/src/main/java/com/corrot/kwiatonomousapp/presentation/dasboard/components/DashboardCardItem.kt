@@ -18,19 +18,20 @@ import androidx.compose.ui.unit.dp
 
 @ExperimentalMaterialApi
 @Composable
-fun DashboardCardItem(text: String, onClicked: () -> Unit, testTag: String) {
+fun DashboardCardItem(
+    modifier: Modifier = Modifier,
+    text: String,
+    onClicked: () -> Unit,
+    testTag: String,
+) {
     Card(
         elevation = 8.dp,
         backgroundColor = MaterialTheme.colors.surface,
         onClick = onClicked,
-        modifier = Modifier
-            .padding(8.dp)
-            .height(150.dp)
-            .testTag(testTag)
+        modifier = modifier.testTag(testTag)
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = text,

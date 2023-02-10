@@ -5,17 +5,18 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -91,7 +92,6 @@ fun DashboardScreen(
             onRefreshEvents = viewModel::refreshDevicesEvents,
             onAllDevicesClicked = { kwiatonomousAppState.navController.navigate(Screen.Devices.route) },
             onAppSettingsClicked = { kwiatonomousAppState.navController.navigate(Screen.AppSettings.route) },
-            onPlaceholderClicked = { kwiatonomousAppState.showSnackbar("Not implemented yet") },
             onLogoutClicked = viewModel::logOut,
             onLongPressed = {
                 viewModel.selectEventToDelete(it)
@@ -125,112 +125,175 @@ fun DashboardScreenContent(
     onRefreshEvents: () -> Unit,
     onAllDevicesClicked: () -> Unit,
     onAppSettingsClicked: () -> Unit,
-    onPlaceholderClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
     onLongPressed: (DeviceEvent) -> Unit,
     getDeviceName: (DeviceEvent) -> String?,
 ) {
-    val refreshState = rememberPullRefreshState(isLoading, onRefreshEvents)
-
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.hello_user_format).format(userName),
-                style = MaterialTheme.typography.caption,
-                textAlign = TextAlign.Center,
+    BoxWithConstraints {
+        if (maxWidth < 600.dp) {
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            )
-        }
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .fillMaxSize()
-                .weight(1f)
-                .clipToBounds() // to avoid PullRefreshIndicator overlapping
-                .border(
-                    width = 1.dp,
-                    color = Color.Black,
-                    shape = RoundedCornerShape(CornerSize(8.dp))
-                )
-        ) {
-            events?.let { eventsList ->
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                HeaderSection(userName)
+                DevicesEventsSection(
+                    events = events,
+                    isLoading = isLoading,
+                    onRefreshEvents = onRefreshEvents,
+                    onLongPressed = onLongPressed,
+                    getDeviceName = getDeviceName,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp)
-                        .pullRefresh(refreshState)
+                        .padding(horizontal = 12.dp)
+                        .weight(1f)
+                )
+                NavigationButtonsSection(
+                    onAllDevicesClicked = onAllDevicesClicked,
+                    onAppSettingsClicked = onAppSettingsClicked,
+                    onLogoutClicked = onLogoutClicked,
+                    modifier = Modifier.padding(vertical = 32.dp, horizontal = 12.dp)
+                )
+            }
+        } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    item { Spacer(modifier = Modifier.height(4.dp)) }
-                    items(eventsList, key = { e -> e.timestamp }) { event ->
-                        DeviceEventItem(
-                            deviceName = getDeviceName(event),
-                            deviceEvent = event,
-                            onLongPressed = { onLongPressed(event) }
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.height(4.dp)) }
+                    HeaderSection(userName)
+                    NavigationButtonsSection(
+                        onAllDevicesClicked = onAllDevicesClicked,
+                        onAppSettingsClicked = onAppSettingsClicked,
+                        onLogoutClicked = onLogoutClicked,
+                        modifier = Modifier
+                            .padding(vertical = 16.dp, horizontal = 12.dp)
+                            .fillMaxHeight()
+                            .width(300.dp)
+                    )
                 }
-            }
-            PullRefreshIndicator(
-                refreshing = isLoading,
-                state = refreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            contentPadding = PaddingValues(8.dp),
-        ) {
-            item {
-                DashboardCardItem(
-                    text = stringResource(R.string.all_devices),
-                    onClicked = onAllDevicesClicked,
-                    testTag = "allDevicesButton"
-                )
-            }
-            item {
-                DashboardCardItem(
-                    stringResource(R.string.application_settings),
-                    onClicked = onAppSettingsClicked,
-                    testTag = "settingsButton"
-                )
-            }
-            item {
-                DashboardCardItem(
-                    text = "",
-                    onClicked = onPlaceholderClicked,
-                    testTag = ""
-                )
-            }
-            item {
-                DashboardCardItem(
-                    stringResource(R.string.log_out),
-                    onClicked = onLogoutClicked,
-                    testTag = "logOutButton"
+                DevicesEventsSection(
+                    events = events,
+                    isLoading = isLoading,
+                    onRefreshEvents = onRefreshEvents,
+                    onLongPressed = onLongPressed,
+                    getDeviceName = getDeviceName,
+                    modifier = Modifier
+                        .padding(end = 16.dp, top = 12.dp, bottom = 12.dp)
+                        .fillMaxHeight()
+                        .weight(1f)
                 )
             }
         }
     }
 }
 
+@Composable
+fun HeaderSection(userName: String?) {
+    Row(
+        modifier = Modifier.padding(12.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.hello_user_format).format(userName),
+            style = MaterialTheme.typography.caption,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DevicesEventsSection(
+    modifier: Modifier = Modifier,
+    events: List<DeviceEvent>?,
+    isLoading: Boolean,
+    onRefreshEvents: () -> Unit,
+    onLongPressed: (DeviceEvent) -> Unit,
+    getDeviceName: (DeviceEvent) -> String?,
+) {
+    val refreshState = rememberPullRefreshState(isLoading, onRefreshEvents)
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clipToBounds() // to avoid PullRefreshIndicator overlapping
+            .border(
+                width = 1.dp,
+                color = Color.Black,
+                shape = RoundedCornerShape(CornerSize(8.dp))
+            )
+    ) {
+        events?.let { eventsList ->
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
+                    .pullRefresh(refreshState)
+            ) {
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                items(eventsList, key = { e -> e.timestamp }) { event ->
+                    DeviceEventItem(
+                        deviceName = getDeviceName(event),
+                        deviceEvent = event,
+                        onLongPressed = { onLongPressed(event) }
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+            }
+        }
+        PullRefreshIndicator(
+            refreshing = isLoading,
+            state = refreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun NavigationButtonsSection(
+    modifier: Modifier = Modifier,
+    onAllDevicesClicked: () -> Unit,
+    onAppSettingsClicked: () -> Unit,
+    onLogoutClicked: () -> Unit,
+) {
+    val cardsModifier = Modifier.fillMaxWidth(.9f)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        modifier = modifier
+    ) {
+        DashboardCardItem(
+            text = stringResource(R.string.all_devices),
+            onClicked = onAllDevicesClicked,
+            testTag = "allDevicesButton",
+            modifier = cardsModifier
+        )
+        DashboardCardItem(
+            text = stringResource(R.string.application_settings),
+            onClicked = onAppSettingsClicked,
+            testTag = "settingsButton",
+            modifier = cardsModifier
+        )
+        DashboardCardItem(
+            text = stringResource(R.string.log_out),
+            onClicked = onLogoutClicked,
+            testTag = "logOutButton",
+            modifier = cardsModifier
+        )
+    }
+}
+
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Preview(
-    "DashboardPreviewLight",
+    name = "DashboardPreviewLight",
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Composable
@@ -242,20 +305,73 @@ private fun DashboardPreviewPreviewLight() {
                 isLoading = false,
                 userName = "Username",
                 events = listOf(
-                    DeviceEvent.Watering("deviceId", LocalDateTime.now()),
-                    DeviceEvent.UserNote(
-                        "username",
-                        "title",
-                        "content",
-                        "deviceId",
-                        LocalDateTime.now()
+                    DeviceEvent.Watering(
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
                     ),
-                    DeviceEvent.LowBattery(55, 3.6f, "deviceId", LocalDateTime.now()),
+                    DeviceEvent.UserNote(
+                        userName = "username",
+                        title = "title",
+                        content = "content",
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    DeviceEvent.LowBattery(
+                        batteryLevel = 55,
+                        batteryVoltage = 3.6f,
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
                 ),
                 onRefreshEvents = {},
                 onAllDevicesClicked = {},
                 onAppSettingsClicked = {},
-                onPlaceholderClicked = {},
+                onLogoutClicked = {},
+                onLongPressed = {},
+                getDeviceName = fun(_: DeviceEvent) = "Device name"
+            )
+        }
+    }
+}
+
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@Preview(
+    name = "DashboardPreviewLightHorizontal",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    widthDp = 700,
+    heightDp = 300
+)
+@Composable
+private fun DashboardPreviewPreviewLightHorizontal() {
+    KwiatonomousAppTheme(darkTheme = false) {
+        Surface {
+            DashboardScreenContent(
+                padding = PaddingValues(),
+                isLoading = false,
+                userName = "Username",
+                events = listOf(
+                    DeviceEvent.Watering(
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    DeviceEvent.UserNote(
+                        userName = "username",
+                        title = "title",
+                        content = "content",
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                    DeviceEvent.LowBattery(
+                        batteryLevel = 55,
+                        batteryVoltage = 3.6f,
+                        deviceId = "deviceId",
+                        timestamp = LocalDateTime.now()
+                    ),
+                ),
+                onRefreshEvents = {},
+                onAllDevicesClicked = {},
+                onAppSettingsClicked = {},
                 onLogoutClicked = {},
                 onLongPressed = {},
                 getDeviceName = fun(_: DeviceEvent) = "Device name"
