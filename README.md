@@ -28,6 +28,14 @@ ___
 
 ___
 
+### CAD
+#### Case for v0.5 PCB
+
+<p align="middle">
+  <img src="cad/v0.5/v0.5_render.png" width="70%">
+</p>
+___
+
 <p align="center">
 🔥 More comming soon 🔥
 </p>
