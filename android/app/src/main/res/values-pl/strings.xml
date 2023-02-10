@@ -19,6 +19,10 @@
     <string name="date">Data</string>
     <string name="day">Dzień</string>
     <string name="delete">Usuń</string>
+    <string name="developer_settings_label">Ustawienia developerskie</string>
+    <string name="developer_settings_clear_device_cache">Czyść pamięć cache urządzeń</string>
+    <string name="developer_settings_test_low_battery_notification">Test powiadomienia o niskim poziomie baterii</string>
+    <string name="developer_settings_test_pump_cleaning_notification">Test powiadomienia o czyszczeniu pompy</string>
     <string name="device">Urządzenie</string>
     <string name="device_configuration">Konfiguracja urządzenia</string>
     <string name="device_details">Szczegóły urządzenia</string>

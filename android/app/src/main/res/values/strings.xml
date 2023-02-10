@@ -19,6 +19,10 @@
     <string name="date">Date</string>
     <string name="day">Day</string>
     <string name="delete">Delete</string>
+    <string name="developer_settings_label">Developer settings</string>
+    <string name="developer_settings_clear_device_cache">Clear devices cache</string>
+    <string name="developer_settings_test_low_battery_notification">Test low battery notification</string>
+    <string name="developer_settings_test_pump_cleaning_notification">Test pump cleaning notification</string>
     <string name="device">Device</string>
     <string name="device_configuration">Device configuration</string>
     <string name="device_details">Device details</string>

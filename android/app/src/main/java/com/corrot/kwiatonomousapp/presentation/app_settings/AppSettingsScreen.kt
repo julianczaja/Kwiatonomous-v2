@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -132,8 +133,9 @@ private fun AppSettingsScreenContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 16.dp, horizontal = 12.dp)
+            .padding(horizontal = 12.dp)
     ) {
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         appTheme?.let {
             item {
                 AppThemeSection(
@@ -159,46 +161,20 @@ private fun AppSettingsScreenContent(
                 )
             }
         }
-
         item {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.error),
-                    onClick = onClearCacheButtonClicked
-                ) {
-                    Text(text = "Clear devices cache")
-                }
-            }
+            Divider(
+                color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
         }
-
         item {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick = onTestLowBatteryNotificationClicked
-                ) {
-                    Text(text = "Test low battery notification")
-                }
-            }
+            DeveloperSettingsSection(
+                onClearCacheButtonClicked = onClearCacheButtonClicked,
+                onTestLowBatteryNotificationClicked = onTestLowBatteryNotificationClicked,
+                onTestPumpCleaningNotificationClicked = onTestPumpCleaningNotificationClicked
+            )
         }
-
-        item {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedButton(
-                    onClick = onTestPumpCleaningNotificationClicked
-                ) {
-                    Text(text = "Test pump cleaning notification")
-                }
-            }
-        }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
     }
 }
 
@@ -208,6 +184,7 @@ private fun AppThemeSection(
     onAppThemeSelected: (AppTheme) -> Unit,
 ) {
     Card(
+        shape = RoundedCornerShape(8.dp),
         elevation = 8.dp
     ) {
         Column(
@@ -220,7 +197,6 @@ private fun AppThemeSection(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -232,7 +208,6 @@ private fun AppThemeSection(
                     onClick = { onAppThemeSelected(AppTheme.AUTO) }
                 )
             }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -244,7 +219,6 @@ private fun AppThemeSection(
                     onClick = { onAppThemeSelected(AppTheme.LIGHT) }
                 )
             }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -267,6 +241,7 @@ private fun ChartSettingsSection(
     onChartSettingsChanged: (ChartSettings) -> Unit,
 ) {
     Card(
+        shape = RoundedCornerShape(8.dp),
         elevation = 8.dp
     ) {
         Column(
@@ -312,6 +287,7 @@ private fun NotificationsSettingsSection(
     onChangeNotificationsTimeClicked: () -> Unit,
 ) {
     Card(
+        shape = RoundedCornerShape(8.dp),
         elevation = 8.dp
     ) {
         Column(
@@ -319,8 +295,10 @@ private fun NotificationsSettingsSection(
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Text(stringResource(R.string.notifications_settings),
-                style = MaterialTheme.typography.h5)
+            Text(
+                stringResource(R.string.notifications_settings),
+                style = MaterialTheme.typography.h5
+            )
             Divider(
                 color = MaterialTheme.colors.primaryVariant, thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -345,6 +323,36 @@ private fun NotificationsSettingsSection(
                 OutlinedButton(onClick = onChangeNotificationsTimeClicked) {
                     Text(text = stringResource(id = R.string.change))
                 }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun DeveloperSettingsSection(
+    onClearCacheButtonClicked: () -> Unit,
+    onTestLowBatteryNotificationClicked: () -> Unit,
+    onTestPumpCleaningNotificationClicked: () -> Unit,
+) {
+    ExpandableCardWithLabel(
+        title = stringResource(R.string.developer_settings_label),
+        initialExpandedState = false
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            OutlinedButton(onClick = onClearCacheButtonClicked) {
+                Text(text = stringResource(R.string.developer_settings_clear_device_cache))
+            }
+            OutlinedButton(onClick = onTestLowBatteryNotificationClicked) {
+                Text(text = stringResource(R.string.developer_settings_test_low_battery_notification))
+            }
+            OutlinedButton(onClick = onTestPumpCleaningNotificationClicked) {
+                Text(text = stringResource(R.string.developer_settings_test_pump_cleaning_notification))
             }
         }
     }
