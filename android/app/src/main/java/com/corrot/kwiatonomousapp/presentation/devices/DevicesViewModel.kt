@@ -57,9 +57,14 @@ class DevicesViewModel @Inject constructor(
 
     private fun filterNewUpdates(data: List<Pair<UserDevice, DeviceUpdate?>>?) = data?.map {
         // Preload only relatively new updates
-        val hoursSinceLastUpdate = ChronoUnit.HOURS.between(
-            it.second?.updateTime, LocalDateTime.now()
-        )
-        return@map Pair(it.first, if (hoursSinceLastUpdate <= 1) it.second else null)
+        val hoursSinceLastUpdate = it.second?.updateTime?.let { updateTime ->
+            ChronoUnit.HOURS.between(updateTime, LocalDateTime.now())
+        }
+
+        if (hoursSinceLastUpdate != null && hoursSinceLastUpdate <= 1) {
+            return@map Pair(it.first,it.second)
+        } else {
+            return@map Pair(it.first, null)
+        }
     }
 }
