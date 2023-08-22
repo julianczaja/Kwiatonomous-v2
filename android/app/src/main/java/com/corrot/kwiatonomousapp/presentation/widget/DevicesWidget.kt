@@ -15,6 +15,7 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -34,11 +35,18 @@ import java.time.LocalDateTime
 class DevicesWidget : GlanceAppWidget() {
 
     override val stateDefinition = DevicesWidgetData.StateDefinition
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        provideContent {
+            Content()
+        }
+    }
+
     override val sizeMode: SizeMode = SizeMode.Single
 
     // TODO: Implement dynamic night mode
     @Composable
-    override fun Content() {
+    private fun Content() {
         when (val devicesWidgetData = currentState<DevicesWidgetData>()) {
             DevicesWidgetData.Loading -> Loading()
             is DevicesWidgetData.Success -> DevicesUpdatesContent(devicesWidgetData.updateTime, devicesWidgetData.devicesUpdates)

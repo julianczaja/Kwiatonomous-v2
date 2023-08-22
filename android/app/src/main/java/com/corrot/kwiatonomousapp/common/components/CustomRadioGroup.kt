@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.corrot.kwiatonomousapp.common.components.chart.LineChartDateType
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 
@@ -72,7 +73,7 @@ fun CustomRadioGroup(
                 Row {
                     Text(
                         text = options[index].uppercase(),
-                        style = typography.overline,
+                        style = typography.overline.copy(fontSize = 9.sp),
                         modifier = Modifier
                             .padding(8.dp)
                             .clickable { onOptionSelected(index) }
