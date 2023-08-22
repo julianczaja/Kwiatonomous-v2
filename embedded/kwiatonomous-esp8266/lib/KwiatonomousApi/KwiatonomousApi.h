@@ -8,7 +8,7 @@
 #include "DeviceConfiguration.h"
 #include "DeviceUpdate.h"
 
-#define SERVER_NAME "http://maluch.mikr.us:20188/kwiatonomous/esp"
+#define SERVER_NAME "http://maluch2.mikr.us:20188/kwiatonomous/esp"
 // #define SERVER_NAME "http://192.168.1.11:8015/kwiatonomous/esp" // FOR LOCAL TESTS
 #define POST_UPDATE_FORMAT "{\"timestamp\":%lu,\"batteryLevel\":%d,\"batteryVoltage\":%g,\"temperature\":%g,\"humidity\":%g}"
 #define POST_WATERING_EVENT_FORMAT "{\"timestamp\":%lu,\"type\":\"Watering\",\"data\":\"\"}"
