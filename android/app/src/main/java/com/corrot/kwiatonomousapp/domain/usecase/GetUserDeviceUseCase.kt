@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetUserDeviceUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    suspend fun execute(deviceId: String) = flow {
+    fun execute(deviceId: String) = flow {
         emit(Result.Loading())
         try {
             userRepository.getCurrentUserFromDatabase().collect { user ->

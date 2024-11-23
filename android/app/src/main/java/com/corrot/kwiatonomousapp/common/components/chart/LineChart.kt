@@ -5,7 +5,11 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -32,7 +36,7 @@ fun LineChartPreviewLight() {
                     .padding(16.dp)
                     .height(250.dp)
             ) {
-                lineChart(
+                LineChart(
                     xData = listOf(1f, 2f, 3f, 4f, 10f, 15f),
                     yData = listOf(10f, 12f, 13f, 14f, 10f, 15f),
                     title = "Humidity",
@@ -52,7 +56,7 @@ fun LineChartPreviewDark() {
                     .padding(16.dp)
                     .height(250.dp)
             ) {
-                lineChart(
+                LineChart(
                     xData = listOf(1f, 2f, 3f, 4f, 10f, 15f),
                     yData = listOf(10f, 12f, 13f, 14f, 10f, 15f),
                     title = "Temperature",
@@ -67,7 +71,7 @@ fun LineChartPreviewDark() {
 }
 
 @Composable
-fun lineChart(
+fun LineChart(
     xData: List<Float>,
     yData: List<Float>,
     title: String = "",

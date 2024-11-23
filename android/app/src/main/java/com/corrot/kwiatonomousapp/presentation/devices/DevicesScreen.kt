@@ -2,10 +2,10 @@ package com.corrot.kwiatonomousapp.presentation.devices
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -63,7 +63,7 @@ fun DevicesScreen(
                 Icon(Icons.Filled.Add, "")
             }
         }
-    ) { padding ->
+    ) {
         DevicesScreenContent(
             isLoading = state.isLoading,
             error = state.error,
@@ -95,22 +95,19 @@ fun DevicesScreenContent(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 150.dp),
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .pullRefresh(refreshState)
         ) {
             userDevicesWithLastUpdates?.let {
                 items(it) { userDeviceAndLastUpdate ->
-                    Box(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp, horizontal = 6.dp)
-                    ) {
-                        UserDeviceItem(
-                            userDevice = userDeviceAndLastUpdate.first,
-                            lastDeviceUpdate = userDeviceAndLastUpdate.second,
-                            onItemClick = onUserDeviceClicked
-                        )
-                    }
+                    UserDeviceItem(
+                        userDevice = userDeviceAndLastUpdate.first,
+                        lastDeviceUpdate = userDeviceAndLastUpdate.second,
+                        onItemClick = onUserDeviceClicked
+                    )
                 }
             }
         }

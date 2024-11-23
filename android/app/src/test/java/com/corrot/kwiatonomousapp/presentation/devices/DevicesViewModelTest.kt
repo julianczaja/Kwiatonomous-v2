@@ -1,15 +1,14 @@
 package com.corrot.kwiatonomousapp.presentation.devices
 
-import com.corrot.kwiatonomousapp.MainCoroutineRule
+import com.corrot.kwiatonomousapp.MainDispatcherRule
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.usecase.GetUserDevicesWithLastUpdatesUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -17,9 +16,8 @@ import org.junit.Test
 
 class DevicesViewModelTest {
 
-    @ExperimentalCoroutinesApi
     @get:Rule
-    val coroutineRule = MainCoroutineRule()
+    val mainDispatcherRule = MainDispatcherRule()
 
     private val getUserDevicesWithLastUpdatesUseCase: GetUserDevicesWithLastUpdatesUseCase = mockk()
 
@@ -28,9 +26,8 @@ class DevicesViewModelTest {
         MockKAnnotations.init(this)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun test_some_devices_found() = coroutineRule.runBlockingTest {
+    fun test_some_devices_found() = runTest {
         // GIVEN
         every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(
             flowOf(
@@ -44,7 +41,7 @@ class DevicesViewModelTest {
             )
         )
         val devicesViewModel = DevicesViewModel(
-            getUserDevicesWithLastUpdatesUseCase, coroutineRule.dispatcher
+            getUserDevicesWithLastUpdatesUseCase, mainDispatcherRule.testDispatcher
         )
 
         // THEN
@@ -54,15 +51,14 @@ class DevicesViewModelTest {
         assertThat(state.userDevicesWithLastUpdates).hasSize(3)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun test_no_devices_found() = coroutineRule.runBlockingTest {
+    fun test_no_devices_found() = runTest {
         // GIVEN
         every { getUserDevicesWithLastUpdatesUseCase.execute() }.returns(
             flowOf(Result.Success(emptyList()))
         )
         val devicesViewModel = DevicesViewModel(
-            getUserDevicesWithLastUpdatesUseCase, coroutineRule.dispatcher
+            getUserDevicesWithLastUpdatesUseCase, mainDispatcherRule.testDispatcher
         )
 
         // THEN

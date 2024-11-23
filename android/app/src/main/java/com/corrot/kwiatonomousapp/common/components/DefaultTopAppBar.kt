@@ -3,9 +3,14 @@ package com.corrot.kwiatonomousapp.common.components
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
@@ -29,7 +34,7 @@ fun DefaultTopAppBar(
         navigationIcon = if (onNavigateBackClicked != null) {
             {
                 IconButton(onClick = { onNavigateBackClicked() }) {
-                    Icon(Icons.Filled.ArrowBack, "")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "")
                 }
             }
         } else null,

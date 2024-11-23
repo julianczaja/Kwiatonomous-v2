@@ -6,9 +6,8 @@ import com.corrot.kwiatonomousapp.data.repository.FakeDeviceUpdateRepository
 import com.corrot.kwiatonomousapp.domain.model.DeviceUpdate
 import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -24,9 +23,8 @@ class GetDeviceUpdatesByDateUseCaseTest {
             GetDeviceUpdatesByDateUseCase(fakeDeviceUpdateRepository)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_success() = runBlockingTest {
+    fun execute_success() = runTest {
         // GIVEN
         val correctSize = 2
         val correctDeviceUpdate =
@@ -45,9 +43,8 @@ class GetDeviceUpdatesByDateUseCaseTest {
         assertThat(data.last()).isEqualTo(correctDeviceUpdate)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure() = runBlockingTest {
+    fun execute_failure() = runTest {
         // GIVEN
         val flow = fakeGetDeviceUpdatesByDateUseCase.execute("wrong_id", 1100000000L, 1200000000L)
         val collected = flow.toList()

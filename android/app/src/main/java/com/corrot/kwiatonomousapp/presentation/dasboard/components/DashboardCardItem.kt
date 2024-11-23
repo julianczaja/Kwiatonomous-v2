@@ -1,8 +1,6 @@
 package com.corrot.kwiatonomousapp.presentation.dasboard.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -25,7 +23,7 @@ fun DashboardCardItem(
     testTag: String,
 ) {
     Card(
-        elevation = 8.dp,
+        elevation = 4.dp,
         backgroundColor = MaterialTheme.colors.surface,
         onClick = onClicked,
         modifier = modifier.testTag(testTag)

@@ -3,14 +3,36 @@ package com.corrot.kwiatonomousapp.presentation.add_user_device
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,17 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.corrot.kwiatonomousapp.R
 import com.corrot.kwiatonomousapp.common.components.AppSettingsToggleItem
+import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.common.components.DefaultTopAppBar
 import com.corrot.kwiatonomousapp.common.components.ErrorBoxCancel
-import com.corrot.kwiatonomousapp.common.components.DefaultScaffold
 import com.corrot.kwiatonomousapp.domain.model.KwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
 
-@ExperimentalPagerApi
 @Composable
 fun AddEditUserDeviceScreen(
     kwiatonomousAppState: KwiatonomousAppState,
@@ -72,7 +89,6 @@ fun AddEditUserDeviceScreen(
     }
 }
 
-@ExperimentalPagerApi
 @Composable
 fun AddEditUserDeviceScreenContent(
     state: AddEditUserDeviceState,
@@ -92,93 +108,84 @@ fun AddEditUserDeviceScreenContent(
             .fillMaxSize()
             .padding(padding)
     ) {
-        LazyColumn(
+        Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(top = 16.dp)
         ) {
-            item {
-                if (isEditMode) {
-                    // Wait until data is loaded to initiate pager with proper page
-                    if (state.deviceImageName.isNotEmpty()) {
-                        val initialPage = getPageByUserDeviceImageName(
-                            context,
-                            state.deviceImageName
-                        )
-                        UserDeviceImagePager(
-                            context = context,
-                            initialPage = initialPage,
-                            onImageNameChanged = { onDeviceImageNameChanged(it) }
-                        )
-                    }
-                } else {
+            if (isEditMode) {
+                // Wait until data is loaded to initiate pager with proper page
+                if (state.deviceImageName.isNotEmpty()) {
+                    val initialPage = getPageByUserDeviceImageName(
+                        context,
+                        state.deviceImageName
+                    )
                     UserDeviceImagePager(
                         context = context,
+                        initialPage = initialPage,
                         onImageNameChanged = { onDeviceImageNameChanged(it) }
                     )
                 }
+            } else {
+                UserDeviceImagePager(
+                    context = context,
+                    onImageNameChanged = { onDeviceImageNameChanged(it) }
+                )
             }
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = state.deviceId,
-                        onValueChange = { onDeviceIdChanged(it) },
-                        label = { Text(stringResource(R.string.device_id)) },
-                        singleLine = true,
-                        isError = !state.isDeviceIdValid,
-                        textStyle = MaterialTheme.typography.body1,
-                        enabled = !isEditMode,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (!isEditMode) {
-                        Text(
-                            text = stringResource(R.string.device_id_length_format).format(state.deviceId.length),
-                            textAlign = TextAlign.End,
-                            style = MaterialTheme.typography.overline,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(2.dp)
-                        )
-                    }
-                }
-            }
-            item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
                 OutlinedTextField(
-                    value = state.deviceName,
-                    onValueChange = { onDeviceNameChanged(it) },
-                    label = { Text(stringResource(R.string.device_name)) },
+                    value = state.deviceId,
+                    onValueChange = { onDeviceIdChanged(it) },
+                    label = { Text(stringResource(R.string.device_id)) },
                     singleLine = true,
-                    isError = !state.isDeviceNameValid,
+                    isError = !state.isDeviceIdValid,
                     textStyle = MaterialTheme.typography.body1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                    enabled = !isEditMode,
+                    modifier = Modifier.fillMaxWidth()
                 )
-            }
-            item {
-                AppSettingsToggleItem(
-                    title = stringResource(R.string.notifications),
-                    isChecked = state.notificationsOn,
-                    onToggleClicked = { onNotificationsOnChanged(it) },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-            item {
-                Button(
-                    onClick = { onDoneClicked() },
-                    enabled = state.isDeviceIdValid && state.isDeviceNameValid && !state.isLoading,
-                    modifier = Modifier
-                        .width(150.dp)
-                        .padding(16.dp)
-                ) {
-                    Text(stringResource(R.string.done).uppercase())
+                if (!isEditMode) {
+                    Text(
+                        text = stringResource(R.string.device_id_length_format).format(state.deviceId.length),
+                        textAlign = TextAlign.End,
+                        style = MaterialTheme.typography.overline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp)
+                    )
                 }
+            }
+            OutlinedTextField(
+                value = state.deviceName,
+                onValueChange = { onDeviceNameChanged(it) },
+                label = { Text(stringResource(R.string.device_name)) },
+                singleLine = true,
+                isError = !state.isDeviceNameValid,
+                textStyle = MaterialTheme.typography.body1,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            AppSettingsToggleItem(
+                title = stringResource(R.string.notifications),
+                isChecked = state.notificationsOn,
+                onToggleClicked = { onNotificationsOnChanged(it) },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            Button(
+                onClick = { onDoneClicked() },
+                enabled = state.isDeviceIdValid && state.isDeviceNameValid && !state.isLoading,
+                modifier = Modifier
+                    .width(150.dp)
+                    .padding(16.dp)
+            ) {
+                Text(stringResource(R.string.done).uppercase())
             }
         }
         if (state.isLoading) {
@@ -203,14 +210,13 @@ fun AddEditUserDeviceScreenContent(
     }
 }
 
-@ExperimentalPagerApi
 @Composable
 private fun UserDeviceImagePager(
     context: Context,
     initialPage: Int? = null,
     onImageNameChanged: (String) -> Unit,
 ) {
-    val pagerState = rememberPagerState(initialPage ?: 0)
+    val pagerState = rememberPagerState(initialPage = initialPage ?: 0, pageCount = { 8 })
 
     // Observe page state
     LaunchedEffect(pagerState) {
@@ -219,25 +225,45 @@ private fun UserDeviceImagePager(
         }
     }
 
-    HorizontalPager(
-        count = 8,
-        state = pagerState,
-        modifier = Modifier.size(250.dp)
-    ) { page ->
-        Image(
-            alignment = Alignment.Center,
-            painter = painterResource(getUserDeviceImageIdByPage(page)),
-            contentDescription = "",
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp)
-        )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.size(250.dp)
+        ) { page ->
+            Image(
+                alignment = Alignment.Center,
+                painter = painterResource(getUserDeviceImageIdByPage(page)),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp)
+            )
+        }
+        Row(
+            Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(pagerState.pageCount) { iteration ->
+                val color = when (pagerState.currentPage) {
+                    iteration -> MaterialTheme.colors.primary
+                    else -> Color.LightGray
+                }
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .size(10.dp)
+                )
+            }
+        }
     }
-    HorizontalPagerIndicator(
-        pagerState = pagerState,
-        activeColor = MaterialTheme.colors.primary,
-        modifier = Modifier.padding(16.dp),
-    )
 }
 
 private fun getUserDeviceImageNameByPage(context: Context, page: Int): String = when (page) {
@@ -276,7 +302,6 @@ private fun getPageByUserDeviceImageName(context: Context, page: String): Int = 
     else -> 1
 }
 
-@ExperimentalPagerApi
 @Preview(
     name = "AddEditUserDeviceScreenContentPreviewDark",
     uiMode = Configuration.UI_MODE_NIGHT_YES

@@ -5,9 +5,8 @@ import com.corrot.kwiatonomousapp.data.repository.FakeDeviceConfigurationReposit
 import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
 import com.google.common.truth.Truth
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalTime
@@ -25,9 +24,8 @@ class GetDeviceConfigurationUseCaseTest {
             GetDeviceConfigurationUseCase(fakeDeviceConfigurationRepository)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_success() = runBlockingTest {
+    fun execute_success() = runTest {
         // GIVEN
         val flow = fakeGetDeviceConfigurationUseCase.execute("id1")
         val collected = flow.toList()
@@ -52,9 +50,8 @@ class GetDeviceConfigurationUseCaseTest {
         Truth.assertThat(data).isEqualTo(correctResult)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure() = runBlockingTest {
+    fun execute_failure() = runTest {
         // GIVEN
         val flow = fakeGetDeviceConfigurationUseCase.execute("wrong_id")
         val collected = flow.toList()

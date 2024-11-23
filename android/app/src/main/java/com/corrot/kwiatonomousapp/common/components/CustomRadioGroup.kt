@@ -28,8 +28,8 @@ import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
 )
 @Composable
 fun CustomRadioGroupPreviewLight() {
-    val options = LineChartDateType.values().map { it.name }
-    var selectedOption by remember { mutableStateOf(2) }
+    val options = LineChartDateType.entries.map { it.name }
+    var selectedOption by remember { mutableIntStateOf(2) }
     val onOptionSelected = { index: Int -> selectedOption = index }
 
     KwiatonomousAppTheme(darkTheme = true) {

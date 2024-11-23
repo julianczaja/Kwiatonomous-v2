@@ -31,7 +31,7 @@ fun DeviceEventItem(
     Card(
         shape = RoundedCornerShape(8.dp),
         backgroundColor = MaterialTheme.colors.surface,
-        elevation = 8.dp,
+        elevation = 4.dp,
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onLongPress = { onLongPressed() }

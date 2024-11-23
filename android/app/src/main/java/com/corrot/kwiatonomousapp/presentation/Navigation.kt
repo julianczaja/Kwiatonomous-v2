@@ -19,10 +19,8 @@ import com.corrot.kwiatonomousapp.presentation.devices.DevicesScreen
 import com.corrot.kwiatonomousapp.presentation.login.LoginScreen
 import com.corrot.kwiatonomousapp.presentation.register.RegisterScreen
 import com.corrot.kwiatonomousapp.presentation.splashscreen.SplashScreen
-import com.google.accompanist.pager.ExperimentalPagerApi
 
 
-@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable
@@ -95,15 +93,15 @@ fun KwiatonomousNavHost(
 }
 
 sealed class Screen(val route: String) {
-    object Splash : Screen("/splash")
-    object Register : Screen("/register")
-    object Login : Screen("/login")
-    object Dashboard : Screen("/dashboard")
-    object Devices : Screen("/devices")
-    object AppSettings : Screen("/app_settings")
-    object DeviceDetails : Screen("/device_details")
-    object DeviceSettings : Screen("/device_settings")
-    object AddEditUserDevice : Screen("/add_edit_user_device")
+    data object Splash : Screen("/splash")
+    data object Register : Screen("/register")
+    data object Login : Screen("/login")
+    data object Dashboard : Screen("/dashboard")
+    data object Devices : Screen("/devices")
+    data object AppSettings : Screen("/app_settings")
+    data object DeviceDetails : Screen("/device_details")
+    data object DeviceSettings : Screen("/device_settings")
+    data object AddEditUserDevice : Screen("/add_edit_user_device")
 
     fun withArgs(vararg args: String): String {
         return buildString {

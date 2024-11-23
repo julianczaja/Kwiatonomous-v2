@@ -25,6 +25,7 @@ fun DeviceUpdateItem(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
+        elevation = 4.dp,
         backgroundColor = Color.Gray,
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp)

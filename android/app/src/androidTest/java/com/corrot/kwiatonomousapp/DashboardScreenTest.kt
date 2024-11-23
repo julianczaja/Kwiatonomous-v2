@@ -11,10 +11,10 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.corrot.kwiatonomousapp.domain.model.rememberKwiatonomousAppState
 import com.corrot.kwiatonomousapp.presentation.KwiatonomousNavHost
 import com.corrot.kwiatonomousapp.presentation.Screen
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -27,9 +27,8 @@ class DashboardScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    lateinit var navController: NavHostController
+    private lateinit var navController: NavHostController
 
-    @ExperimentalPagerApi
     @ExperimentalMaterialApi
     @ExperimentalFoundationApi
     @Before
@@ -38,7 +37,7 @@ class DashboardScreenTest {
             navController = rememberNavController()
             KwiatonomousAppTheme(darkTheme = true) {
                 Surface(color = MaterialTheme.colors.background) {
-                    KwiatonomousNavHost(navController = navController)
+                    KwiatonomousNavHost(rememberKwiatonomousAppState(navController = navController))
                 }
             }
         }

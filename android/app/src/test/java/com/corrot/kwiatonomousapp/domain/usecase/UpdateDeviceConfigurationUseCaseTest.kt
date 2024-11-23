@@ -6,9 +6,8 @@ import com.corrot.kwiatonomousapp.domain.model.DeviceConfiguration
 import com.corrot.kwiatonomousapp.domain.repository.DeviceConfigurationRepository
 import com.google.common.truth.Truth
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -25,9 +24,8 @@ class UpdateDeviceConfigurationUseCaseTest {
             UpdateDeviceConfigurationUseCase(fakeDeviceConfigurationRepository)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure_blank_id() = runBlockingTest {
+    fun execute_failure_blank_id() = runTest {
         // GIVEN
         val deviceConfigurationMock = mockk<DeviceConfiguration>()
 
@@ -50,9 +48,8 @@ class UpdateDeviceConfigurationUseCaseTest {
 //        }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure_unknown_id() = runBlockingTest {
+    fun execute_failure_unknown_id() = runTest {
         // GIVEN
         val deviceConfigurationMock = mockk<DeviceConfiguration>()
 

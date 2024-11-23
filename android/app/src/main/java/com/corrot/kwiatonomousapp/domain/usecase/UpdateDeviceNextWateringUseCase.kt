@@ -9,7 +9,7 @@ import javax.inject.Inject
 class UpdateDeviceNextWateringUseCase @Inject constructor(
     private val deviceRepository: DeviceRepository
 ) {
-    suspend fun execute(deviceId: String, nextWatering: LocalDateTime) = flow {
+    fun execute(deviceId: String, nextWatering: LocalDateTime) = flow {
         try {
             emit(Result.Loading())
             deviceRepository.updateNextWateringByDeviceId(deviceId, nextWatering)

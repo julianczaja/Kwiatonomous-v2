@@ -36,7 +36,7 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
 
         workManager.enqueueUniquePeriodicWork(
             DeviceBatteryInfoWorker.DEVICE_BATTERY_WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             workRequest.build()
         )
     }
@@ -54,14 +54,14 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
 
         workManager.enqueueUniquePeriodicWork(
             PumpCleaningWorker.PUMP_CLEANING_WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             workRequest.build()
         )
     }
 
     fun enqueueDevicesWidgetUpdate(force: Boolean = false) {
         val workName = DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME
-        val policy = if (force) ExistingPeriodicWorkPolicy.REPLACE else ExistingPeriodicWorkPolicy.KEEP
+        val policy = if (force) ExistingPeriodicWorkPolicy.UPDATE else ExistingPeriodicWorkPolicy.KEEP
         val workRequest = PeriodicWorkRequestBuilder<DeviceWidgetWorker>(Duration.ofMinutes(30))
             .addTag(DeviceWidgetWorker.DEVICE_WIDGET_WORK_TAG)
 

@@ -80,7 +80,7 @@ fun DeviceItem(
 
     Card(
         shape = RoundedCornerShape(8.dp),
-        elevation = 8.dp,
+        elevation = 4.dp,
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)

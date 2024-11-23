@@ -1,6 +1,6 @@
 package com.corrot.kwiatonomousapp.domain.model
 
-sealed class DeviceEventExtras() {
+sealed class DeviceEventExtras {
 
     data class UserNote(
         val userName: String,

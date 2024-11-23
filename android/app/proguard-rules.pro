@@ -34,5 +34,5 @@
 # For debugging prod
 #-dontobfuscate
 #-dontoptimize
--keepattributes SourceFile,LineNumberTable
+#-keepattributes SourceFile,LineNumberTable
 

@@ -12,6 +12,7 @@ import com.corrot.kwiatonomousapp.domain.repository.UserRepository
 import com.corrot.kwiatonomousapp.domain.usecase.DeleteDeviceEventUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -56,6 +57,7 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun devicesEventsStream(): Flow<List<DeviceEvent>> = userFlow.flatMapLatest { user ->
         if (user == null) {
             return@flatMapLatest emptyFlow()

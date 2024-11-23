@@ -23,12 +23,6 @@ val RobotoFamily = FontFamily(
     Font(R.font.roboto_italic, FontWeight.Normal, FontStyle.Italic)
 )
 
-val OutfitFamily = FontFamily(
-    Font(R.font.outfit_light, FontWeight.Light),
-    Font(R.font.outfit_regular, FontWeight.Normal),
-    Font(R.font.outfit_medium, FontWeight.Medium)
-)
-
 val TypographyRoboto = Typography(
     defaultFontFamily = RobotoFamily,
     h1 = TextStyle(

@@ -9,7 +9,7 @@ import javax.inject.Inject
 class UpdateDeviceLastPumpCleaningUseCase @Inject constructor(
     private val deviceRepository: DeviceRepository
 ) {
-    suspend fun execute(deviceId: String, lastPumpCleaning: LocalDateTime) = flow {
+    fun execute(deviceId: String, lastPumpCleaning: LocalDateTime) = flow {
         try {
             emit(Result.Loading())
             // TODO: Update locally too

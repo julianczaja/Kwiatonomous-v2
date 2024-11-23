@@ -5,10 +5,8 @@ import com.corrot.kwiatonomousapp.data.repository.FakeDeviceRepository
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
 import com.google.common.truth.Truth
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDateTime
@@ -24,10 +22,8 @@ class GetDevicesUseCaseTest {
         fakeGetDevicesUseCase = GetDevicesUseCase(fakeDeviceRepository)
     }
 
-    @InternalCoroutinesApi
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_success() = runBlockingTest {
+    fun execute_success() = runTest {
         // GIVEN
         val devices = fakeGetDevicesUseCase.execute()
         val collected = devices.toList()

@@ -3,7 +3,6 @@ package com.corrot.kwiatonomousapp.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
@@ -15,7 +14,6 @@ import com.corrot.kwiatonomousapp.domain.model.rememberKwiatonomousAppState
 import com.corrot.kwiatonomousapp.domain.repository.AppPreferencesRepository
 import com.corrot.kwiatonomousapp.domain.workmanager.KwiatonomousWorkManager
 import com.corrot.kwiatonomousapp.presentation.theme.KwiatonomousAppTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,10 +32,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var kwiatonomousWorkManager: KwiatonomousWorkManager
 
-    @ExperimentalPagerApi
-    @ExperimentalMaterialApi
-    @ExperimentalAnimationApi
-    @ExperimentalFoundationApi
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

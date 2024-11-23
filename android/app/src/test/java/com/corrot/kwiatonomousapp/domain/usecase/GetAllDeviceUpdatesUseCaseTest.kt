@@ -8,7 +8,7 @@ import com.corrot.kwiatonomousapp.domain.repository.DeviceUpdateRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -25,7 +25,7 @@ class GetAllDeviceUpdatesUseCaseTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun test_found_multiple() = runBlockingTest {
+    fun test_found_multiple() = runTest {
         // GIVEN
         val correctSize = 3
         val correctDeviceUpdate =
@@ -46,7 +46,7 @@ class GetAllDeviceUpdatesUseCaseTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun test_found_empty() = runBlockingTest {
+    fun test_found_empty() = runTest {
         // GIVEN
         val flow = fakeGetAllDeviceUpdatesUseCase.execute("id2", 1)
         val collected = flow.toList()
@@ -59,9 +59,8 @@ class GetAllDeviceUpdatesUseCaseTest {
         assertThat(data).isEmpty()
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun test_error() = runBlockingTest {
+    fun test_error() = runTest {
         // GIVEN
         val flow = fakeGetAllDeviceUpdatesUseCase.execute("wrong_id", 5)
         val collected = flow.toList()

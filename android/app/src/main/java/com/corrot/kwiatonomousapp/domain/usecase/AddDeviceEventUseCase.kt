@@ -9,7 +9,7 @@ import javax.inject.Inject
 class AddDeviceEventUseCase @Inject constructor(
     private val eventRepository: DeviceEventRepository,
 ) {
-    suspend fun execute(deviceEvent: DeviceEvent) = flow {
+    fun execute(deviceEvent: DeviceEvent) = flow {
         emit(Result.Loading())
         try {
             with(eventRepository) {

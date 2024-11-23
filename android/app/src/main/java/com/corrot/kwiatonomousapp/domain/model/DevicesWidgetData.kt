@@ -15,7 +15,7 @@ import java.io.OutputStream
 import java.time.LocalDateTime
 
 sealed interface DevicesWidgetData {
-    object Loading : DevicesWidgetData
+    data object Loading : DevicesWidgetData
     data class Error(val message: String) : DevicesWidgetData
     data class Success(val updateTime: LocalDateTime, val devicesUpdates: Map<UserDevice, DeviceUpdate>) : DevicesWidgetData
 

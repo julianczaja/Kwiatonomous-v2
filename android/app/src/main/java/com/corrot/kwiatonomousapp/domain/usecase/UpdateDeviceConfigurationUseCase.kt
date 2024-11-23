@@ -10,7 +10,7 @@ import javax.inject.Inject
 class UpdateDeviceConfigurationUseCase @Inject constructor(
     private val deviceConfigurationRepository: DeviceConfigurationRepository
 ) {
-    suspend fun execute(deviceId: String, configuration: DeviceConfiguration) = flow {
+    fun execute(deviceId: String, configuration: DeviceConfiguration) = flow {
         emit(Result.Loading())
         try {
             validateInput(deviceId, configuration)

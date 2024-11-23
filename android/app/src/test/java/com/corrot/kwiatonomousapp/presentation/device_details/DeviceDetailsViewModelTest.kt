@@ -1,7 +1,7 @@
 package com.corrot.kwiatonomousapp.presentation.device_details
 
 import androidx.lifecycle.SavedStateHandle
-import com.corrot.kwiatonomousapp.MainCoroutineRule
+import com.corrot.kwiatonomousapp.MainDispatcherRule
 import com.corrot.kwiatonomousapp.common.Constants.NAV_ARG_DEVICE_ID
 import com.corrot.kwiatonomousapp.common.Result
 import com.corrot.kwiatonomousapp.domain.model.AppTheme
@@ -28,10 +28,9 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,9 +38,8 @@ import java.time.LocalDateTime
 
 class DeviceDetailsViewModelTest {
 
-    @ExperimentalCoroutinesApi
     @get:Rule
-    val coroutineRule = MainCoroutineRule()
+    val mainDispatcherRule = MainDispatcherRule()
 
     private val appPreferencesRepository: AppPreferencesRepository = mockk()
     private val deviceRepository: DeviceRepository = mockk()
@@ -63,9 +61,8 @@ class DeviceDetailsViewModelTest {
         every { appPreferencesRepository.getChartSettings() }.returns(flowOf(ChartSettings()))
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun test_device_found() = coroutineRule.runBlockingTest {
+    fun test_device_found() = runTest {
         val deviceId = "test_id"
 
         // Mock GetDeviceUseCase
@@ -125,7 +122,7 @@ class DeviceDetailsViewModelTest {
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
             getUserDeviceUseCase = getUserDeviceUseCase,
             deleteUserDeviceUseCase = deleteUserDeviceUseCase,
-            ioDispatcher = coroutineRule.dispatcher,
+            ioDispatcher = mainDispatcherRule.testDispatcher,
             userRepository = userRepository,
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,
@@ -146,9 +143,8 @@ class DeviceDetailsViewModelTest {
 //        assertThat(deviceDetailsViewModel.state.value.error).isNull()
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun test_error() = coroutineRule.runBlockingTest {
+    fun test_error() = runTest {
         val errMsg = "No device found"
         val deviceId = "wrong_id"
 
@@ -204,7 +200,7 @@ class DeviceDetailsViewModelTest {
             getDeviceConfigurationUseCase = getDeviceConfigurationUseCase,
             getUserDeviceUseCase = getUserDeviceUseCase,
             deleteUserDeviceUseCase = deleteUserDeviceUseCase,
-            ioDispatcher = coroutineRule.dispatcher,
+            ioDispatcher = mainDispatcherRule.testDispatcher,
             userRepository = userRepository,
             updateUserDeviceUseCase = updateUserDeviceUseCase,
             getAllDeviceEventsUseCase = getAllDeviceEventsUseCase,

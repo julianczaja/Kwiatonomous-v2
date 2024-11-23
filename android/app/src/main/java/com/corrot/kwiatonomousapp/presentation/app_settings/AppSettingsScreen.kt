@@ -185,7 +185,7 @@ private fun AppThemeSection(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        elevation = 8.dp
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
@@ -242,7 +242,7 @@ private fun ChartSettingsSection(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        elevation = 8.dp
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
@@ -288,7 +288,7 @@ private fun NotificationsSettingsSection(
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        elevation = 8.dp
+        elevation = 4.dp
     ) {
         Column(
             modifier = Modifier

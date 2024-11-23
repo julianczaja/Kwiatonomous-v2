@@ -5,9 +5,8 @@ import com.corrot.kwiatonomousapp.data.repository.FakeDeviceRepository
 import com.corrot.kwiatonomousapp.domain.model.Device
 import com.corrot.kwiatonomousapp.domain.repository.DeviceRepository
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDateTime
@@ -23,9 +22,8 @@ class GetDeviceUseCaseTest {
         fakeGetDeviceUseCase = GetDeviceUseCase(fakeDeviceRepository)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_success() = runBlockingTest {
+    fun execute_success() = runTest {
         // GIVEN
         val flow = fakeGetDeviceUseCase.execute("id2")
         val collected = flow.toList()
@@ -47,9 +45,8 @@ class GetDeviceUseCaseTest {
         assertThat(data.nextWatering).isEqualTo(correctNextWatering)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
-    fun execute_failure() = runBlockingTest {
+    fun execute_failure() = runTest {
         // GIVEN
         val flow = fakeGetDeviceUseCase.execute("wrong_id")
         val collected = flow.toList()

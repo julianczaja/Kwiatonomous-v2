@@ -33,7 +33,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
             Result.Success(
                 AppPreferences(
                     isFirstTimeUser = preferences[FIRST_TIME_USER_KEY] ?: false,
-                    appTheme = AppTheme.values()[preferences[APP_THEME_KEY] ?: 0],
+                    appTheme = AppTheme.entries[preferences[APP_THEME_KEY] ?: 0],
                     chartSettings = gson.fromJson(
                         preferences[CHART_SETTINGS_KEY],
                         ChartSettings::class.java
@@ -67,7 +67,7 @@ class AppPreferencesRepositoryImpl @Inject constructor(
 
     override fun getAppTheme(): Flow<AppTheme> = dataStore.data
         .map { preferences ->
-            AppTheme.values()[preferences[APP_THEME_KEY] ?: 0]
+            AppTheme.entries[preferences[APP_THEME_KEY] ?: 0]
         }
 
     override suspend fun updateAppTheme(appTheme: AppTheme) {

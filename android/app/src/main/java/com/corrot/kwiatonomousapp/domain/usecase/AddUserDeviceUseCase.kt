@@ -12,7 +12,7 @@ class AddUserDeviceUseCase @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val userRepository: UserRepository
 ) {
-    suspend fun execute(userDevice: UserDevice) = flow {
+    fun execute(userDevice: UserDevice) = flow {
         emit(Result.Loading())
         try {
             val user = userRepository.getCurrentUserFromDatabase().first()

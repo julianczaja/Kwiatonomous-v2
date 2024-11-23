@@ -1,6 +1,5 @@
 package com.corrot.kwiatonomousapp.data.repository
 
-import android.util.Base64
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
