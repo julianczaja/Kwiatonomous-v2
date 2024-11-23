@@ -2,11 +2,9 @@ package com.corrot.routes
 
 import com.corrot.db.data.dao.DeviceDao
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 
 fun Route.updateKwiatonomousDeviceNextWateringESP(path: String, deviceDao: DeviceDao) {
     post(path) {
@@ -29,7 +27,7 @@ fun Route.updateKwiatonomousDeviceNextWateringESP(path: String, deviceDao: Devic
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
-            e.printStack()
+            e.printStackTrace()
             call.response.status(HttpStatusCode.BadRequest)
         }
     }

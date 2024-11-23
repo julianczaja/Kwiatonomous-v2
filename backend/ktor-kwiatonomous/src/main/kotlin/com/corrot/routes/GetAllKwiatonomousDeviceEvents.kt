@@ -4,7 +4,6 @@ import com.corrot.db.data.dao.DeviceEventDao
 import com.corrot.db.data.dao.UserDao
 import com.corrot.db.data.model.toDeviceEventDto
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

@@ -6,15 +6,15 @@ import com.corrot.db.data.dao.*
 import com.corrot.db.populateDatabase
 import com.corrot.plugins.*
 import io.ktor.server.engine.*
-import io.ktor.server.jetty.*
+import io.ktor.server.netty.*
 import org.koin.ktor.ext.inject
 
 
 fun main() {
     embeddedServer(
-        factory = Jetty,
-         port = 8015,
-         host = "192.168.43.195"
+        factory = Netty,
+        host = Constants.BASE_URL,
+        port = Constants.PORT
     ) {
         configureKoin()
         configureMonitoring()
@@ -40,6 +40,5 @@ fun main() {
         if (DEBUG_MODE) {
             populateDatabase(userDao, deviceDao, deviceUpdatesDao, deviceConfigurationDao, deviceEventDao)
         }
-
     }.start(wait = true)
 }

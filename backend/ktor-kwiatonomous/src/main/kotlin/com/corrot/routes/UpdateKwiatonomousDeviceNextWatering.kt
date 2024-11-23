@@ -3,12 +3,10 @@ package com.corrot.routes
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.UserDao
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 
 fun Route.updateKwiatonomousDeviceNextWatering(path: String, userDao: UserDao, deviceDao: DeviceDao) {
     post(path) {
@@ -46,7 +44,7 @@ fun Route.updateKwiatonomousDeviceNextWatering(path: String, userDao: UserDao, d
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
-            e.printStack()
+            e.printStackTrace()
             call.response.status(HttpStatusCode.BadRequest)
         }
     }

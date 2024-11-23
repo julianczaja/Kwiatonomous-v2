@@ -5,6 +5,7 @@ import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.dto.DeviceEventDto
 import com.corrot.db.data.model.DeviceEvent
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DeviceEventDaoImpl(private val database: KwiatonomousDatabase) : DeviceEventDao {
@@ -37,7 +38,7 @@ class DeviceEventDaoImpl(private val database: KwiatonomousDatabase) : DeviceEve
     ): List<DeviceEvent> =
         transaction(database.db) {
             DeviceEvents
-                .select { DeviceEvents.deviceId eq deviceId }
+                .selectAll().where { DeviceEvents.deviceId eq deviceId }
                 .apply {
                     if (fromTimestamp != null && toTimestamp != null) {
                         andWhere { DeviceEvents.timestamp greaterEq fromTimestamp }
@@ -87,7 +88,7 @@ class DeviceEventDaoImpl(private val database: KwiatonomousDatabase) : DeviceEve
     override fun deleteDeviceEvent(deviceEventDto: DeviceEventDto) {
         transaction(database.db) {
             DeviceEvents.deleteWhere {
-                DeviceEvents.timestamp eq deviceEventDto.timestamp and (DeviceEvents.type eq deviceEventDto.type) and (DeviceEvents.data eq deviceEventDto.data)
+                timestamp eq deviceEventDto.timestamp and (type eq deviceEventDto.type) and (data eq deviceEventDto.data)
             }
         }
     }

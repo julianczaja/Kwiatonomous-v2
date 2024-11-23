@@ -5,7 +5,6 @@ import com.corrot.db.data.dao.UserDao
 import com.corrot.db.data.dto.DeviceConfigurationDto
 import com.corrot.utils.toInt
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

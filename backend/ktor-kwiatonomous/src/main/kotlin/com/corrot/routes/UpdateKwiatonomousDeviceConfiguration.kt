@@ -6,12 +6,10 @@ import com.corrot.db.data.dto.DeviceConfigurationDto
 import com.corrot.db.data.model.DeviceConfiguration
 import com.corrot.utils.toBoolean
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 
 
 fun Route.updateKwiatonomousDeviceConfiguration(
@@ -63,7 +61,7 @@ fun Route.updateKwiatonomousDeviceConfiguration(
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
-            e.printStack()
+            e.printStackTrace()
             call.response.status(HttpStatusCode.InternalServerError)
         }
     }

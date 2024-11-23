@@ -8,6 +8,7 @@ import com.corrot.utils.TimeUtils
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
@@ -35,7 +36,7 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
 
     override fun getUser(userId: String): User? =
         transaction(database.db) {
-            Users.select { Users.userId eq userId }.map {
+            Users.selectAll().where { Users.userId eq userId }.map {
                 User(
                     userId = it[Users.userId],
                     userName = it[Users.userName],
@@ -54,9 +55,9 @@ class UserDaoImpl(private val database: KwiatonomousDatabase) : UserDao {
                 it[Users.userId] = userId
                 it[Users.userName] = userName
                 it[Users.ha1] = ha1
-                it[Users.devices] = "[]"
-                it[Users.registrationTimestamp] = TimeUtils.getCurrentTimestamp()
-                it[Users.lastActivityTimestamp] = TimeUtils.getCurrentTimestamp()
+                it[devices] = "[]"
+                it[registrationTimestamp] = TimeUtils.getCurrentTimestamp()
+                it[lastActivityTimestamp] = TimeUtils.getCurrentTimestamp()
             }
         }
     }

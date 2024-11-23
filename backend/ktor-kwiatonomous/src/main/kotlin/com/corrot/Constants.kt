@@ -1,7 +1,7 @@
 package com.corrot
 
 object Constants {
-    const val DEBUG_MODE = true
+    const val DEBUG_MODE = false
 
     const val DEFAULT_SLEEP_TIME_MINUTES = 30
     const val DEFAULT_TIME_ZONE_OFFSET = 1
@@ -12,4 +12,10 @@ object Constants {
 
     const val KWIATONOMOUS_DIGEST_AUTH = "KwiatonomousDigestAuth"
     const val KWIATONOMOUS_REALM = "KwiatonomousRealm"
+
+    const val BASE_URL = "192.168.1.76"
+    const val PORT = 8124
+
+    val DB_FILE_PATH = "${System.getProperty("user.home")}/Desktop/kwiatonomous"
+    const val DB_FILE_NAME = "kwiatonomous.sqlite"
 }

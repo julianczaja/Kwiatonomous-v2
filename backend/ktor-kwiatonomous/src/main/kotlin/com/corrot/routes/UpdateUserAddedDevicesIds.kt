@@ -4,12 +4,10 @@ import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.UserDao
 import com.corrot.db.data.model.UserDevice
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 
 fun Route.updateUserAddedDevicesIds(path: String, userDao: UserDao, deviceDao: DeviceDao) {
     post(path) {
@@ -38,7 +36,7 @@ fun Route.updateUserAddedDevicesIds(path: String, userDao: UserDao, deviceDao: D
             userDao.updateUserDevices(userId, newUserDevices)
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {
-            e.printStack()
+            e.printStackTrace()
             call.response.status(HttpStatusCode.BadRequest)
         }
     }

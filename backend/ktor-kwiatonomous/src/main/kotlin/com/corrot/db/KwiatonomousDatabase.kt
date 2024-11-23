@@ -1,5 +1,7 @@
 package com.corrot.db
 
+import com.corrot.Constants.DB_FILE_NAME
+import com.corrot.Constants.DB_FILE_PATH
 import com.corrot.Constants.DEBUG_MODE
 import com.corrot.calculateHA1
 import com.corrot.db.data.dao.*
@@ -17,7 +19,7 @@ class KwiatonomousDatabase {
     private val debugDbPath = "jdbc:sqlite:file:test?mode=memory&cache=shared"
 //    private val debugDbPath = "jdbc:sqlite:file:kwiatonomous.sqlite"
 
-    private val releaseDbPath = "jdbc:sqlite:file:${System.getProperty("user.home")}/kwiatonomous.sqlite"
+    private val releaseDbPath = "jdbc:sqlite:file:$DB_FILE_PATH/$DB_FILE_NAME"
 
     private val dbPath = if (DEBUG_MODE) debugDbPath else releaseDbPath
 
@@ -30,7 +32,7 @@ class KwiatonomousDatabase {
 
     fun isConnected() = try {
         transaction { !connection.isClosed }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 }

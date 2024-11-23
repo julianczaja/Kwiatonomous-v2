@@ -5,7 +5,7 @@ import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.DeviceConfiguration
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
@@ -20,7 +20,7 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
 
     override fun getDeviceConfiguration(deviceId: String): DeviceConfiguration? =
         transaction(database.db) {
-            DevicesConfigurations.select { DevicesConfigurations.deviceId eq deviceId }.map {
+            DevicesConfigurations.selectAll().where { DevicesConfigurations.deviceId eq deviceId }.map {
                 DeviceConfiguration(
                     deviceId = it[DevicesConfigurations.deviceId],
                     sleepTimeMinutes = it[DevicesConfigurations.sleepTimeMinutes],
@@ -59,13 +59,13 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
             DevicesConfigurations.update(
                 where = { DevicesConfigurations.deviceId eq deviceConfiguration.deviceId },
                 body = {
-                    it[DevicesConfigurations.deviceId] = deviceConfiguration.deviceId
-                    it[DevicesConfigurations.sleepTimeMinutes] = deviceConfiguration.sleepTimeMinutes
-                    it[DevicesConfigurations.timeZoneOffset] = deviceConfiguration.timeZoneOffset
-                    it[DevicesConfigurations.wateringOn] = deviceConfiguration.wateringOn
-                    it[DevicesConfigurations.wateringIntervalDays] = deviceConfiguration.wateringIntervalDays
-                    it[DevicesConfigurations.wateringAmount] = deviceConfiguration.wateringAmount
-                    it[DevicesConfigurations.wateringTime] = deviceConfiguration.wateringTime
+                    it[deviceId] = deviceConfiguration.deviceId
+                    it[sleepTimeMinutes] = deviceConfiguration.sleepTimeMinutes
+                    it[timeZoneOffset] = deviceConfiguration.timeZoneOffset
+                    it[wateringOn] = deviceConfiguration.wateringOn
+                    it[wateringIntervalDays] = deviceConfiguration.wateringIntervalDays
+                    it[wateringAmount] = deviceConfiguration.wateringAmount
+                    it[wateringTime] = deviceConfiguration.wateringTime
                 })
         }
 }

@@ -12,6 +12,7 @@ import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.Device
 import com.corrot.utils.TimeUtils
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
@@ -38,7 +39,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
 
     override fun getDevice(deviceId: String): Device? =
         transaction(database.db) {
-            Devices.select { Devices.deviceId eq deviceId }.map {
+            Devices.selectAll().where { Devices.deviceId eq deviceId }.map {
                 Device(
                     deviceId = it[Devices.deviceId],
                     birthday = it[Devices.birthday],
@@ -54,19 +55,19 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
             Devices.insert {
                 it[Devices.deviceId] = deviceId
                 it[Devices.birthday] = birthday ?: TimeUtils.getCurrentTimestamp()
-                it[Devices.lastPumpCleaning] = TimeUtils.getCurrentTimestamp()
-                it[Devices.lastUpdate] = TimeUtils.getCurrentTimestamp()
-                it[Devices.nextWatering] = 4294967294; // max unsigned long value for ESP8266
+                it[lastPumpCleaning] = TimeUtils.getCurrentTimestamp()
+                it[lastUpdate] = TimeUtils.getCurrentTimestamp()
+                it[nextWatering] = 4294967294 // max unsigned long value for ESP8266
             }
             // Add default device configuration
             DevicesConfigurations.insert {
                 it[DevicesConfigurations.deviceId] = deviceId
-                it[DevicesConfigurations.sleepTimeMinutes] = DEFAULT_SLEEP_TIME_MINUTES
-                it[DevicesConfigurations.timeZoneOffset] = DEFAULT_TIME_ZONE_OFFSET
-                it[DevicesConfigurations.wateringOn] = DEFAULT_WATERING_ON
-                it[DevicesConfigurations.wateringIntervalDays] = DEFAULT_WATERING_INTERVAL_DAYS
-                it[DevicesConfigurations.wateringAmount] = DEFAULT_WATERING_AMOUNT
-                it[DevicesConfigurations.wateringTime] = DEFAULT_WATERING_TIME
+                it[sleepTimeMinutes] = DEFAULT_SLEEP_TIME_MINUTES
+                it[timeZoneOffset] = DEFAULT_TIME_ZONE_OFFSET
+                it[wateringOn] = DEFAULT_WATERING_ON
+                it[wateringIntervalDays] = DEFAULT_WATERING_INTERVAL_DAYS
+                it[wateringAmount] = DEFAULT_WATERING_AMOUNT
+                it[wateringTime] = DEFAULT_WATERING_TIME
             }
         }
     }
@@ -81,7 +82,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
     override fun updateNextWatering(deviceId: String, newNextWateringTime: Long) {
         transaction(database.db) {
             Devices.update(where = { Devices.deviceId eq deviceId }, body = {
-                it[Devices.nextWatering] = newNextWateringTime
+                it[nextWatering] = newNextWateringTime
             })
         }
     }
@@ -89,7 +90,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
     override fun updateLastPumpCleaning(deviceId: String, newLastPumpCleaningTime: Long) {
         transaction(database.db) {
             Devices.update(where = { Devices.deviceId eq deviceId }, body = {
-                it[Devices.lastPumpCleaning] = newLastPumpCleaningTime
+                it[lastPumpCleaning] = newLastPumpCleaningTime
             })
         }
     }

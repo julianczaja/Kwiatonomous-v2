@@ -4,6 +4,7 @@ import com.corrot.db.DeviceUpdates
 import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.DeviceUpdate
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUpdateDao {
@@ -38,7 +39,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
     ): List<DeviceUpdate> =
         transaction(database.db) {
             DeviceUpdates
-                .select { DeviceUpdates.deviceId eq deviceId }
+                .selectAll().where { DeviceUpdates.deviceId eq deviceId }
                 .apply {
                     if (fromTimestamp != null && toTimestamp != null) {
                         andWhere { DeviceUpdates.timestamp greaterEq fromTimestamp }
@@ -68,7 +69,7 @@ class DeviceUpdateDaoImpl(private val database: KwiatonomousDatabase) : DeviceUp
     override fun getDeviceUpdate(deviceId: String, updateId: Int): DeviceUpdate? =
         transaction(database.db) {
             DeviceUpdates
-                .select { DeviceUpdates.deviceId eq deviceId }
+                .selectAll().where { DeviceUpdates.deviceId eq deviceId }
                 .andWhere { DeviceUpdates.updateId eq updateId }
                 .map {
                     DeviceUpdate(
