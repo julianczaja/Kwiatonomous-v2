@@ -22,7 +22,7 @@ interface DeviceUpdateDao {
         batteryVoltage: Float,
         temperature: Float,
         humidity: Float
-    ): Int
+    )
 
     fun deleteDeviceUpdate(updateId: Int)
 }

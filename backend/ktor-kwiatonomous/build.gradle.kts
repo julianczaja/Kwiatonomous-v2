@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.2.0"
+version = "0.2.1"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -25,7 +25,7 @@ repositories {
 
 tasks {
     shadowJar {
-        archiveFileName = "kwiatonomous_backend_$version.jar"
+        archiveFileName = "kwiatonomous-$version.jar"
         manifest {
             attributes(Pair("Main-Class", "com.example.ApplicationKt"))
             mergeServiceFiles()

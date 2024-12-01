@@ -19,7 +19,7 @@ interface DeviceEventDao {
         timestamp: Long,
         type: String,
         data: String
-    ): Int
+    )
 
     fun deleteDeviceEvent(eventId: Int)
 
