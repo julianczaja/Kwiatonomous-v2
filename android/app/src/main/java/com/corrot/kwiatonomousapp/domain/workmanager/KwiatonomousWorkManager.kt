@@ -1,7 +1,11 @@
 package com.corrot.kwiatonomousapp.domain.workmanager
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.corrot.kwiatonomousapp.common.getMinutesUntilLocalTime
 import com.corrot.kwiatonomousapp.domain.model.NotificationsSettings
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,7 +45,10 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
         )
     }
 
-    private fun setupPumpCleaningReminderWork(workManager: WorkManager, notificationsTime: LocalTime) {
+    private fun setupPumpCleaningReminderWork(
+        workManager: WorkManager,
+        notificationsTime: LocalTime
+    ) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(false)
@@ -60,16 +67,19 @@ class KwiatonomousWorkManager(@ApplicationContext private val applicationContext
     }
 
     fun enqueueDevicesWidgetUpdate(force: Boolean = false) {
-        val workName = DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME
-        val policy = if (force) ExistingPeriodicWorkPolicy.UPDATE else ExistingPeriodicWorkPolicy.KEEP
-        val workRequest = PeriodicWorkRequestBuilder<DeviceWidgetWorker>(Duration.ofMinutes(30))
+        val policy = when {
+            force -> ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE
+            else -> ExistingPeriodicWorkPolicy.KEEP
+        }
+        val interval = Duration.ofMinutes(30)
+        val workRequest = PeriodicWorkRequestBuilder<DeviceWidgetWorker>(interval)
             .addTag(DeviceWidgetWorker.DEVICE_WIDGET_WORK_TAG)
 
         WorkManager.getInstance(applicationContext)
             .enqueueUniquePeriodicWork(
-                workName,
-                policy,
-                workRequest.build()
+                uniqueWorkName = DeviceWidgetWorker.DEVICE_WIDGET_WORK_NAME,
+                existingPeriodicWorkPolicy = policy,
+                request = workRequest.build()
             )
     }
 
