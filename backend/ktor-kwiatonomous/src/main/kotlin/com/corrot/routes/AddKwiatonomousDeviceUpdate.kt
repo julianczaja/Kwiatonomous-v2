@@ -1,5 +1,7 @@
 package com.corrot.routes
 
+import com.corrot.Constants.MQTT_TOPIC_UPDATES
+import com.corrot.MqttHelper
 import com.corrot.db.data.dao.DeviceDao
 import com.corrot.db.data.dao.DeviceUpdateDao
 import com.corrot.db.data.dto.DeviceUpdateDto
@@ -34,6 +36,18 @@ fun Route.addKwiatonomousDeviceUpdate(path: String, deviceDao: DeviceDao, device
                 )
 
                 deviceDao.updateDevice(id, deviceUpdate.timestamp)
+                MqttHelper.publish(
+                    topic = MQTT_TOPIC_UPDATES + id,
+                    payload = """
+                         {
+                           "timestamp": "${deviceUpdate.timestamp}",
+                           "batteryLevel": "${deviceUpdate.batteryLevel}",
+                           "batteryVoltage": "${deviceUpdate.batteryVoltage}",
+                           "temperature": "${deviceUpdate.temperature}",
+                           "humidity": "${deviceUpdate.humidity}"
+                         }   
+                    """.trimIndent(),
+                )
             }
             call.response.status(HttpStatusCode.OK)
         } catch (e: Exception) {

@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.corrot"
-version = "0.2.1"
+version = "0.3.0"
 
 application {
     mainClass.set("com.corrot.ApplicationKt")
@@ -63,4 +63,8 @@ dependencies {
 
     // FreeMaker
     implementation("io.ktor:ktor-server-freemarker:$ktorVersion")
+
+    // Paho MQTT
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+
 }
