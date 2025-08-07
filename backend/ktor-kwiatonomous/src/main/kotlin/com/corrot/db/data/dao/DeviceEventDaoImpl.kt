@@ -12,7 +12,7 @@ class DeviceEventDaoImpl(private val database: KwiatonomousDatabase) : DeviceEve
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns(DeviceEvents)
+            arrayOf<Table>(DeviceEvents)
             SchemaUtils.create(DeviceEvents)
         }
     }

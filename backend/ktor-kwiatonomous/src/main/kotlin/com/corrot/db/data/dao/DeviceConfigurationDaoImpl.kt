@@ -4,6 +4,7 @@ import com.corrot.db.DevicesConfigurations
 import com.corrot.db.KwiatonomousDatabase
 import com.corrot.db.data.model.DeviceConfiguration
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -13,7 +14,7 @@ class DeviceConfigurationDaoImpl(private val database: KwiatonomousDatabase) : D
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns(DevicesConfigurations)
+            arrayOf<Table>(DevicesConfigurations)
             SchemaUtils.create(DevicesConfigurations)
         }
     }

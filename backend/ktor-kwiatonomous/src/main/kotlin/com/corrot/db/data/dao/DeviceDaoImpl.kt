@@ -19,7 +19,7 @@ class DeviceDaoImpl(private val database: KwiatonomousDatabase) : DeviceDao {
 
     init {
         transaction(database.db) {
-            SchemaUtils.createMissingTablesAndColumns(Devices)
+            arrayOf<Table>(Devices)
             SchemaUtils.create(Devices)
         }
     }
